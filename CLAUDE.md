@@ -178,6 +178,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Detalle y comandos de flutterfire en `docs/deployment-operations.md`; decisión en ADR-002.
 - [ ] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
 - [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
+  - Fuente: `docs/design/DESIGN.md` ("Nexo Digital": naranja `#F28C28`, navy `#1B2A41`, Inter, radios de 12 y 16 px).
+  - Ojo con la accesibilidad: texto blanco sobre `#F28C28` da 2.45:1 y no cumple AA. Usar texto `#0F172A` (7.27:1) o fondo `#914D00` (6.43:1). Inter va empaquetada en la app (offline).
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en
 - [ ] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`
 - [ ] `docs/adr-001`: monorepo modular (Melos) vs app única vs repos separados
@@ -225,4 +227,5 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · Los plugins de Firebase de cada feature se agregan después.** Auth, Firestore y Messaging se suman en el PR de cada feature y no en el pub workspace (#1), para que cada commit compile sin dependencias nativas que todavía no se usan.
 - **2026-10-03 · iOS sin CocoaPods.** Flutter 3.44 resuelve todos los plugins con Swift Package Manager; el proyecto no tiene `Podfile`.
 - **2026-10-03 · `flutter build ios --simulator` no funciona con Xcode 27** (incompatibilidad de `lipo` con Flutter 3.44.7). iOS se verifica con builds de dispositivo sin firma o con `flutter run` sobre un simulador concreto. Ver `docs/deployment-operations.md`.
-- **2026-10-03 · Una sesión de IA = un worktree.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el commit de `docs/design-reference`. Desde ahora cada paso se trabaja en su propio worktree (`../bi-digital-banking-<tema>`).
+- **2026-10-03 · Una sola sesión de IA por carpeta.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el primer commit de `docs/design-reference`. Ese commit se rehízo limpio desde `main`. Regla: una sola sesión trabaja en la carpeta del repo; si hace falta otra en paralelo, va en su propio worktree (`../bi-digital-banking-<tema>`).
+- **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. Pendiente decidir si el nombre de la app pasa de "BI Banca" a la marca del diseño.

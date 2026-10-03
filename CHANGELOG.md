@@ -11,6 +11,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Referencia visual de diseño "Nexo Digital" (Stitch) en `docs/design/`: tokens de color, tipografía,
+  formas y espaciado, más 7 pantallas de referencia.
 - Flavors `dev` y `prod`: product flavors en Android, configuraciones de build y schemes en iOS,
   entry points `main_dev.dart` / `main_prod.dart`, `AppConfig` y una app de Firebase por flavor.
 - Cinta `DEV` y flag `enableDebugTools`, activos solo en dev.
