@@ -1,0 +1,56 @@
+name: bi_digital_banking_workspace
+description: Monorepo for the Banco Internacional digital banking platform.
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+workspace:
+  - apps/banking_app
+  - packages/core
+  - packages/design_system
+  - packages/sdui
+  - packages/features/auth
+  - packages/features/accounts
+  - packages/features/notifications
+  - packages/features/fx_rates
+
+dev_dependencies:
+  melos: ^8.0.0
+
+melos:
+  repository: https://github.com/Denniss2C/bi-digital-banking
+
+  scripts:
+    analyze:
+      description: Static analysis on every package (infos are fatal).
+      exec:
+        command: flutter analyze --fatal-infos .
+        concurrency: 4
+        failFast: true
+
+    test:
+      description: Run unit and widget tests on every package that has tests.
+      exec:
+        command: flutter test --no-pub
+        concurrency: 1
+        failFast: true
+      packageFilters:
+        dirExists: test
+
+    format:
+      description: Check formatting (fails if any file needs changes).
+      run: dart format --set-exit-if-changed .
+
+    format:fix:
+      description: Apply formatting to the whole workspace.
+      run: dart format .
+
+    build_runner:
+      description: Run code generation on packages that use build_runner.
+      exec:
+        command: dart run build_runner build
+        concurrency: 1
+        failFast: true
+      packageFilters:
+        dependsOn: build_runner
