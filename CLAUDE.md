@@ -168,10 +168,13 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [x] Proyecto Firebase creado (Auth email/password, Firestore `nam5`, FCM API v1)
 - [x] Scaffolding: `apps/banking_app` + `packages/*` con `flutter create`; `flutterfire configure`
 - [x] Repo en GitHub, protección de `main`, merge solo por rebase
-- [x] PR `chore/tooling-and-docs`: Makefile, docs/, CHANGELOG, README base, templates de GitHub, CODEOWNERS, pub workspace
+- [x] PR #1 `chore/workspace-melos`: pub workspace, scripts de Melos 8 y grafo de dependencias entre paquetes
+- [x] PR #2 `chore/tooling-docs`: Makefile, docs/, CHANGELOG, README base, templates de GitHub, CODEOWNERS
+- [x] PR #3 `docs/claude-context`: este archivo
 
 ### Fase 1 — Base (sábado, meta 17:00)
 - [ ] `feat/flavors`: dev/prod (Android productFlavors + iOS schemes), `main_dev.dart`/`main_prod.dart`, `AppConfig`, Firebase por flavor
+  - Nota: el bundle ID de iOS es `com.dennis.bankingApp` porque iOS no admite `_`; el de dev sería `com.dennis.bankingApp.dev`.
 - [ ] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
 - [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en
@@ -195,16 +198,16 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 ### Fase 4 — Calidad y entrega (lunes)
 - [ ] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
-- [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias)
-- [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento
-- [ ] README final reproducible
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto
+- [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
+- [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
+- [ ] README final reproducible — _parcial: estructura (#2)_
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 e IA-002 (#2)_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
 ### Bonus (solo si hay tiempo)
 - [ ] Asistente financiero con IA sobre los movimientos del usuario (detrás de feature flag)
-- [ ] Automatizaciones extra (generación de changelog, coverage report en CI)
+- [ ] Automatizaciones extra (generación de changelog, coverage report en CI) — _parcial: `make coverage` combina el lcov de todos los paquetes en local (#2)_
 
 ### Orden de recorte si falta tiempo
 1. Asistente IA (bonus)
@@ -216,3 +219,6 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 
 ### Log de desvíos
 _(Anota aquí cambios de plan con fecha y motivo.)_
+
+- **2026-10-03 · El PR de tooling se dividió en dos.** `chore/tooling-and-docs` se hizo como #1 (`chore/workspace-melos`) y #2 (`chore/tooling-docs`, apilado sobre #1), para que cada PR fuera pequeño y revisable por separado.
+- **2026-10-03 · Los plugins de Firebase de cada feature se agregan después.** Auth, Firestore y Messaging se suman en el PR de cada feature y no en el pub workspace (#1), para que cada commit compile sin dependencias nativas que todavía no se usan.
