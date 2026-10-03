@@ -128,6 +128,27 @@ abstract final class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: semantic.border, thickness: 1),
+      // The design marks the active tab in orange text, which fails AA on
+      // white (2.45:1). The orange accent lives in the indicator pill; icons
+      // and labels use AA colors.
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: semantic.card,
+        indicatorColor: scheme.primaryContainer,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? scheme.onPrimaryContainer
+                : scheme.onSurfaceVariant,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => textTheme.labelMedium!.copyWith(
+            color: states.contains(WidgetState.selected)
+                ? scheme.onSurface
+                : scheme.onSurfaceVariant,
+          ),
+        ),
+      ),
     );
   }
 }
