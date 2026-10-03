@@ -9,6 +9,10 @@
 
 Prueba técnica para el puesto **Mobile Flutter Senior Developer** en **Banco Internacional (Ecuador)**.
 
+**Producto:** **Nexo Banco Digital** ("nexo"), una marca ficticia de banca 100% digital para Ecuador (cuentas en USD).
+La identidad visual está en `docs/design/` (ver §4, *Producto y diseño visual*). Los identificadores técnicos no
+cambian: `banking_app`, `com.dennis.banking_app` y el repo `bi-digital-banking`.
+
 **Entrega:** lunes 5 de octubre de 2026, en la noche (hora Ecuador, UTC-5).
 **Repo:** https://github.com/Denniss2C/bi-digital-banking (público)
 **Firebase project ID:** `bi-digital-banking` (Firestore en `nam5`)
@@ -90,12 +94,47 @@ packages/features/auth           -> onboarding, registro, login
 packages/features/accounts       -> cuentas, saldos, movimientos, transferencias
 packages/features/notifications  -> FCM
 packages/features/fx_rates       -> micro app externa (tipo de cambio, API pública real)
-docs/                            -> architecture/, adr/, ai/, deployment-operations.md, resilience.md
+docs/                            -> architecture/, adr/, ai/, design/, deployment-operations.md, resilience.md
 ```
 
 **Reglas de dependencia:** los features NO dependen entre sí; solo de `core`, `design_system` y `sdui`. La comunicación entre features pasa por el shell (rutas y contratos definidos en `core`).
 
 ## 4. Diseño de referencia (ajustable, documentar cambios en ADR)
+
+### Producto y diseño visual — Nexo Banco Digital
+**Fuente de verdad visual:** `docs/design/DESIGN.md` (tokens y guía, generados con Stitch) y `docs/design/screens/`.
+Toda UI nueva parte de ahí; si algo se aparta del diseño, se anota en el log de desvíos.
+
+- **Nombres visibles:** "Nexo" (prod) y "Nexo Dev" (dev).
+- **Color:**
+  - primario naranja `#F28C28` (CTAs, foco y acentos) y secundario navy `#1B2A41` (estructura, tarjetas hero, navegación);
+  - fondo `#F8FAFC`, superficies `#FFFFFF`, bordes `#E2E8F0`, texto `#0F172A` y texto secundario `#64748B`.
+- **Tipografía:** Inter, empaquetada en `design_system` (sin descarga en runtime), con cifras tabulares en todos los montos.
+- **Forma y espacio:**
+  - grilla de 8 pt, márgenes de 16 px y áreas táctiles de al menos 48 px;
+  - radios de 16 px (tarjetas), 12 px (botones) y pill (chips y acciones rápidas);
+  - elevación en 3 niveles, más la tarjeta hero navy.
+- **Tema oscuro:** `DESIGN.md` solo define el claro. El oscuro se deriva de los mismos tokens (navy como superficie)
+  y se documenta en `design_system`.
+- **Accesibilidad (decisiones que corrigen el diseño original, que no cumple WCAG AA en estos puntos):**
+  - Texto sobre naranja: **navy `#1B2A41`** (5.88:1), no blanco (2.45:1). Las pantallas de Stitch usan blanco.
+  - Montos positivos: texto **`#006C49`** (6.48:1). El verde `#10B981` (2.54:1) solo como relleno decorativo.
+  - Montos negativos y errores: texto **`#BA1A1A`** (6.46:1). El rojo `#EF4444` (3.76:1) solo en íconos o fondos.
+  - Todo componente con `Semantics`, y la UI soporta texto escalado sin cortes.
+- **Navegación:** barra inferior con 4 pestañas (**Inicio, Cuentas, Divisas, Perfil**), implementada con
+  `StatefulShellRoute` de go_router. En **Perfil** van el logout y, solo en dev, la entrada al panel de debug.
+- **Pantallas → features y alcance.** Los datos de las pantallas (Mateo, saldos, contactos) son ilustrativos; la app
+  usa datos reales de Firebase.
+
+| Pantalla (`docs/design/screens/`) | Feature | Dentro del alcance | Fuera del alcance (documentado) |
+|---|---|---|---|
+| `onboarding_*` | auth | 3 slides (Banca, Seguridad, Ahorro), Omitir y Continuar | — |
+| `autenticaci_n_*` | auth | login y registro con email y contraseña (Firebase Auth), recuperar contraseña | login con cédula/RUC, biometría (bonus) |
+| `inicio_*` | shell + sdui | home por SDUI: `balance_card`, `quick_actions`, `promo_banner`, `fx_widget`, `tx_list` | acciones Servicios, Cajero y "De Una QR" |
+| `cuentas_y_tarjetas_*` | accounts | cuentas, saldos y movimientos | tarjeta virtual, metas de ahorro, datos SPI |
+| `transferir_dinero_*` | accounts | transferencia entre cuentas propias ("A cuentas Nexo"), montos rápidos y concepto | SPI interbancaria, internacional, contactos, biometría |
+| `divisas_y_remesas_*` | fx_rates | cotizador con tasas reales y caché | monederos multidivisa, remesas, mapa de canales |
+| `logo_*` | shell | ícono y splash | — |
 
 ### Modelo de datos (Firestore)
 ```
@@ -123,6 +162,8 @@ layouts/{screenId}                  JSON SDUI por pantalla/segmento (alternativa
 
 ### Micro app externa
 - `fx_rates`: tipo de cambio desde una API pública real sin API key (verificar disponibilidad; p. ej. open.er-api.com). Debe funcionar con caché y degradarse con elegancia.
+- El diseño muestra compra/venta ("C:" / "V:"), pero la API entrega una tasa media. Se muestra la tasa real con
+  "actualizado hace X" y **no se inventan spreads** (serían datos simulados).
 
 ### Push
 - FCM: pedir permiso, guardar token en `users/{uid}.fcmTokens`, manejar foreground/background/tap → deep link con go_router.
@@ -178,23 +219,28 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Detalle y comandos de flutterfire en `docs/deployment-operations.md`; decisión en ADR-002.
 - [ ] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
 - [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
-  - Fuente: `docs/design/DESIGN.md` ("Nexo Digital": naranja `#F28C28`, navy `#1B2A41`, Inter, radios de 12 y 16 px).
-  - Ojo con la accesibilidad: texto blanco sobre `#F28C28` da 2.45:1 y no cumple AA. Usar texto `#0F172A` (7.27:1) o fondo `#914D00` (6.43:1). Inter va empaquetada en la app (offline).
+  - Tokens y reglas de contraste de §4 *Producto y diseño visual*; Inter empaquetada; tema oscuro derivado.
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en
+  - `/home` con la barra inferior del diseño (Inicio, Cuentas, Divisas, Perfil) como `StatefulShellRoute`; pestañas placeholder.
 - [ ] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`
 - [ ] `docs/adr-001`: monorepo modular (Melos) vs app única vs repos separados
 
 ### Fase 2 — Núcleo funcional (sábado noche)
 - [ ] `feat/auth`: onboarding (2-3 pantallas), registro, login, sesión persistente, logout, redirect con go_router
+  - Pantallas `onboarding_*` y `autenticaci_n_*`: email y contraseña; login con cédula y biometría quedan fuera.
 - [ ] `feat/accounts-data`: modelo Firestore, seed al registrarse, reglas de seguridad
 - [ ] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados
+  - Pantalla `cuentas_y_tarjetas_*`: solo cuentas y movimientos (tarjeta virtual y metas quedan fuera).
 - [ ] `feat/transfers`: transferencia entre cuentas propias (`runTransaction`) — **recortable**
+  - Pantalla `transferir_dinero_*`, opción "A cuentas Nexo".
 
 ### Fase 3 — Diferenciadores (domingo)
 - [ ] `feat/sdui-engine`: parser + registry + render + fallback + tests
 - [ ] `feat/personalization`: Remote Config por segmento + feature flags; home renderizada por SDUI
+  - La home por defecto replica la pantalla `inicio_*`; cada segmento cambia el orden, la promo o los componentes.
 - [ ] `feat/resilience`: caché, banner offline, panel de debug con Chaos (solo dev), tests de reintento
 - [ ] `feat/fx-rates`: micro app con API real + caché + degradación
+  - Pantalla `divisas_y_remesas_*`: cotizador; tasa media real, sin spreads inventados.
 - [ ] `feat/push`: FCM + deep links
 - [ ] `feat/observability`: Crashlytics, Performance, Analytics
 
@@ -228,4 +274,4 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · iOS sin CocoaPods.** Flutter 3.44 resuelve todos los plugins con Swift Package Manager; el proyecto no tiene `Podfile`.
 - **2026-10-03 · `flutter build ios --simulator` no funciona con Xcode 27** (incompatibilidad de `lipo` con Flutter 3.44.7). iOS se verifica con builds de dispositivo sin firma o con `flutter run` sobre un simulador concreto. Ver `docs/deployment-operations.md`.
 - **2026-10-03 · Una sola sesión de IA por carpeta.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el primer commit de `docs/design-reference`. Ese commit se rehízo limpio desde `main`. Regla: una sola sesión trabaja en la carpeta del repo; si hace falta otra en paralelo, va en su propio worktree (`../bi-digital-banking-<tema>`).
-- **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. Pendiente decidir si el nombre de la app pasa de "BI Banca" a la marca del diseño.
+- **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. La app adopta la marca: los nombres visibles pasan de "BI Banca" / "BI Dev" a "Nexo" / "Nexo Dev" (`docs/align-design`). Se corrigen tres contrastes del diseño que no cumplen AA (ver §4).

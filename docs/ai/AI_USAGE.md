@@ -16,6 +16,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-002](#ia-002--paso-a-makefile-documentación-y-templates-de-github) | 2026-10-03 | Paso (a) · Makefile, docs y templates | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-003](#ia-003--paso-b-flavors-dev-y-prod) | 2026-10-03 | Paso (b) · Flavors dev y prod | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-004](#ia-004--referencia-visual-de-diseño-stitch) | 2026-10-03 | Referencia visual de diseño | Google Stitch + Claude Code (sesión paralela) | 1 |
+| [IA-005](#ia-005--alinear-el-proyecto-con-el-diseño-nexo) | 2026-10-03 | Alinear el proyecto con el diseño | Claude Code (Claude Opus 5.5) | 1 |
 
 ---
 
@@ -264,6 +265,60 @@ Revisión de la IA sobre `DESIGN.md`:
 - **La fuente Inter debe ir empaquetada en la app**, no descargarse en tiempo de ejecución, para que funcione offline.
 - **Nombre de marca:** el diseño usa "Nexo Digital", pero los flavors usan "BI Banca" y "BI Dev". Decisión pendiente
   del autor.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-005 · Alinear el proyecto con el diseño Nexo
+
+- **Rama:** `docs/align-design`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue, pero ya deberías actualizar el `CLAUDE.md` para que se iguale todo el proyecto con el
+  diseño".
+
+### Qué produjo la IA
+
+- **`CLAUDE.md`:**
+  - en §1, el producto "Nexo Banco Digital";
+  - en §4, la sección *Producto y diseño visual*: tokens, tipografía, tema oscuro, navegación con barra inferior, reglas
+    de contraste y una tabla de pantallas → features con lo que entra y lo que queda fuera del alcance;
+  - una nota en `fx_rates` (sin spreads inventados) y referencias a pantallas en cada ítem del roadmap.
+- **Nombres visibles:** "Nexo" (prod) y "Nexo Dev" (dev) en Dart, Gradle y Xcode. Los IDs no cambian, así que Firebase
+  no se toca.
+- Título del README y CHANGELOG.
+
+### Error de la IA y cómo se corrigió
+
+1. **La revisión de accesibilidad de IA-004 estaba incompleta.** Solo había detectado el texto blanco sobre naranja.
+   Al revisar las 7 pantallas y calcular el contraste de cada color de texto aparecieron dos fallas más:
+   - el verde `#10B981` de los montos positivos (2.54:1);
+   - el rojo `#EF4444` de los gastos (3.76:1).
+
+   Además, para el texto sobre naranja cambió la recomendación de `#0F172A` a navy `#1B2A41` (5.88:1), que también
+   cumple AA y respeta la paleta de la marca.
+
+### Decisión inferida (a confirmar por el autor)
+
+- El renombre a "Nexo" se dedujo del pedido "que se iguale todo el proyecto con el diseño". El autor no respondió
+  de forma explícita a la pregunta sobre el nombre. Revertirlo implica cambiar tres archivos, y el test de
+  sincronización lo valida.
+
+### Verificación
+
+- `flutter analyze --fatal-infos` y `flutter test` de la app: OK (5 tests, incluido el de sincronización de nombres).
+
+### Impacto
+
+- **Productividad:** las próximas sesiones parten de reglas visuales y de alcance escritas en `CLAUDE.md`, sin volver a
+  derivarlas de las imágenes.
+- **Calidad:** se detectan tres problemas de accesibilidad antes de escribir la UI.
+- **Documentación:** el alcance por pantalla queda explícito; sirve para justificar los recortes en la demo.
+- **Pruebas:** sin tests nuevos; el existente cubre el renombre.
 
 ### Revisión del autor
 
