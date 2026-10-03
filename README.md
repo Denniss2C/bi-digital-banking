@@ -1,6 +1,7 @@
-# BI Digital Banking
+# Nexo Banco Digital
 
-Plataforma financiera 100% digital en Flutter — prueba técnica para Banco Internacional (Ecuador).
+Plataforma financiera 100% digital en Flutter para Ecuador, con la marca ficticia **Nexo**. Es una prueba técnica
+para Banco Internacional (Ecuador). La identidad visual está en [`docs/design/`](docs/design/DESIGN.md).
 
 > 🚧 Documento en construcción: se completa al cierre de la Fase final.
 

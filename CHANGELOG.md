@@ -31,6 +31,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- Los nombres visibles de la app adoptan la marca del diseño: "Nexo" (prod) y "Nexo Dev" (dev).
+- `CLAUDE.md` incorpora el diseño "Nexo Digital": tokens, reglas de contraste AA, navegación y alcance por pantalla.
 - El deployment target de iOS sube a 15.0, que es lo que exige `firebase_core` 4.x.
 - `flutter run` sin argumentos arranca el flavor dev (`default-flavor: dev`).
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
