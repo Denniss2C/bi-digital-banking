@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "banking_app (dev)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "apps/banking_app",
+      "program": "lib/main_dev.dart",
+      "args": ["--flavor", "dev"]
+    },
+    {
+      "name": "banking_app (prod)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "apps/banking_app",
+      "program": "lib/main_prod.dart",
+      "args": ["--flavor", "prod"]
+    }
+  ]
+}

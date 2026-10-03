@@ -1,0 +1,4 @@
+// Values shared by Debug-dev, Profile-dev and Release-dev.
+APP_FLAVOR = dev
+APP_DISPLAY_NAME = BI Dev
+PRODUCT_BUNDLE_IDENTIFIER = com.dennis.bankingApp.dev

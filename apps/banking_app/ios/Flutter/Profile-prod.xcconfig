@@ -1,0 +1,3 @@
+// Profile build of the prod flavor: Flutter's Release settings + prod overrides.
+#include "Release.xcconfig"
+#include "prod.xcconfig"

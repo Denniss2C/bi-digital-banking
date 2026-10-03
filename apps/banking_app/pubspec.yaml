@@ -37,3 +37,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # `flutter run` without --flavor uses dev (see lib/main.dart).
+  default-flavor: dev

@@ -1,0 +1,4 @@
+// Values shared by Debug-prod, Profile-prod and Release-prod.
+APP_FLAVOR = prod
+APP_DISPLAY_NAME = BI Banca
+PRODUCT_BUNDLE_IDENTIFIER = com.dennis.bankingApp
