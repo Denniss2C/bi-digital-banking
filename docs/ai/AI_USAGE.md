@@ -19,6 +19,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-005](#ia-005--alinear-el-proyecto-con-el-diseño-nexo) | 2026-10-03 | Alinear el proyecto con el diseño | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-006](#ia-006--core-network-retry-y-chaos) | 2026-10-03 | Paso 2 · core-network (retry y chaos) | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-007](#ia-007--design-system-nexo) | 2026-10-03 | Paso 3 · design-system | Claude Code (Claude Opus 5.5) | 1 |
+| [IA-008](#ia-008--app-shell-di-router-e-i18n) | 2026-10-03 | Paso 4 · app-shell | Claude Code (Claude Opus 5.5) | 0 |
 
 ---
 
@@ -431,6 +432,66 @@ Revisión de la IA sobre `DESIGN.md`:
   falla en CI.
 - **Documentación:** README del paquete con uso, decisiones de contraste y cómo agregar componentes.
 - **Pruebas:** 55 tests nuevos; se eliminó el test de ejemplo del scaffold.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-008 · App shell: DI, router e i18n
+
+- **Rama:** `feat/app-shell`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** [prompt maestro](prompts/00-master-prompt.md), paso 4: Firebase init, get_it, go_router con
+  `/splash`, `/login` y `/home` (placeholders), más i18n es/en del [complemento](prompts/01-standards-complement.md) y la
+  barra inferior del diseño (`CLAUDE.md` §4).
+
+### Qué produjo la IA
+
+- **DI con injectable.** El entorno de injectable se llama igual que el flavor, así que el `ChaosController`
+  (`@dev`) solo existe en dev **por configuración**, sin `if` en el código. El `AppConfig` se registra antes de
+  `init`.
+- **go_router.** `/splash` → `/login` (placeholder) → `StatefulShellRoute` con 4 pestañas que conservan su estado.
+  Los guards por sesión quedan para `feat/auth`.
+- **i18n con `gen-l10n`.** Español como plantilla e inglés.
+- **Barra inferior con tema AA en el design system.**
+- **9 tests nuevos** en la app: navegación, idiomas, resolución de idioma y DI por flavor.
+
+### Hallazgos durante el paso
+
+- La lista de idiomas generada queda en orden alfabético (`[en, es]`). Sin intervención, Flutter usaría **inglés** en
+  dispositivos con un idioma no soportado. Se agregó `resolveAppLocale` con respaldo a español y un test que lo
+  documenta.
+- El diseño marca la pestaña activa con texto naranja sobre blanco (2.45:1). Se movió el acento a la píldora
+  indicadora y los textos e íconos usan colores AA.
+- En los widget tests el idioma por defecto es `en_US`. Los tests fijan el idioma del dispositivo con
+  `localesTestValue` para probar español, inglés y el respaldo.
+
+### Errores de la IA
+
+- No hubo errores que corregir en este paso: el análisis, los tests y el build pasaron al primer intento.
+
+### Decisiones para revisar
+
+- El código generado (injectable y l10n) se versiona para que CI y el IDE funcionen sin correr codegen. La contra es
+  que hay que acordarse de regenerarlo.
+- El login es un placeholder que entra a la app sin autenticar; se reemplaza en `feat/auth`.
+
+### Verificación
+
+- `melos run format`, `analyze` (8 paquetes) y `test` en verde.
+- APK de dev compilado.
+- No se ejecutó la app en un emulador.
+
+### Impacto
+
+- **Productividad:** unos 20 minutos, gracias a las reglas y los componentes ya definidos.
+- **Calidad:** la exclusión de las herramientas de debug en prod queda garantizada por la DI y cubierta por un test.
+- **Documentación:** roadmap y CHANGELOG.
+- **Pruebas:** 15 tests en la app (antes 5).
 
 ### Revisión del autor
 
