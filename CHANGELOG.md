@@ -11,6 +11,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- `auth` (datos): `AuthRepository` sobre Firebase Auth (registro, login, recuperar contraseña, logout y sesión
+  persistente) con errores tipados, y `OnboardingRepository` local.
+- `core`: `AuthErrorCode` en `AuthFailure` y `KeyValueStore` sobre hive_ce.
 - ADR-001: monorepo modular con Melos y pub workspaces, e índice de ADRs en `docs/adr/README.md`.
 - CI en GitHub Actions: bootstrap, formato, análisis, tests y verificación del código generado en cada push y
   PR a `main`, con los mismos targets del Makefile. Badge de CI en el README.
@@ -44,6 +47,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- El análisis y el formato ignoran `build/`, donde Swift Package Manager deja código fuente de terceros de los
+  plugins (antes rompía `make analyze` y `make format-check` en local).
 - Tema de la barra de navegación inferior: acento naranja en la píldora indicadora, íconos y textos con contraste AA.
 - La app usa los temas del design system (claro y oscuro según el sistema) y registra la licencia de Inter.
 - Los nombres visibles de la app adoptan la marca del diseño: "Nexo" (prod) y "Nexo Dev" (dev).
