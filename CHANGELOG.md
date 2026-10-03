@@ -11,6 +11,11 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Flavors `dev` y `prod`: product flavors en Android, configuraciones de build y schemes en iOS,
+  entry points `main_dev.dart` / `main_prod.dart`, `AppConfig` y una app de Firebase por flavor.
+- Cinta `DEV` y flag `enableDebugTools`, activos solo en dev.
+- ADR-002: entornos con flavors sobre un único proyecto Firebase.
+- Configuraciones de ejecución de VS Code para cada flavor.
 - Makefile con los comandos de desarrollo (`setup`, `bootstrap`, `gen`, `analyze`,
   `format`, `test`, `coverage`, `run-*`, `build-apk-*`).
 - Estructura de documentación: `docs/architecture`, `docs/adr` (plantilla ADR-000),
@@ -22,5 +27,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Scaffolding inicial: app shell `apps/banking_app`, paquetes `core`, `design_system`,
   `sdui` y features `auth`, `accounts`, `notifications`, `fx_rates`.
 - Configuración de Firebase con FlutterFire CLI.
+
+### Changed
+- El deployment target de iOS sube a 15.0, que es lo que exige `firebase_core` 4.x.
+- `flutter run` sin argumentos arranca el flavor dev (`default-flavor: dev`).
+- La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 [Unreleased]: https://github.com/Denniss2C/bi-digital-banking/commits/main

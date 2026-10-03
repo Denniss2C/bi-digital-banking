@@ -4,12 +4,100 @@
 
 ## 1. Entornos (flavors)
 
-| Flavor | Application ID / Bundle ID | Firebase app | Panel de debug / Chaos |
-|--------|----------------------------|--------------|------------------------|
-| `dev`  | `com.dennis.banking_app.dev` | app dev (mismo proyecto) | ✅ |
-| `prod` | `com.dennis.banking_app` | app prod (mismo proyecto) | ❌ |
+| Flavor | Android (applicationId) | iOS (bundle ID) | Nombre | Entry point | Herramientas de debug / Chaos |
+|--------|-------------------------|-----------------|--------|-------------|-------------------------------|
+| `dev`  | `com.dennis.banking_app.dev` | `com.dennis.bankingApp.dev` | BI Dev | `lib/main_dev.dart` | ✅ |
+| `prod` | `com.dennis.banking_app` | `com.dennis.bankingApp` | BI Banca | `lib/main_prod.dart` | ❌ |
 
-_Pendiente (Paso b): entry points, `AppConfig`, schemes de iOS y comandos `flutterfire configure` por flavor._
+- Los dos flavors usan **el mismo proyecto Firebase** (`bi-digital-banking`) con **una app registrada por flavor**. La decisión y sus trade-offs están en [ADR-002](adr/ADR-002-flavors-firebase.md).
+- iOS no admite `_` en el bundle ID; por eso el de iOS es `com.dennis.bankingApp`.
+- `flutter run` sin argumentos arranca en **dev** (`default-flavor: dev` en el `pubspec.yaml` y `lib/main.dart`, que reexporta `main_dev.dart`). Así una ejecución sin argumentos nunca apunta a producción.
+
+### Cómo ejecutar
+
+```bash
+make run-dev            # flutter run --flavor dev -t lib/main_dev.dart
+make run-prod           # flutter run --flavor prod -t lib/main_prod.dart
+make build-apk-dev      # APK release del flavor dev
+make build-apk-prod     # APK release del flavor prod
+```
+
+En VS Code, las configuraciones `banking_app (dev)` y `banking_app (prod)` de `.vscode/launch.json` hacen lo mismo.
+
+### Dónde vive la configuración de cada flavor
+
+| Capa | Archivo | Qué define |
+|------|---------|------------|
+| Dart | `lib/app/config/app_config.dart` | `Flavor`, nombre de la app y `enableDebugTools` (solo dev) |
+| Dart | `lib/main_<flavor>.dart` → `lib/bootstrap.dart` | Inicializa Firebase con las opciones del flavor y arranca la app |
+| Dart | `lib/firebase_options_<flavor>.dart` | Opciones de Firebase del flavor (generado por flutterfire) |
+| Android | `android/app/build.gradle.kts` | `productFlavors` `dev` (sufijo `.dev`) y `prod`, nombre vía `manifestPlaceholders` |
+| Android | `android/app/src/<flavor>/google-services.json` | Configuración nativa de Firebase del flavor |
+| iOS | `ios/Flutter/<flavor>.xcconfig` | `APP_FLAVOR`, `APP_DISPLAY_NAME` y `PRODUCT_BUNDLE_IDENTIFIER` |
+| iOS | `ios/Flutter/<Modo>-<flavor>.xcconfig` | Une la configuración base de Flutter (`Debug` o `Release`) con los valores del flavor |
+| iOS | `ios/flavors/<flavor>/GoogleService-Info.plist` | Configuración nativa de Firebase del flavor |
+| iOS | Schemes `dev` y `prod` | Usan las configuraciones `Debug-<flavor>`, `Profile-<flavor>` y `Release-<flavor>` |
+
+El proyecto de Xcode se migró con [`tool/setup_ios_flavors.rb`](../apps/banking_app/tool/setup_ios_flavors.rb), que documenta cada cambio del `project.pbxproj`.
+
+### Firebase por flavor
+
+Se generan con FlutterFire CLI desde `apps/banking_app`, un comando por flavor. La primera vez, el
+comando de dev registra las apps `com.dennis.banking_app.dev` (Android) y `com.dennis.bankingApp.dev`
+(iOS) en el proyecto. El de prod reutiliza las apps que ya existen.
+
+```bash
+cd apps/banking_app
+
+flutterfire configure \
+  --project=bi-digital-banking \
+  --platforms=android,ios \
+  --out=lib/firebase_options_dev.dart \
+  --android-package-name=com.dennis.banking_app.dev \
+  --android-out=android/app/src/dev/google-services.json \
+  --ios-bundle-id=com.dennis.bankingApp.dev \
+  --ios-build-config=Debug-dev \
+  --ios-out=ios/flavors/dev/GoogleService-Info.plist \
+  --yes
+
+flutterfire configure \
+  --project=bi-digital-banking \
+  --platforms=android,ios \
+  --out=lib/firebase_options_prod.dart \
+  --android-package-name=com.dennis.banking_app \
+  --android-out=android/app/src/prod/google-services.json \
+  --ios-bundle-id=com.dennis.bankingApp \
+  --ios-build-config=Debug-prod \
+  --ios-out=ios/flavors/prod/GoogleService-Info.plist \
+  --yes
+```
+
+**Cómo llega el plist a la app en iOS.** Un build phase propio del target Runner
+(`Copy GoogleService-Info.plist for flavor`) copia `ios/flavors/$(APP_FLAVOR)/GoogleService-Info.plist`
+al bundle en **todas** las configuraciones del flavor (Debug, Profile y Release).
+
+No usamos el script que flutterfire agrega con `--ios-build-config`, por dos motivos:
+- ese script busca el plist por el nombre exacto de la configuración y, si no lo encuentra (por ejemplo,
+  `Release-dev`), **termina sin error y sin copiar nada**;
+- además necesita el ejecutable `flutterfire` en el PATH de Xcode.
+
+Si flutterfire vuelve a agregar su build phase `FlutterFire: "flutterfire bundle-service-file"`, hay que eliminarla.
+
+**Dependencias nativas en iOS.** Todos los plugins se resuelven con Swift Package Manager; el proyecto
+no usa CocoaPods ni tiene `Podfile`. Las versiones quedan fijadas en los `Package.resolved` del workspace.
+
+### Problema conocido: `flutter build ios --simulator` con Xcode 27
+
+Con Flutter 3.44.7 y Xcode 27, `flutter build ios --simulator` falla en la fase
+`Run Prepare Flutter Framework Script` con `Exited with status code 255`.
+
+La causa: el build para simulador genérico incluye `arm64` y `x86_64`, y Flutter verifica el framework
+con `lipo <binario> -verify_arch arm64 x86_64`. El `lipo` de Xcode 27 solo acepta una arquitectura en
+ese comando (`-verify_arch requires exactly one input file`). No tiene relación con los flavors.
+
+Alternativas que sí funcionan, porque compilan una sola arquitectura:
+- `flutter run` sobre un simulador o dispositivo concreto (por ejemplo, `make run-dev`);
+- un build de dispositivo sin firmar: `flutter build ios --no-codesign --flavor <flavor> -t lib/main_<flavor>.dart`.
 
 ## 2. Configuración y secretos
 

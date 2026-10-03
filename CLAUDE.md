@@ -173,8 +173,9 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [x] PR #3 `docs/claude-context`: este archivo
 
 ### Fase 1 — Base (sábado, meta 17:00)
-- [ ] `feat/flavors`: dev/prod (Android productFlavors + iOS schemes), `main_dev.dart`/`main_prod.dart`, `AppConfig`, Firebase por flavor
-  - Nota: el bundle ID de iOS es `com.dennis.bankingApp` porque iOS no admite `_`; el de dev sería `com.dennis.bankingApp.dev`.
+- [x] `feat/flavors`: dev/prod (Android productFlavors + iOS schemes), `main_dev.dart`/`main_prod.dart`, `AppConfig`, Firebase por flavor
+  - Nota: el bundle ID de iOS es `com.dennis.bankingApp` porque iOS no admite `_`; el de dev es `com.dennis.bankingApp.dev`.
+  - Detalle y comandos de flutterfire en `docs/deployment-operations.md`; decisión en ADR-002.
 - [ ] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
 - [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en
@@ -201,7 +202,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
 - [ ] README final reproducible — _parcial: estructura (#2)_
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 e IA-002 (#2)_
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-003_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
@@ -222,3 +223,6 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 
 - **2026-10-03 · El PR de tooling se dividió en dos.** `chore/tooling-and-docs` se hizo como #1 (`chore/workspace-melos`) y #2 (`chore/tooling-docs`, apilado sobre #1), para que cada PR fuera pequeño y revisable por separado.
 - **2026-10-03 · Los plugins de Firebase de cada feature se agregan después.** Auth, Firestore y Messaging se suman en el PR de cada feature y no en el pub workspace (#1), para que cada commit compile sin dependencias nativas que todavía no se usan.
+- **2026-10-03 · iOS sin CocoaPods.** Flutter 3.44 resuelve todos los plugins con Swift Package Manager; el proyecto no tiene `Podfile`.
+- **2026-10-03 · `flutter build ios --simulator` no funciona con Xcode 27** (incompatibilidad de `lipo` con Flutter 3.44.7). iOS se verifica con builds de dispositivo sin firma o con `flutter run` sobre un simulador concreto. Ver `docs/deployment-operations.md`.
+- **2026-10-03 · Una sesión de IA = un worktree.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el commit de `docs/design-reference`. Desde ahora cada paso se trabaja en su propio worktree (`../bi-digital-banking-<tema>`).
