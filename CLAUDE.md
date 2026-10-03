@@ -228,7 +228,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Código generado **versionado** (`lib/di/injection.config.dart`, `lib/l10n/gen/`); se regenera con `make gen` y `flutter gen-l10n`.
 - [x] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`
   - Además verifica formato y código generado. El check `Analyze, format and test` es obligatorio en `main` desde el 2026-10-03.
-- [ ] `docs/adr-001`: monorepo modular (Melos) vs app única vs repos separados
+- [x] `docs/adr-001`: monorepo modular (Melos) vs app única vs repos separados
+  - **Fase 1 completa** el 2026-10-03 a las 15:40 (meta: 17:00).
 
 ### Fase 2 — Núcleo funcional (sábado noche)
 - [ ] `feat/auth`: onboarding (2-3 pantallas), registro, login, sesión persistente, logout, redirect con go_router

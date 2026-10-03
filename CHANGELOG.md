@@ -11,6 +11,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- ADR-001: monorepo modular con Melos y pub workspaces, e índice de ADRs en `docs/adr/README.md`.
 - CI en GitHub Actions: bootstrap, formato, análisis, tests y verificación del código generado en cada push y
   PR a `main`, con los mismos targets del Makefile. Badge de CI en el README.
 - App shell: inyección de dependencias con get_it + injectable (el `ChaosController` solo se registra en el

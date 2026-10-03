@@ -20,7 +20,8 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-006](#ia-006--core-network-retry-y-chaos) | 2026-10-03 | Paso 2 · core-network (retry y chaos) | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-007](#ia-007--design-system-nexo) | 2026-10-03 | Paso 3 · design-system | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-008](#ia-008--app-shell-di-router-e-i18n) | 2026-10-03 | Paso 4 · app-shell | Claude Code (Claude Opus 5.5) | 0 |
-| [IA-009](#ia-009--ci-con-github-actions) | 2026-10-03 | Paso 5 · CI | Claude Code (Claude Opus 5.5) | 0 |
+| [IA-009](#ia-009--ci-con-github-actions) | 2026-10-03 | Paso 5 · CI | Claude Code (Claude Opus 5.5) | 1 (proceso) |
+| [IA-010](#ia-010--adr-001-monorepo-modular) | 2026-10-03 | Paso 6 · ADR-001 | Claude Code (Claude Opus 5.5) | 0 |
 
 ---
 
@@ -528,6 +529,15 @@ Revisión de la IA sobre `DESIGN.md`:
 - No hubo errores en lo entregado. El primer run de CI pasó en verde.
 - Un intento de validar el YAML falló porque no había herramientas instaladas (`actionlint`, PyYAML); se validó con
   Ruby.
+- **Error de proceso al subir esta entrada.**
+  1. El `git push` iba por una tubería a `grep`, que en esta máquina es un alias de `ugrep` y no aceptó el patrón
+     `->`. Esa falla cortó el push sin mostrar el error.
+  2. Al reintentar, apareció el `HTTP 400` de siempre. Mientras tanto, el autor ya había mergeado el PR #10, y el
+     reintento con buffer ampliado **recreó la rama remota borrada**.
+  3. La IA no había revisado el estado del PR antes de reintentar.
+  4. Se movió el commit a `docs/adr-001` (cherry-pick sobre `main`) y se borró la rama recreada.
+
+  Lección: revisar el estado del PR antes de reintentar un push, y no pasar la salida de `git push` por filtros.
 
 ### Decisiones para revisar
 
@@ -552,6 +562,39 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** ningún PR puede entrar a `main` sin formato, análisis, tests y código generado en verde.
 - **Documentación:** pipeline con pasos, tiempos y una optimización posible.
 - **Pruebas:** toda la suite se ejecuta en cada PR.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-010 · ADR-001: monorepo modular
+
+- **Rama:** `docs/adr-001`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code.
+- **Prompt (resumen):** [prompt maestro](prompts/00-master-prompt.md), paso 6: ADR-001 que compare un monorepo modular
+  con Melos, una app única y repos separados.
+
+### Qué produjo la IA
+
+- [ADR-001](../adr/ADR-001-monorepo-modular.md): problema, tres alternativas con pros y contras, decisión y regla de
+  dependencias, trade-offs (incluido el tiempo de CI medido) e impacto a largo plazo, con señales concretas para
+  reconsiderar la decisión.
+- Un índice de ADRs (`docs/adr/README.md`) y el enlace desde `docs/architecture/dependencies.md`.
+- El borrador se escribió mientras corría CI y se completó con los tiempos reales del run.
+
+### Errores de la IA
+
+- No hubo errores en lo entregado.
+
+### Impacto
+
+- **Productividad:** unos 10 minutos.
+- **Documentación:** la decisión de estructura queda justificada con datos del propio proyecto (fronteras que hace
+  cumplir el compilador, un solo lockfile, CI de unos 7 minutos).
 
 ### Revisión del autor
 

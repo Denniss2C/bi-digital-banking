@@ -1,5 +1,7 @@
 # Dependencias entre paquetes
 
+Por qué un monorepo modular: [ADR-001](../adr/ADR-001-monorepo-modular.md).
+
 ```mermaid
 flowchart BT
     core["core"]
