@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# A new push to the same branch cancels the run in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Analyze, format and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # Same version as local development (see README).
+          flutter-version: 3.44.7
+          cache: true
+
+      # Melos is a root dev dependency, so `dart run melos` (used by the
+      # Makefile) gets the locked version without a global activation.
+      - name: Bootstrap workspace
+        run: |
+          dart pub get
+          make bootstrap
+
+      - name: Check formatting
+        run: make format-check
+
+      - name: Analyze
+        run: make analyze
+
+      - name: Test
+        run: make test
+
+      # Generated code (injectable, gen-l10n) is committed; fail if it is stale.
+      - name: Check generated code is up to date
+        run: |
+          make gen
+          git diff --exit-code

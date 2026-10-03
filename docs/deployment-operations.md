@@ -110,7 +110,25 @@ Alternativas que sí funcionan, porque compilan una sola arquitectura:
 
 ## 3. Integración continua
 
-_Pendiente (Paso 5):_ GitHub Actions en cada push y PR a `main`: `melos bootstrap` → `analyze` → `format` → `test`.
+Workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): un job (`Analyze, format and test`) en cada
+push a `main` y en cada PR hacia `main`.
+
+| Paso | Comando | Falla si… |
+|------|---------|-----------|
+| Flutter 3.44.7 (fijo, con caché) | `subosito/flutter-action@v2` | — |
+| Bootstrap | `dart pub get` + `make bootstrap` | las dependencias no resuelven |
+| Formato | `make format-check` | algún archivo no está formateado |
+| Análisis | `make analyze` | hay errores, warnings o *infos* (`--fatal-infos`) |
+| Tests | `make test` | falla algún test de cualquier paquete |
+| Código generado | `make gen` + `git diff --exit-code` | el código de injectable o de l10n versionado está desactualizado |
+
+- CI usa **los mismos targets del Makefile** que el desarrollo local, así ambos no se desincronizan.
+- Melos se ejecuta como dependencia de desarrollo de la raíz (`dart run melos`), con la versión del lockfile y sin
+  instalación global.
+- **Concurrencia:** un push nuevo a la misma rama cancela la ejecución en curso. Los permisos son de solo lectura.
+- **Protección de `main`:** este check es obligatorio para mergear, junto con PR obligatorio, historial lineal y merge
+  solo por rebase.
+- No requiere secretos: las opciones de cliente de Firebase no lo son (ver §2).
 
 ## 4. Build y distribución
 

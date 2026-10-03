@@ -1,5 +1,7 @@
 # Nexo Banco Digital
 
+[![CI](https://github.com/Denniss2C/bi-digital-banking/actions/workflows/ci.yml/badge.svg)](https://github.com/Denniss2C/bi-digital-banking/actions/workflows/ci.yml)
+
 Plataforma financiera 100% digital en Flutter para Ecuador, con la marca ficticia **Nexo**. Es una prueba técnica
 para Banco Internacional (Ecuador). La identidad visual está en [`docs/design/`](docs/design/DESIGN.md).
 
