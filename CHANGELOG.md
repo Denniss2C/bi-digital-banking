@@ -11,6 +11,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- `design_system`: tokens de "Nexo Digital", temas claro y oscuro (Material 3) con la fuente Inter empaquetada y
+  componentes accesibles: `AppButton`, `AppCard`, `AppLoading`, `AppErrorView` y `AppEmptyView`.
+- Tests de contraste WCAG AA en ambos temas y de texto escalado al 200%.
 - `core`: cliente HTTP (`createDioClient`) con `RetryInterceptor` (3 intentos, backoff exponencial con jitter,
   solo errores transitorios y métodos idempotentes) y `ChaosInterceptor` configurable en runtime
   (latencia, % de fallos, sin red).
@@ -35,6 +38,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- La app usa los temas del design system (claro y oscuro según el sistema) y registra la licencia de Inter.
 - Los nombres visibles de la app adoptan la marca del diseño: "Nexo" (prod) y "Nexo Dev" (dev).
 - `CLAUDE.md` incorpora el diseño "Nexo Digital": tokens, reglas de contraste AA, navegación y alcance por pantalla.
 - El deployment target de iOS sube a 15.0, que es lo que exige `firebase_core` 4.x.

@@ -219,8 +219,9 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Detalle y comandos de flutterfire en `docs/deployment-operations.md`; decisión en ADR-002.
 - [x] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
   - 3 intentos en total (1 + 2 reintentos); el caos rechaza con `reject(error, true)` para que lo vea el retry. Detalle en `docs/resilience.md`.
-- [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
+- [x] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
   - Tokens y reglas de contraste de §4 *Producto y diseño visual*; Inter empaquetada; tema oscuro derivado.
+  - Además: `AppEmptyView` y `AppSemanticColors`. Uso y reglas en `packages/design_system/README.md`.
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en
   - `/home` con la barra inferior del diseño (Inicio, Cuentas, Divisas, Perfil) como `StatefulShellRoute`; pestañas placeholder.
 - [ ] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`

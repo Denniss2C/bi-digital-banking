@@ -18,6 +18,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-004](#ia-004--referencia-visual-de-diseño-stitch) | 2026-10-03 | Referencia visual de diseño | Google Stitch + Claude Code (sesión paralela) | 1 |
 | [IA-005](#ia-005--alinear-el-proyecto-con-el-diseño-nexo) | 2026-10-03 | Alinear el proyecto con el diseño | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-006](#ia-006--core-network-retry-y-chaos) | 2026-10-03 | Paso 2 · core-network (retry y chaos) | Claude Code (Claude Opus 5.5) | 1 |
+| [IA-007](#ia-007--design-system-nexo) | 2026-10-03 | Paso 3 · design-system | Claude Code (Claude Opus 5.5) | 1 |
 
 ---
 
@@ -380,6 +381,56 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** la política de reintentos es configurable y testeable sin red ni esperas reales.
 - **Documentación:** `docs/resilience.md` con la política real, el detalle de dio y el mapa de escenarios y tests.
 - **Pruebas:** 21 tests nuevos en `core`; se eliminó el test de ejemplo del scaffold.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-007 · Design system Nexo
+
+- **Rama:** `feat/design-system`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** [prompt maestro](prompts/00-master-prompt.md), paso 3: `AppTheme` claro y oscuro con tokens y
+  los componentes `AppButton`, `AppCard`, `AppErrorView(onRetry)` y `AppLoading`, siguiendo `docs/design/DESIGN.md` y las
+  reglas de `CLAUDE.md` (§4).
+
+### Qué produjo la IA
+
+- Tokens con los valores de `DESIGN.md` y `ColorScheme` explícitos para ambos temas. El oscuro lo derivó la IA
+  calculando el contraste de cada par antes de elegir los colores.
+- Inter 4.1 empaquetada (descargada de la release oficial `rsms/inter`) con su licencia OFL, y registro de la licencia en
+  la pantalla de licencias de la app.
+- 5 componentes (incluido `AppEmptyView`, que no estaba pedido pero lo necesita cada pantalla) y `AppSemanticColors`.
+- 55 tests:
+  - 36 pares de contraste WCAG calculados sobre los temas reales;
+  - 2 que documentan por qué el tema se aparta del diseño original;
+  - los de temas y componentes, incluidos los de texto al 200%.
+
+### Error de la IA y cómo se corrigió
+
+1. **Bug de accesibilidad en `AppCard`.** Para resumir la tarjeta con `semanticsLabel`, la IA usó
+   `excludeSemantics: true`. Eso también descartaba la acción *tap* del `InkWell`: el lector de pantalla anunciaba
+   "botón", pero no se podía activar. Lo detectó el test de semántica (`missing actions: [tap]`). Se corrigió
+   exponiendo `onTap` en el nodo resumido.
+
+### Verificación
+
+- `melos run analyze`, `format` y `test` en verde (55 tests en `design_system`).
+- APK de dev: contiene `packages/design_system/fonts/Inter-*.ttf` y `OFL.txt`, y el `FontManifest` declara
+  `packages/design_system/Inter`, la misma familia que usa el tema.
+- No se revisó visualmente en un dispositivo; las pantallas reales llegan con las features.
+
+### Impacto
+
+- **Productividad:** unos 35 minutos; las reglas ya escritas en `CLAUDE.md` evitaron rediscutir colores.
+- **Calidad:** la accesibilidad queda **verificada por tests**, no solo declarada; cualquier cambio de color que rompa AA
+  falla en CI.
+- **Documentación:** README del paquete con uso, decisiones de contraste y cómo agregar componentes.
+- **Pruebas:** 55 tests nuevos; se eliminó el test de ejemplo del scaffold.
 
 ### Revisión del autor
 
