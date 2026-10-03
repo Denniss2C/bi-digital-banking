@@ -15,6 +15,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-001](#ia-001--paso-1-workspace-con-pub-workspaces-y-melos-8) | 2026-10-03 | Paso 1 · Workspace + Melos 8 | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-002](#ia-002--paso-a-makefile-documentación-y-templates-de-github) | 2026-10-03 | Paso (a) · Makefile, docs y templates | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-003](#ia-003--paso-b-flavors-dev-y-prod) | 2026-10-03 | Paso (b) · Flavors dev y prod | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-004](#ia-004--referencia-visual-de-diseño-stitch) | 2026-10-03 | Referencia visual de diseño | Google Stitch + Claude Code (sesión paralela) | 1 |
 
 ---
 
@@ -220,6 +221,49 @@ La IA los detectó en una revisión propia antes de entregar el paso:
   de que afectaran la demo.
 - **Documentación:** ADR-002, sección de flavors y problema conocido de Xcode 27 en `deployment-operations.md`.
 - **Pruebas:** 5 tests de la app (antes había 1 de ejemplo).
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-004 · Referencia visual de diseño (Stitch)
+
+- **Rama:** `docs/design-reference`
+- **Herramientas:** Google Stitch para generar el sistema visual y las pantallas (según el commit), y una sesión
+  paralela de Claude Code que hizo el commit. Esta sesión, Claude Code (Claude Opus 5.5), rehízo la rama y abrió el PR.
+- **Prompt (resumen):** el de la sesión paralela no quedó registrado en esta bitácora. Hay que completarlo en la
+  revisión del autor.
+
+### Qué se agregó
+
+- `docs/design/DESIGN.md`: tokens de "Nexo Digital" (colores Material 3, escala tipográfica Inter, radios y
+  espaciado) y guía de marca, color, tipografía, layout, elevación, formas y componentes.
+- 7 pantallas de referencia en `docs/design/screens/`: logo, onboarding, autenticación, inicio, cuentas y
+  tarjetas, transferencias, divisas y remesas.
+
+### Error y cómo se corrigió
+
+1. **Commit con cambios ajenos.** El primer commit de la sesión paralela (`fd09d09`) se llevó por accidente los
+   renombres de flavors que esta sesión tenía en el índice de la carpeta compartida (ver IA-003). La misma sesión
+   hizo después un commit limpio (`7383feb`) en el `main` local, que no se podía subir porque `main` está protegida.
+   Esta sesión borró la rama local contaminada (no se había subido), recreó `docs/design-reference` desde el `main`
+   actualizado con `git cherry-pick 7383feb` y abrió el PR.
+
+### Observaciones para `feat/design-system`
+
+Revisión de la IA sobre `DESIGN.md`:
+
+- **El contraste del botón primario no cumple AA.** El documento pide texto blanco sobre `#F28C28`, que da **2.45:1**
+  (AA exige 4.5:1 para texto normal y 3:1 para texto grande). Hay dos opciones que sí cumplen: texto `#0F172A` sobre
+  el naranja (7.27:1), o texto blanco sobre el `primary` de Material 3, `#914D00` (6.43:1). El estado presionado
+  `#D97706` con texto blanco da 3.19:1.
+- **La fuente Inter debe ir empaquetada en la app**, no descargarse en tiempo de ejecución, para que funcione offline.
+- **Nombre de marca:** el diseño usa "Nexo Digital", pero los flavors usan "BI Banca" y "BI Dev". Decisión pendiente
+  del autor.
 
 ### Revisión del autor
 
