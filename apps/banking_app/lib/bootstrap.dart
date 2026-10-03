@@ -1,5 +1,6 @@
 import 'package:banking_app/app/app.dart';
 import 'package:banking_app/app/config/app_config.dart';
+import 'package:design_system/design_system.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 
@@ -10,6 +11,7 @@ Future<void> bootstrap({
   required FirebaseOptions firebaseOptions,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerDesignSystemLicenses();
   await Firebase.initializeApp(options: firebaseOptions);
   runApp(App(config: config));
 }
