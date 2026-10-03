@@ -35,11 +35,11 @@ android {
             dimension = "environment"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            manifestPlaceholders["appName"] = "BI Dev"
+            manifestPlaceholders["appName"] = "Nexo Dev"
         }
         create("prod") {
             dimension = "environment"
-            manifestPlaceholders["appName"] = "BI Banca"
+            manifestPlaceholders["appName"] = "Nexo"
         }
     }
 

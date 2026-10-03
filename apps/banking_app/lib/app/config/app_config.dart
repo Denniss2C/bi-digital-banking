@@ -7,8 +7,8 @@ enum Flavor { dev, prod }
 class AppConfig {
   const AppConfig._({required this.flavor, required this.appName});
 
-  static const dev = AppConfig._(flavor: Flavor.dev, appName: 'BI Dev');
-  static const prod = AppConfig._(flavor: Flavor.prod, appName: 'BI Banca');
+  static const dev = AppConfig._(flavor: Flavor.dev, appName: 'Nexo Dev');
+  static const prod = AppConfig._(flavor: Flavor.prod, appName: 'Nexo');
 
   final Flavor flavor;
 

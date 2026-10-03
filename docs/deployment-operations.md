@@ -6,8 +6,8 @@
 
 | Flavor | Android (applicationId) | iOS (bundle ID) | Nombre | Entry point | Herramientas de debug / Chaos |
 |--------|-------------------------|-----------------|--------|-------------|-------------------------------|
-| `dev`  | `com.dennis.banking_app.dev` | `com.dennis.bankingApp.dev` | BI Dev | `lib/main_dev.dart` | ✅ |
-| `prod` | `com.dennis.banking_app` | `com.dennis.bankingApp` | BI Banca | `lib/main_prod.dart` | ❌ |
+| `dev`  | `com.dennis.banking_app.dev` | `com.dennis.bankingApp.dev` | Nexo Dev | `lib/main_dev.dart` | ✅ |
+| `prod` | `com.dennis.banking_app` | `com.dennis.bankingApp` | Nexo | `lib/main_prod.dart` | ❌ |
 
 - Los dos flavors usan **el mismo proyecto Firebase** (`bi-digital-banking`) con **una app registrada por flavor**. La decisión y sus trade-offs están en [ADR-002](adr/ADR-002-flavors-firebase.md).
 - iOS no admite `_` en el bundle ID; por eso el de iOS es `com.dennis.bankingApp`.
