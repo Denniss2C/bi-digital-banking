@@ -226,7 +226,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - `/home` con la barra inferior del diseño (Inicio, Cuentas, Divisas, Perfil) como `StatefulShellRoute`; pestañas placeholder.
   - Entorno de injectable = flavor: `@dev` registra solo en dev. Si el idioma del dispositivo no está soportado, se usa español.
   - Código generado **versionado** (`lib/di/injection.config.dart`, `lib/l10n/gen/`); se regenera con `make gen` y `flutter gen-l10n`.
-- [ ] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`
+- [x] `ci/github-actions`: analyze + test en push y PR → luego marcar el check como obligatorio en `main`
+  - Además verifica formato y código generado. El check `Analyze, format and test` es obligatorio en `main` desde el 2026-10-03.
 - [ ] `docs/adr-001`: monorepo modular (Melos) vs app única vs repos separados
 
 ### Fase 2 — Núcleo funcional (sábado noche)

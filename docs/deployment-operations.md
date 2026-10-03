@@ -129,6 +129,9 @@ push a `main` y en cada PR hacia `main`.
 - **Protección de `main`:** este check es obligatorio para mergear, junto con PR obligatorio, historial lineal y merge
   solo por rebase.
 - No requiere secretos: las opciones de cliente de Firebase no lo son (ver §2).
+- **Duración** de la primera ejecución, sin caché: 6 min 46 s. Por paso: instalar Flutter 68 s, analizar 36 s, tests
+  73 s y verificar el código generado 197 s. Este último es el más lento porque build_runner compila sus builders en
+  los 6 paquetes que dependen de él. _Optimización posible:_ limitarlo a los paquetes que tienen anotaciones.
 
 ## 4. Build y distribución
 
