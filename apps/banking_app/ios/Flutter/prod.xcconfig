@@ -1,4 +1,4 @@
 // Values shared by Debug-prod, Profile-prod and Release-prod.
 APP_FLAVOR = prod
-APP_DISPLAY_NAME = BI Banca
+APP_DISPLAY_NAME = Nexo
 PRODUCT_BUNDLE_IDENTIFIER = com.dennis.bankingApp
