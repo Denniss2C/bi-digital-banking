@@ -14,6 +14,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 |----|-------|------|-------------|-----------------------------|
 | [IA-001](#ia-001--paso-1-workspace-con-pub-workspaces-y-melos-8) | 2026-10-03 | Paso 1 · Workspace + Melos 8 | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-002](#ia-002--paso-a-makefile-documentación-y-templates-de-github) | 2026-10-03 | Paso (a) · Makefile, docs y templates | Claude Code (Claude Opus 5.5) | 3 |
+| [IA-003](#ia-003--paso-b-flavors-dev-y-prod) | 2026-10-03 | Paso (b) · Flavors dev y prod | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -67,6 +68,10 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
   Lección: verificar **todos** los scripts que se crean, no solo los que pide el paso.
 - **Documentación:** no aplica en este paso.
 - **Pruebas:** no se agregaron (paso de configuración); se comprobó que los tests existentes siguen pasando.
+
+### Resultado
+
+- PR #1 mergeado por rebase el 2026-10-03, sin cambios respecto de lo propuesto (árbol idéntico al commit de la IA).
 
 ### Revisión del autor
 
@@ -127,6 +132,94 @@ La IA los detectó en una revisión propia antes de entregar el paso:
 - **Calidad:** la plantilla de PR y CODEOWNERS dejan explícitas las reglas de calidad y de dependencias desde el inicio.
 - **Documentación:** se creó toda la estructura de `docs/`. Las secciones que dependen de pasos futuros quedaron marcadas como _Pendiente_.
 - **Pruebas:** no aplica; `make coverage` deja lista la medición de cobertura.
+
+### Resultado
+
+- PR #2 mergeado por rebase el 2026-10-03, sin cambios respecto de lo propuesto (árbol idéntico al commit de la IA).
+- El autor agregó después `CLAUDE.md` (PR #3) con el roadmap y las convenciones; el nombre del PR de tooling en ese
+  roadmap (`chore/tooling-and-docs`) no coincidía con los PRs reales y se corrigió en `feat/flavors`.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-003 · Paso (b): flavors dev y prod
+
+- **Rama:** `feat/flavors`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** [complemento de estándares](prompts/01-standards-complement.md), sección Flavors: dev y prod
+  en Android e iOS, `main_dev.dart` / `main_prod.dart`, `AppConfig`, una app de Firebase por flavor y herramientas de
+  debug solo en dev. El autor eligió hacer Android e iOS juntos y luego pidió que la IA ejecutara también los comandos
+  de `flutterfire configure`.
+
+### Qué produjo la IA
+
+- Android: `productFlavors` `dev` (sufijo `.dev`) y `prod`, nombre por `manifestPlaceholders` y un
+  `google-services.json` por flavor.
+- iOS: script de migración [`tool/setup_ios_flavors.rb`](../../apps/banking_app/tool/setup_ios_flavors.rb):
+  configuraciones `<Modo>-<flavor>`, `.xcconfig` por flavor, schemes `dev` y `prod`, deployment target 15.0 y un
+  build phase propio que copia el `GoogleService-Info.plist` del flavor.
+- Dart: `AppConfig` (`enableDebugTools` solo en dev), `bootstrap`, entry points por flavor y `flutter run` sin
+  argumentos en dev. Cinta `DEV` en la app.
+- Ejecutó `flutterfire configure` para los dos flavors (registró las apps `.dev` en Firebase) y limpió lo que
+  flutterfire deja de más (su build phase en Xcode y entradas obsoletas de `firebase.json`).
+- 5 tests nuevos, entre ellos uno que detecta si los nombres de Dart y los nativos se desincronizan.
+- ADR-002, sección de flavors en `deployment-operations.md` y configuraciones de VS Code.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Supuso que iOS usaba CocoaPods.** Creó un `Podfile` con las configuraciones de cada flavor, pero Flutter 3.44
+   resuelve todos los plugins con Swift Package Manager. El `pod install` integró CocoaPods al proyecto sin
+   necesidad. Se deshizo con `pod deintegrate` y se eliminó el `Podfile`.
+2. **Rutas mal armadas en el script de Xcode.** Creó las referencias a los `.xcconfig` como si el grupo `Flutter`
+   tuviera ruta propia (no la tiene). Xcode no encontraba los archivos y el bundle ID quedaba sin resolver
+   (`Building $(PRODUCT_BUNDLE_IDENTIFIER)`). Se corrigió el script y se volvió a ejecutar sobre el proyecto original,
+   para que el resultado fuera reproducible.
+3. **Ejecutó dos comandos de Flutter en paralelo.** Un build de iOS y un `analyze` regeneraron a la vez los mismos
+   archivos efímeros y uno falló (`Unable to delete .../ephemeral/Packages/.packages`). Se repitió en secuencia.
+4. **Trabajó con cambios en el índice dentro de una carpeta compartida.** Otra sesión de Claude trabajaba en la misma
+   carpeta, cambió de rama e hizo un commit que se llevó por accidente los renombres de flavors (rama
+   `docs/design-reference`, commit `fd09d09`). La IA no había verificado si había otras sesiones activas. Se
+   movió el trabajo a un worktree propio (`../bi-digital-banking-flavors`) y se dejó la carpeta compartida limpia.
+
+### Hallazgos que no causó la IA
+
+- El deployment target de iOS (13.0) era incompatible con `firebase_core` 4.x (exige 15.0): iOS no compilaba
+  desde que se agregó Firebase.
+- Con `--ios-build-config`, flutterfire agrega un script que, en las configuraciones que no conoce (por ejemplo,
+  `Release-dev`), **termina sin error y sin copiar el plist**. Por eso se usa un build phase propio.
+- Flutter 3.44.7 con Xcode 27: `flutter build ios --simulator` falla porque el `lipo` de Xcode 27 solo acepta una
+  arquitectura en `-verify_arch`. Documentado en `deployment-operations.md`, con alternativas.
+
+### Decisiones para revisar
+
+- Un solo proyecto Firebase con una app por flavor: dev y prod comparten datos (ADR-002).
+- `flutter run` sin argumentos arranca dev (`default-flavor: dev` y `lib/main.dart`, que reexporta `main_dev.dart`).
+- flutterfire mantuvo en `firebase_options_prod.dart` las opciones de web, macOS y Windows que ya existían; las de
+  dev solo tienen Android e iOS. No afecta a las plataformas soportadas.
+
+### Verificación
+
+- `melos run analyze` (8 paquetes), `melos run test` y `melos run format`: OK.
+- Builds debug de Android: `com.dennis.banking_app.dev` ("BI Dev") y `com.dennis.banking_app` ("BI Banca"),
+  verificados con `aapt2 dump badging`.
+- Builds debug de iOS para dispositivo sin firma: `com.dennis.bankingApp.dev` ("BI Dev") y
+  `com.dennis.bankingApp` ("BI Banca"), con el `GoogleService-Info.plist` de cada flavor dentro del bundle.
+- Build **Release-dev** de iOS: el bundle incluye el plist de dev. Es el caso que el script de flutterfire omitía.
+- No se ejecutó la app en un emulador o dispositivo; los builds y los bundles generados se inspeccionaron.
+
+### Impacto
+
+- **Productividad:** unos 45 minutos (de 13:55 a 14:40), contra 30 estimados solo para Android. El tiempo extra se
+  fue en los problemas de herramientas de iOS y en el choque entre sesiones.
+- **Calidad:** salieron a la luz dos problemas latentes (deployment target y script silencioso de flutterfire) antes
+  de que afectaran la demo.
+- **Documentación:** ADR-002, sección de flavors y problema conocido de Xcode 27 en `deployment-operations.md`.
+- **Pruebas:** 5 tests de la app (antes había 1 de ejemplo).
 
 ### Revisión del autor
 
