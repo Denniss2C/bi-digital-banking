@@ -11,6 +11,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- CI en GitHub Actions: bootstrap, formato, análisis, tests y verificación del código generado en cada push y
+  PR a `main`, con los mismos targets del Makefile. Badge de CI en el README.
 - App shell: inyección de dependencias con get_it + injectable (el `ChaosController` solo se registra en el
   entorno `dev`), go_router con splash, login (placeholder) y barra inferior de 4 pestañas
   (`StatefulShellRoute`), e i18n con ARB en español (por defecto) e inglés.
