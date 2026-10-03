@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "230628255456",
+    "project_id": "bi-digital-banking",
+    "storage_bucket": "bi-digital-banking.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230628255456:android:eea21c0fa433209728d285",
+        "android_client_info": {
+          "package_name": "com.dennis.banking_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsk07b7lv78aG3vWffgzjqefFicV2rNno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230628255456:android:f0ef766ecee7e62928d285",
+        "android_client_info": {
+          "package_name": "com.dennis.banking_app.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsk07b7lv78aG3vWffgzjqefFicV2rNno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

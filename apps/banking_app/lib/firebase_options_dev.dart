@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart'
 ///
 /// Example:
 /// ```dart
-/// import 'firebase_options.dart';
+/// import 'firebase_options_dev.dart';
 /// // ...
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
@@ -17,7 +17,10 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -25,9 +28,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,19 +49,9 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD413zNcBRjvrPPh9U6N3nCqKoPyadZjVw',
-    appId: '1:230628255456:web:75b0f3e3e7f3b43728d285',
-    messagingSenderId: '230628255456',
-    projectId: 'bi-digital-banking',
-    authDomain: 'bi-digital-banking.firebaseapp.com',
-    storageBucket: 'bi-digital-banking.firebasestorage.app',
-    measurementId: 'G-LGSLG4JQQZ',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAsk07b7lv78aG3vWffgzjqefFicV2rNno',
-    appId: '1:230628255456:android:eea21c0fa433209728d285',
+    appId: '1:230628255456:android:f0ef766ecee7e62928d285',
     messagingSenderId: '230628255456',
     projectId: 'bi-digital-banking',
     storageBucket: 'bi-digital-banking.firebasestorage.app',
@@ -60,29 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAaz4fecUDxX08jRJLG3JN8gvVULiNaY48',
-    appId: '1:230628255456:ios:20a7dc839e60aa4128d285',
+    appId: '1:230628255456:ios:a275786eb8ef98bc28d285',
     messagingSenderId: '230628255456',
     projectId: 'bi-digital-banking',
     storageBucket: 'bi-digital-banking.firebasestorage.app',
-    iosBundleId: 'com.dennis.bankingApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAaz4fecUDxX08jRJLG3JN8gvVULiNaY48',
-    appId: '1:230628255456:ios:20a7dc839e60aa4128d285',
-    messagingSenderId: '230628255456',
-    projectId: 'bi-digital-banking',
-    storageBucket: 'bi-digital-banking.firebasestorage.app',
-    iosBundleId: 'com.dennis.bankingApp',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD413zNcBRjvrPPh9U6N3nCqKoPyadZjVw',
-    appId: '1:230628255456:web:1c5210875450c0b028d285',
-    messagingSenderId: '230628255456',
-    projectId: 'bi-digital-banking',
-    authDomain: 'bi-digital-banking.firebaseapp.com',
-    storageBucket: 'bi-digital-banking.firebasestorage.app',
-    measurementId: 'G-5QDZF2SNJ7',
+    iosBundleId: 'com.dennis.bankingApp.dev',
   );
 }

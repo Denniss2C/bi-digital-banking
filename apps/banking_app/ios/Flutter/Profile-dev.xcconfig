@@ -1,0 +1,3 @@
+// Profile build of the dev flavor: Flutter's Release settings + dev overrides.
+#include "Release.xcconfig"
+#include "dev.xcconfig"
