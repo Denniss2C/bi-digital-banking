@@ -20,6 +20,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-006](#ia-006--core-network-retry-y-chaos) | 2026-10-03 | Paso 2 · core-network (retry y chaos) | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-007](#ia-007--design-system-nexo) | 2026-10-03 | Paso 3 · design-system | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-008](#ia-008--app-shell-di-router-e-i18n) | 2026-10-03 | Paso 4 · app-shell | Claude Code (Claude Opus 5.5) | 0 |
+| [IA-009](#ia-009--ci-con-github-actions) | 2026-10-03 | Paso 5 · CI | Claude Code (Claude Opus 5.5) | 0 |
 
 ---
 
@@ -492,6 +493,65 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** la exclusión de las herramientas de debug en prod queda garantizada por la DI y cubierta por un test.
 - **Documentación:** roadmap y CHANGELOG.
 - **Pruebas:** 15 tests en la app (antes 5).
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-009 · CI con GitHub Actions
+
+- **Rama:** `ci/github-actions`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal y a `gh`.
+- **Prompt (resumen):** [prompt maestro](prompts/00-master-prompt.md), paso 5: setup de Flutter, melos, bootstrap,
+  analyze y test en cada push a `main`. Del roadmap: marcar el check como obligatorio en `main`.
+
+### Qué produjo la IA
+
+- **Workflow** `.github/workflows/ci.yml`:
+  - Flutter 3.44.7 fijo con caché;
+  - los mismos targets del Makefile que se usan en local;
+  - una verificación de que el código generado esté al día;
+  - concurrencia por rama y permisos de solo lectura.
+- **Versiones vigentes de las actions**, consultadas en GitHub antes de escribir el workflow (`actions/checkout@v7`,
+  `subosito/flutter-action@v2`).
+- **Check obligatorio en `main`.** La IA leyó primero la protección actual y el `app_id` real del check run (15368,
+  GitHub Actions). Después aplicó la protección completa, conservando todas las reglas existentes y agregando solo el
+  check.
+- **Documentación** del pipeline (con tiempos medidos) y badge de CI en el README.
+
+### Errores de la IA
+
+- No hubo errores en lo entregado. El primer run de CI pasó en verde.
+- Un intento de validar el YAML falló porque no había herramientas instaladas (`actionlint`, PyYAML); se validó con
+  Ruby.
+
+### Decisiones para revisar
+
+- `dart run melos` en vez de "activar melos" de forma global, como decía el prompt: así CI usa la versión del
+  lockfile, igual que en local.
+- `strict: false`: no exige que el PR esté actualizado con `main` antes de mergear. GitHub igual prueba el merge del
+  PR con `main`.
+- La verificación del código generado cuesta unos 3 minutos por run. Se aceptó a cambio de versionar ese código con
+  garantías.
+
+### Verificación
+
+- Run de CI del PR #10: verde en 6 min 46 s, con todos los pasos en `success`.
+- Antes de subir se probó en local el chequeo de código generado (`make gen` + `git diff --exit-code`, sin
+  diferencias).
+- La respuesta de la API de protección confirma el check obligatorio y que se mantuvieron PR obligatorio, historial
+  lineal y la prohibición de force push y de borrado.
+
+### Impacto
+
+- **Productividad:** unos 15 minutos de trabajo más la espera del run.
+- **Calidad:** ningún PR puede entrar a `main` sin formato, análisis, tests y código generado en verde.
+- **Documentación:** pipeline con pasos, tiempos y una optimización posible.
+- **Pruebas:** toda la suite se ejecuta en cada PR.
 
 ### Revisión del autor
 
