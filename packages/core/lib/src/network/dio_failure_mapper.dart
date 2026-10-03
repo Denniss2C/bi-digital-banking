@@ -13,7 +13,7 @@ Failure mapDioException(DioException exception) {
     case DioExceptionType.badResponse:
       final statusCode = exception.response?.statusCode;
       if (statusCode == 401 || statusCode == 403) {
-        return AuthFailure(details);
+        return AuthFailure(message: details);
       }
       return ServerFailure(statusCode: statusCode, message: details);
     // transformTimeout: the response arrived but decoding it took too long.

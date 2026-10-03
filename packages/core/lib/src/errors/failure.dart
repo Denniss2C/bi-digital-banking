@@ -34,7 +34,27 @@ final class CacheFailure extends Failure {
   const CacheFailure([super.message = 'Cache error']);
 }
 
+/// Why an authentication operation failed. The UI maps each code to a
+/// localized message.
+enum AuthErrorCode {
+  invalidCredentials,
+  invalidEmail,
+  userDisabled,
+  emailAlreadyInUse,
+  weakPassword,
+  tooManyRequests,
+  unknown,
+}
+
 /// Invalid credentials, expired session or missing permissions.
 final class AuthFailure extends Failure {
-  const AuthFailure([super.message = 'Authentication error']);
+  const AuthFailure({
+    this.code = AuthErrorCode.unknown,
+    String message = 'Authentication error',
+  }) : super(message);
+
+  final AuthErrorCode code;
+
+  @override
+  List<Object?> get props => [message, code];
 }
