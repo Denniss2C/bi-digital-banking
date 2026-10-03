@@ -38,13 +38,15 @@ melos:
       packageFilters:
         dirExists: test
 
+    # Only Dart files known to git: ignored folders such as build/ can hold
+    # third-party sources (Swift Package Manager checkouts of plugins).
     format:
       description: Check formatting (fails if any file needs changes).
-      run: dart format --set-exit-if-changed .
+      run: dart format --set-exit-if-changed $(git ls-files --cached --others --exclude-standard '*.dart')
 
     format:fix:
       description: Apply formatting to the whole workspace.
-      run: dart format .
+      run: dart format $(git ls-files --cached --others --exclude-standard '*.dart')
 
     build_runner:
       description: Run code generation on packages that use build_runner.
