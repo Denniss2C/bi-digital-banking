@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "loading": "Loading",
+  "tabHome": "Home",
+  "tabAccounts": "Accounts",
+  "tabFx": "Currencies",
+  "tabProfile": "Profile",
+  "comingSoonMessage": "This section arrives in the next phases of the project.",
+  "loginTitle": "Sign in",
+  "loginPlaceholderMessage": "Firebase sign-in arrives in the authentication step. For now you can continue to the app.",
+  "continueAction": "Continue"
+}

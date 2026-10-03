@@ -1,0 +1,39 @@
+{
+  "@@locale": "es",
+  "loading": "Cargando",
+  "@loading": {
+    "description": "Screen reader label for generic loading states."
+  },
+  "tabHome": "Inicio",
+  "@tabHome": {
+    "description": "Bottom navigation: home tab."
+  },
+  "tabAccounts": "Cuentas",
+  "@tabAccounts": {
+    "description": "Bottom navigation: accounts tab."
+  },
+  "tabFx": "Divisas",
+  "@tabFx": {
+    "description": "Bottom navigation: foreign exchange tab."
+  },
+  "tabProfile": "Perfil",
+  "@tabProfile": {
+    "description": "Bottom navigation: profile tab."
+  },
+  "comingSoonMessage": "Esta sección llega en las siguientes fases del proyecto.",
+  "@comingSoonMessage": {
+    "description": "Placeholder text for sections that are not implemented yet."
+  },
+  "loginTitle": "Iniciar sesión",
+  "@loginTitle": {
+    "description": "Title of the login screen."
+  },
+  "loginPlaceholderMessage": "El inicio de sesión con Firebase llega en el paso de autenticación. Por ahora puedes continuar a la app.",
+  "@loginPlaceholderMessage": {
+    "description": "Explains that the login screen is a temporary placeholder."
+  },
+  "continueAction": "Continuar",
+  "@continueAction": {
+    "description": "Generic continue button."
+  }
+}

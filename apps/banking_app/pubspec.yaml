@@ -24,6 +24,9 @@ dependencies:
   get_it: ^9.3.0
   injectable: ^3.0.0
   go_router: ^18.0.2
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
@@ -37,5 +40,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Generates lib/l10n/gen from the ARB files (see l10n.yaml).
+  generate: true
   # `flutter run` without --flavor uses dev (see lib/main.dart).
   default-flavor: dev
