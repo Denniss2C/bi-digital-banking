@@ -17,6 +17,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-003](#ia-003--paso-b-flavors-dev-y-prod) | 2026-10-03 | Paso (b) · Flavors dev y prod | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-004](#ia-004--referencia-visual-de-diseño-stitch) | 2026-10-03 | Referencia visual de diseño | Google Stitch + Claude Code (sesión paralela) | 1 |
 | [IA-005](#ia-005--alinear-el-proyecto-con-el-diseño-nexo) | 2026-10-03 | Alinear el proyecto con el diseño | Claude Code (Claude Opus 5.5) | 1 |
+| [IA-006](#ia-006--core-network-retry-y-chaos) | 2026-10-03 | Paso 2 · core-network (retry y chaos) | Claude Code (Claude Opus 5.5) | 1 |
 
 ---
 
@@ -319,6 +320,66 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** se detectan tres problemas de accesibilidad antes de escribir la UI.
 - **Documentación:** el alcance por pantalla queda explícito; sirve para justificar los recortes en la demo.
 - **Pruebas:** sin tests nuevos; el existente cubre el renombre.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-006 · core-network: retry y chaos
+
+- **Rama:** `feat/core-network`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** [prompt maestro](prompts/00-master-prompt.md), paso 2: cliente dio con `RetryInterceptor`
+  (backoff exponencial con jitter, máx. 3 intentos, solo errores transitorios) y `ChaosInterceptor` configurable en
+  runtime (latencia, % de fallos, sin red), con tests unitarios.
+
+### Qué produjo la IA
+
+- `Failure` sellados con equatable y `mapDioException` (`DioException` → `Failure`).
+- `RetryPolicy` y `RetryInterceptor`: 3 intentos en total, *full jitter* con tope, solo errores transitorios y métodos
+  idempotentes. Cada reintento pasa otra vez por todos los interceptores.
+- `ChaosConfig`, `ChaosController` (`ValueNotifier`) y `ChaosInterceptor`: inyecta latencia, HTTP 503 o modo sin red,
+  y lee la configuración en cada request.
+- `createDioClient`: `[Retry, Chaos?]`. El caos se agrega solo si el shell pasa un controller, es decir, solo en dev.
+- 21 tests deterministas (adaptador HTTP falso, `Random` y esperas inyectados).
+
+### Antes de implementar
+
+- **Revisión del código fuente de dio 5.11.** Mostró que un `reject(error)` en `onRequest` **no** ejecuta los
+  `onError` del resto de los interceptores. El caos usa `reject(error, true)`. Si no, sus fallos nunca llegarían al
+  retry y la demo de resiliencia no probaría nada.
+- **Prueba de mutación manual.** Se cambió ese `true` por `false` y los dos tests de integración Chaos + Retry
+  fallaron. Con eso se confirma que los tests detectan el problema; después se restauró el código.
+
+### Error de la IA y cómo se corrigió
+
+1. **Estilo que rompía `--fatal-infos`.** El primer borrador asignaba parámetros a campos privados
+   (`_dio = dio`, `_delay = delay`), y el lint `prefer_initializing_formals` lo marca como info, que con
+   `--fatal-infos` hace fallar el análisis. Se cambió a campos públicos con initializing formals. Además, el `switch`
+   del mapper no cubría `DioExceptionType.transformTimeout`, un tipo nuevo de dio 5.11; el análisis lo detectó.
+
+### Decisiones para revisar
+
+- "Máx. 3 intentos" se interpretó como 3 en total (1 + 2 reintentos), configurable con `RetryPolicy.maxAttempts`.
+- El modo sin red también se reintenta, porque es un error de conexión y se trata como transitorio. Con la red caída
+  de verdad, el usuario espera hasta unos 1.2 s antes del error final.
+- `core` no usa anotaciones de injectable todavía: el shell compone las dependencias en `feat/app-shell`.
+
+### Verificación
+
+- `flutter analyze --fatal-infos` sin issues y 21 tests de `core` en verde.
+- Prueba de mutación del `reject(error, true)` (ver arriba).
+
+### Impacto
+
+- **Productividad:** unos 25 minutos. Leer el código de dio evitó un error silencioso que habría aparecido recién en la demo.
+- **Calidad:** la política de reintentos es configurable y testeable sin red ni esperas reales.
+- **Documentación:** `docs/resilience.md` con la política real, el detalle de dio y el mapa de escenarios y tests.
+- **Pruebas:** 21 tests nuevos en `core`; se eliminó el test de ejemplo del scaffold.
 
 ### Revisión del autor
 

@@ -217,7 +217,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [x] `feat/flavors`: dev/prod (Android productFlavors + iOS schemes), `main_dev.dart`/`main_prod.dart`, `AppConfig`, Firebase por flavor
   - Nota: el bundle ID de iOS es `com.dennis.bankingApp` porque iOS no admite `_`; el de dev es `com.dennis.bankingApp.dev`.
   - Detalle y comandos de flutterfire en `docs/deployment-operations.md`; decisión en ADR-002.
-- [ ] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
+- [x] `feat/core-network`: cliente dio + RetryInterceptor + ChaosInterceptor + tests
+  - 3 intentos en total (1 + 2 reintentos); el caos rechaza con `reject(error, true)` para que lo vea el retry. Detalle en `docs/resilience.md`.
 - [ ] `feat/design-system`: tema claro/oscuro, tokens, AppButton, AppCard, AppErrorView(onRetry), AppLoading
   - Tokens y reglas de contraste de §4 *Producto y diseño visual*; Inter empaquetada; tema oscuro derivado.
 - [ ] `feat/app-shell`: Firebase init, get_it/injectable, go_router (/splash, /login, /home), i18n es/en

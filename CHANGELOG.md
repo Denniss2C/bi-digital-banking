@@ -11,6 +11,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- `core`: cliente HTTP (`createDioClient`) con `RetryInterceptor` (3 intentos, backoff exponencial con jitter,
+  solo errores transitorios y métodos idempotentes) y `ChaosInterceptor` configurable en runtime
+  (latencia, % de fallos, sin red).
+- `core`: `Failure` tipados (`NetworkFailure`, `ServerFailure`, `CacheFailure`, `AuthFailure`) y `mapDioException`.
 - Referencia visual de diseño "Nexo Digital" (Stitch) en `docs/design/`: tokens de color, tipografía,
   formas y espaciado, más 7 pantallas de referencia.
 - Flavors `dev` y `prod`: product flavors en Android, configuraciones de build y schemes en iOS,
