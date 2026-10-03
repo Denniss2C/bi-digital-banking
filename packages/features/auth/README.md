@@ -1,39 +1,37 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# auth
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Feature de autenticación de Nexo: onboarding, registro, inicio de sesión y sesión. Dueño: `@team-auth`.
+Depende solo de `core`, `design_system` y `sdui`; el shell (`apps/banking_app`) lo compone.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## Capas
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```text
+lib/src/
+  domain/   AppUser, AuthRepository, OnboardingRepository   (sin Flutter ni Firebase)
+  data/     FirebaseAuthRepository, LocalOnboardingRepository, mapeo de errores de Firebase
+  presentation/   (llega en feat/auth-ui) cubits, pantallas y textos del feature
 ```
 
-## Additional information
+- Las operaciones devuelven `Either<Failure, T>` (fpdart). Los errores de Firebase se traducen a
+  `AuthFailure(code: AuthErrorCode.…)`, y `network-request-failed` pasa a `NetworkFailure`, así la UI muestra un
+  mensaje preciso y traducido.
+- Con la protección contra enumeración de emails de Firebase (activa por defecto), una contraseña incorrecta y un
+  email inexistente llegan como `invalid-credential`: la app nunca revela si una cuenta existe.
+- La sesión la persiste Firebase en el dispositivo. `userChanges()` emite en cada inicio y cierre de sesión y en cada
+  cambio de perfil, como el nombre guardado al registrarse.
+- El onboarding "visto" es una marca del **dispositivo** (en un `KeyValueStore` de `core`), porque se muestra antes
+  de que haya un usuario.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+## Sin capa de casos de uso (decisión)
+
+En este feature, cada caso de uso sería un pasamanos de una línea hacia el repositorio, así que los cubits usan el
+repositorio directamente. Los casos de uso se agregan donde orquestan lógica de negocio; por ejemplo, una
+transferencia valida saldo y mueve dinero entre cuentas en una transacción.
+
+## Tests
+
+```bash
+cd packages/features/auth && flutter test
+```
+
+Firebase se mockea con mocktail: no hace falta un proyecto ni red.
