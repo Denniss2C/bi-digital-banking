@@ -233,6 +233,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 
 ### Fase 2 — Núcleo funcional (sábado noche)
 - [ ] `feat/auth`: onboarding (2-3 pantallas), registro, login, sesión persistente, logout, redirect con go_router
+  - Partido en dos PRs: `feat/auth-data` (dominio + datos, hecho) y `feat/auth-ui` (cubits, pantallas, redirect, textos).
   - Pantallas `onboarding_*` y `autenticaci_n_*`: email y contraseña; login con cédula y biometría quedan fuera.
 - [ ] `feat/accounts-data`: modelo Firestore, seed al registrarse, reglas de seguridad
 - [ ] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados

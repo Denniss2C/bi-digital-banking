@@ -22,6 +22,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-008](#ia-008--app-shell-di-router-e-i18n) | 2026-10-03 | Paso 4 · app-shell | Claude Code (Claude Opus 5.5) | 0 |
 | [IA-009](#ia-009--ci-con-github-actions) | 2026-10-03 | Paso 5 · CI | Claude Code (Claude Opus 5.5) | 1 (proceso) |
 | [IA-010](#ia-010--adr-001-monorepo-modular) | 2026-10-03 | Paso 6 · ADR-001 | Claude Code (Claude Opus 5.5) | 0 |
+| [IA-011](#ia-011--auth-dominio-y-datos) | 2026-10-03 | Fase 2 · auth (datos) | Claude Code (Claude Opus 5.5) | 0 |
 
 ---
 
@@ -595,6 +596,63 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Productividad:** unos 10 minutos.
 - **Documentación:** la decisión de estructura queda justificada con datos del propio proyecto (fronteras que hace
   cumplir el compilador, un solo lockfile, CI de unos 7 minutos).
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-011 · Auth: dominio y datos
+
+- **Rama:** `feat/auth-data`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** roadmap de `CLAUDE.md`, ítem `feat/auth` (onboarding, registro, login, sesión persistente,
+  logout). La IA propuso partirlo en dos PRs (datos y UI) por tamaño.
+
+### Qué produjo la IA
+
+- **`core`:** `AuthErrorCode` en `AuthFailure` y `KeyValueStore` + `HiveKeyValueStore` (hive_ce).
+- **`auth`:**
+  - entidad `AppUser`, contratos `AuthRepository` y `OnboardingRepository`;
+  - `FirebaseAuthRepository`, que traduce cada código de Firebase a un `Failure` y usa `userChanges()` para que el
+    nombre guardado al registrarse se refleje en la sesión;
+  - `LocalOnboardingRepository`.
+- **Decisión documentada:** sin capa de casos de uso en `auth`, porque serían pasamanos (README del paquete).
+- **24 tests nuevos:** 20 en `auth` (Firebase mockeado con mocktail, mapeo de cada código y onboarding) y 4 en
+  `core` (store con un Hive real en un directorio temporal).
+
+### Hallazgo durante el paso
+
+- `flutter pub add firebase_auth` hizo que Swift Package Manager dejara una copia del **código fuente del plugin**
+  en `build/ios` y `build/macos` (del paquete y de la app). `flutter analyze` (678 issues) y `dart format .` la
+  revisaban y fallaban en local. Se corrigió de raíz:
+  - `build/**` excluido en el `analysis_options.yaml` de los 8 paquetes;
+  - los scripts de formato pasan a revisar solo los archivos `.dart` conocidos por git (`git ls-files`).
+
+  Se verificó que la exclusión funciona con la carpeta presente (regenerada con `pub get`) y que el chequeo de formato
+  sigue fallando con un archivo mal formateado de prueba.
+
+### Errores de la IA
+
+- No hubo errores en lo entregado. Antes de corregir el problema de `build/` se diagnosticó su causa: se revisaron
+  las fechas de creación de la carpeta y la salida de `dart format`.
+
+### Verificación
+
+- `melos run analyze` (8 paquetes sin issues), `format` y `test` en verde. La app compila (APK de dev) con el plugin
+  nuevo.
+- Los registrants de plugins de la app (macOS y Windows) se regeneraron por el plugin nuevo y se versionan. Si no, el
+  chequeo de código generado de CI fallaría.
+
+### Impacto
+
+- **Productividad:** unos 30 minutos, incluido el diagnóstico de `build/`.
+- **Calidad:** errores de autenticación tipados (nunca se revela si un email existe) y pruebas sin Firebase real.
+- **Documentación:** README del paquete con capas, decisiones y tests.
+- **Pruebas:** 24 tests nuevos.
 
 ### Revisión del autor
 
