@@ -1,0 +1,29 @@
+# Domain ownership: each package is maintained by an independent team.
+#
+# The @team-* handles are fictitious (technical test). In a real GitHub
+# organization they would be @<org>/team-*. GitHub flags owners without write
+# access as unknown, so the default owner is a real account.
+#
+# The last matching pattern takes precedence.
+
+*                                   @Denniss2C
+
+# Platform: shell, cross-cutting infrastructure and tooling
+/apps/banking_app/                  @team-platform
+/packages/core/                     @team-platform
+/pubspec.yaml                       @team-platform
+/Makefile                           @team-platform
+/.github/                           @team-platform
+
+# Shared UI
+/packages/design_system/            @team-design-system
+/packages/sdui/                     @team-sdui
+
+# Business domains
+/packages/features/auth/            @team-auth
+/packages/features/accounts/        @team-accounts
+/packages/features/notifications/   @team-notifications
+/packages/features/fx_rates/        @team-fx
+
+# Architecture decisions
+/docs/adr/                          @team-architecture
