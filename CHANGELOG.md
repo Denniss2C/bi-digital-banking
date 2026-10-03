@@ -11,6 +11,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- App shell: inyección de dependencias con get_it + injectable (el `ChaosController` solo se registra en el
+  entorno `dev`), go_router con splash, login (placeholder) y barra inferior de 4 pestañas
+  (`StatefulShellRoute`), e i18n con ARB en español (por defecto) e inglés.
 - `design_system`: tokens de "Nexo Digital", temas claro y oscuro (Material 3) con la fuente Inter empaquetada y
   componentes accesibles: `AppButton`, `AppCard`, `AppLoading`, `AppErrorView` y `AppEmptyView`.
 - Tests de contraste WCAG AA en ambos temas y de texto escalado al 200%.
@@ -38,6 +41,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- Tema de la barra de navegación inferior: acento naranja en la píldora indicadora, íconos y textos con contraste AA.
 - La app usa los temas del design system (claro y oscuro según el sistema) y registra la licencia de Inter.
 - Los nombres visibles de la app adoptan la marca del diseño: "Nexo" (prod) y "Nexo Dev" (dev).
 - `CLAUDE.md` incorpora el diseño "Nexo Digital": tokens, reglas de contraste AA, navegación y alcance por pantalla.
