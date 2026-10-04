@@ -1,5 +1,7 @@
 import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
+import 'package:banking_app/app/debug/debug_page.dart';
+import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/home/home_page.dart';
 import 'package:banking_app/app/pages/coming_soon_page.dart';
 import 'package:banking_app/app/personalization/personalization_config.dart';
@@ -25,6 +27,7 @@ GoRouter createRouter({
   required OnboardingRepository onboardingRepository,
   required AuthRepository authRepository,
   required AccountsRepository accountsRepository,
+  DebugTools? debugTools,
   String initialLocation = AppRoutes.splash,
 }) {
   // Tabs are only reachable when signed in (see authRedirect).
@@ -138,7 +141,23 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: AppRoutes.profile,
-                builder: (context, state) => const ProfilePage(),
+                builder: (context, state) => ProfilePage(
+                  onOpenDebug: debugTools == null
+                      ? null
+                      : () => context.go(AppRoutes.debug),
+                ),
+                routes: [
+                  // Dev flavor only: in prod the route does not exist.
+                  if (debugTools != null)
+                    GoRoute(
+                      path: 'debug',
+                      builder: (context, state) => DebugPage(
+                        tools: debugTools,
+                        accounts: accountsRepository,
+                        userId: userId(),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),

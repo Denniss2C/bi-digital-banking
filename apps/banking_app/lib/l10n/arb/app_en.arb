@@ -10,5 +10,21 @@
   "profileSignedInAs": "Signed in as {email}",
   "homeGreeting": "Hi, {name}!",
   "homeGreetingNoName": "Hi!",
-  "featureUnavailable": "This feature is not available right now."
+  "featureUnavailable": "This feature is not available right now.",
+  "debugEntry": "Debug panel",
+  "debugEntryHint": "Dev only: chaos mode, network and segments",
+  "debugHttpTitle": "HTTP network (chaos mode)",
+  "debugHttpHint": "Affects the app's HTTP calls, such as Exchange. Injected failures go through the retries.",
+  "debugChaosEnabled": "Enable chaos mode",
+  "debugLatency": "Latency: {ms} ms",
+  "debugFailureRate": "Failures: {percent}%",
+  "debugHttpOffline": "No network (HTTP)",
+  "debugFirestoreHint": "Offline, the app works from its offline cache: accounts show the notice and transfers explain they need internet.",
+  "debugFirestoreOnline": "Firestore connected",
+  "debugSegmentTitle": "Customer segment",
+  "debugSegmentHint": "Changes the segment stored in Firestore: Remote Config sends that segment's home live.",
+  "debugRemoteConfigTitle": "Remote Config",
+  "debugFetchNow": "Fetch values now",
+  "debugOn": "On",
+  "debugOff": "Off"
 }

@@ -29,6 +29,12 @@ class _RecordingAccounts implements AccountsRepository {
       const Stream.empty();
 
   @override
+  Future<Either<Failure, Unit>> setSegment({
+    required String userId,
+    required String segment,
+  }) async => const Right(unit);
+
+  @override
   Future<Either<Failure, TransactionPage>> fetchTransactions({
     required String userId,
     required String accountId,

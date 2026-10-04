@@ -7,7 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Profile tab: current account and sign out. Signing out changes the
 /// session and the router sends the user back to the login.
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({this.onOpenDebug, super.key});
+
+  /// Opens the debug panel; only given in the dev flavor.
+  final VoidCallback? onOpenDebug;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +54,36 @@ class ProfilePage extends StatelessWidget {
                     ],
                   ),
                 ),
+              if (onOpenDebug != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                AppCard(
+                  onTap: onOpenDebug,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.bug_report_outlined),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.debugEntry,
+                              style: theme.textTheme.titleMedium,
+                            ),
+                            Text(
+                              l10n.debugEntryHint,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               AppButton(
                 label: l10n.signOutAction,
