@@ -34,4 +34,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String profileSignedInAs(String email) {
     return 'Sesión iniciada como $email';
   }
+
+  @override
+  String homeGreeting(String name) {
+    return '¡Hola, $name!';
+  }
+
+  @override
+  String get homeGreetingNoName => '¡Hola!';
 }

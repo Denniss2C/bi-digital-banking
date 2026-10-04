@@ -36,5 +36,18 @@
         "type": "String"
       }
     }
+  },
+  "homeGreeting": "¡Hola, {name}!",
+  "@homeGreeting": {
+    "description": "Home header with the first name of the customer.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingNoName": "¡Hola!",
+  "@homeGreetingNoName": {
+    "description": "Home header when the customer has no name yet."
   }
 }

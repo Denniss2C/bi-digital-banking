@@ -14,4 +14,17 @@ abstract final class AppRoutes {
   static String accountDetail(String accountId) => '$accounts/$accountId';
   static const fx = '/fx';
   static const profile = '/profile';
+
+  /// Whether [location] is a screen of this app version. Server-driven
+  /// navigation (SDUI actions) may only open these.
+  static bool isAppLocation(String location) {
+    final uri = Uri.tryParse(location);
+    if (uri == null || uri.hasScheme || uri.hasAuthority) return false;
+    return const [
+      home,
+      accounts,
+      fx,
+      profile,
+    ].any((tab) => uri.path == tab || uri.path.startsWith('$tab/'));
+  }
 }

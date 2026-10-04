@@ -7,5 +7,7 @@
   "tabProfile": "Profile",
   "comingSoonMessage": "This section arrives in the next phases of the project.",
   "signOutAction": "Sign out",
-  "profileSignedInAs": "Signed in as {email}"
+  "profileSignedInAs": "Signed in as {email}",
+  "homeGreeting": "Hi, {name}!",
+  "homeGreetingNoName": "Hi!"
 }
