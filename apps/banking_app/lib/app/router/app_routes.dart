@@ -1,7 +1,11 @@
 /// Route paths of the app shell. Features add their own sub-routes here.
 abstract final class AppRoutes {
   static const splash = '/splash';
+  static const onboarding = '/onboarding';
+
+  /// Sign in; `?mode=signup` opens the create-account form.
   static const login = '/login';
+  static const signUp = '$login?mode=signup';
 
   // Bottom navigation tabs (one StatefulShellRoute branch each).
   static const home = '/home';

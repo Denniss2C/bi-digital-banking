@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
+import 'package:auth/auth.dart' as _i662;
 import 'package:banking_app/di/app_module.dart' as _i1038;
 import 'package:core/core.dart' as _i494;
 import 'package:get_it/get_it.dart' as _i174;
@@ -26,10 +27,23 @@ extension GetItInjectableX on _i174.GetIt {
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
-    gh.lazySingleton<_i583.GoRouter>(() => appModule.router);
+    gh.lazySingleton<_i662.AuthRepository>(() => appModule.authRepository);
+    gh.lazySingleton<_i662.OnboardingRepository>(
+      () => appModule.onboardingRepository(gh<_i494.KeyValueStore>()),
+    );
     gh.lazySingleton<_i494.ChaosController>(
       () => appModule.chaosController,
       registerFor: {_dev},
+    );
+    gh.lazySingleton<_i662.SessionCubit>(
+      () => appModule.sessionCubit(gh<_i662.AuthRepository>()),
+    );
+    gh.lazySingleton<_i583.GoRouter>(
+      () => appModule.router(
+        gh<_i662.SessionCubit>(),
+        gh<_i662.OnboardingRepository>(),
+        gh<_i662.AuthRepository>(),
+      ),
     );
     return this;
   }

@@ -24,16 +24,17 @@
   "@comingSoonMessage": {
     "description": "Placeholder text for sections that are not implemented yet."
   },
-  "loginTitle": "Iniciar sesión",
-  "@loginTitle": {
-    "description": "Title of the login screen."
+  "signOutAction": "Cerrar sesión",
+  "profileSignedInAs": "Sesión iniciada como {email}",
+  "@signOutAction": {
+    "description": "Profile: sign out button."
   },
-  "loginPlaceholderMessage": "El inicio de sesión con Firebase llega en el paso de autenticación. Por ahora puedes continuar a la app.",
-  "@loginPlaceholderMessage": {
-    "description": "Explains that the login screen is a temporary placeholder."
-  },
-  "continueAction": "Continuar",
-  "@continueAction": {
-    "description": "Generic continue button."
+  "@profileSignedInAs": {
+    "description": "Profile: current account.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   }
 }

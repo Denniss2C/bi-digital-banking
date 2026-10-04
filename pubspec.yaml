@@ -48,6 +48,15 @@ melos:
       description: Apply formatting to the whole workspace.
       run: dart format $(git ls-files --cached --others --exclude-standard '*.dart')
 
+    gen-l10n:
+      description: Generate localizations in every package with an l10n.yaml.
+      exec:
+        command: flutter gen-l10n
+        concurrency: 1
+        failFast: true
+      packageFilters:
+        fileExists: l10n.yaml
+
     build_runner:
       description: Run code generation on packages that use build_runner.
       exec:
