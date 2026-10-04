@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:accounts/accounts.dart';
 import 'package:accounts/src/presentation/accounts/accounts_cubit.dart';
 import 'package:accounts/src/presentation/transactions/transactions_cubit.dart';
@@ -170,5 +172,65 @@ void main() {
         ),
       ],
     );
+  });
+
+  group('TransactionsCubit after the detail closes', () {
+    test('loading the first page does not throw', () async {
+      final response = Completer<Either<Failure, TransactionPage>>();
+      when(
+        () => repository.fetchTransactions(
+          userId: 'u',
+          accountId: 'savings',
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer((_) => response.future);
+      final cubit = TransactionsCubit(
+        repository: repository,
+        userId: 'u',
+        accountId: 'savings',
+      );
+
+      final loading = cubit.load();
+      await cubit.close();
+      response.complete(const Right(TransactionPage(items: [])));
+
+      await expectLater(loading, completes);
+    });
+
+    test('loading more does not throw', () async {
+      final more = Completer<Either<Failure, TransactionPage>>();
+      var calls = 0;
+      when(
+        () => repository.fetchTransactions(
+          userId: 'u',
+          accountId: 'savings',
+          after: any(named: 'after'),
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer(
+        (_) => calls++ == 0
+            ? Future.value(
+                Right(
+                  TransactionPage(
+                    items: [movement(1)],
+                    next: const TransactionCursor('c'),
+                  ),
+                ),
+              )
+            : more.future,
+      );
+      final cubit = TransactionsCubit(
+        repository: repository,
+        userId: 'u',
+        accountId: 'savings',
+      );
+      await cubit.load();
+
+      final loadingMore = cubit.loadMore();
+      await cubit.close();
+      more.complete(const Right(TransactionPage(items: [])));
+
+      await expectLater(loadingMore, completes);
+    });
   });
 }

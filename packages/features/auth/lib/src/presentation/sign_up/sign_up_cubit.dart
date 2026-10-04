@@ -90,6 +90,8 @@ class SignUpCubit extends Cubit<SignUpState> {
       email: state.email,
       password: state.password,
     );
+    // The screen may close while waiting (e.g. the redirect after sign-in).
+    if (isClosed) return;
     emit(
       result.match(
         (failure) =>
