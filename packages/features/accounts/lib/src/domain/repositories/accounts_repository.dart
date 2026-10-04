@@ -17,6 +17,11 @@ abstract interface class AccountsRepository {
     int pageSize = 20,
   });
 
+  /// Personalization segment of the customer (`new_user` until something
+  /// else assigns one, e.g. `saver` or `traveler`). Emits on every change;
+  /// errors arrive as `Left` values instead of stream errors.
+  Stream<Either<Failure, String>> watchSegment(String userId);
+
   /// Creates the profile and the opening accounts the first time a customer
   /// signs in. Safe to call on every sign-in: it does nothing afterwards.
   Future<Either<Failure, Unit>> ensureOpeningData({

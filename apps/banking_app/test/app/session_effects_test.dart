@@ -25,6 +25,10 @@ class _RecordingAccounts implements AccountsRepository {
       const Stream.empty();
 
   @override
+  Stream<Either<Failure, String>> watchSegment(String userId) =>
+      const Stream.empty();
+
+  @override
   Future<Either<Failure, TransactionPage>> fetchTransactions({
     required String userId,
     required String accountId,

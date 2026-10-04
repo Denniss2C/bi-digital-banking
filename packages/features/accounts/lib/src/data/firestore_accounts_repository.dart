@@ -19,6 +19,9 @@ import 'package:fpdart/fpdart.dart';
 /// users/{uid}/accounts/{accountId}/transactions   movements (ledger)
 /// ```
 class FirestoreAccountsRepository implements AccountsRepository {
+  /// Segment of a customer nobody has classified yet.
+  static const defaultSegment = 'new_user';
+
   FirestoreAccountsRepository(this._firestore, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
 
@@ -61,6 +64,24 @@ class FirestoreAccountsRepository implements AccountsRepository {
             ),
           );
         })
+        .transform(
+          StreamTransformer.fromHandlers(
+            handleError: (error, stackTrace, sink) =>
+                sink.add(Left(mapFirestoreError(error))),
+          ),
+        );
+  }
+
+  @override
+  Stream<Either<Failure, String>> watchSegment(String userId) {
+    return _user(userId)
+        .snapshots()
+        .map<Either<Failure, String>>(
+          (doc) => Right(switch (doc.data()?['segment']) {
+            final String segment when segment.isNotEmpty => segment,
+            _ => defaultSegment,
+          }),
+        )
         .transform(
           StreamTransformer.fromHandlers(
             handleError: (error, stackTrace, sink) =>
@@ -126,7 +147,7 @@ class FirestoreAccountsRepository implements AccountsRepository {
         transaction.set(userRef, {
           'name': name,
           'email': email,
-          'segment': 'new_user',
+          'segment': defaultSegment,
           'onboardingCompleted': true,
           'preferences': <String, dynamic>{},
           'fcmTokens': <String>[],

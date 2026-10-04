@@ -77,28 +77,32 @@ class FakeAuthRepository implements AuthRepository {
 
 /// Static accounts and movements for shell tests.
 class FakeAccountsRepository implements AccountsRepository {
-  FakeAccountsRepository({List<Account>? accounts, this.movements = const []})
-    : accounts =
-          accounts ??
-          const [
-            Account(
-              id: 'savings',
-              type: AccountType.savings,
-              alias: 'Cuenta de Ahorros',
-              maskedNumber: '•••• 4892',
-              balanceCents: 384550,
-            ),
-            Account(
-              id: 'checking',
-              type: AccountType.checking,
-              alias: 'Cuenta Corriente',
-              maskedNumber: '•••• 1035',
-              balanceCents: 125000,
-            ),
-          ];
+  FakeAccountsRepository({
+    List<Account>? accounts,
+    this.movements = const [],
+    this.segment = 'new_user',
+  }) : accounts =
+           accounts ??
+           const [
+             Account(
+               id: 'savings',
+               type: AccountType.savings,
+               alias: 'Cuenta de Ahorros',
+               maskedNumber: '•••• 4892',
+               balanceCents: 384550,
+             ),
+             Account(
+               id: 'checking',
+               type: AccountType.checking,
+               alias: 'Cuenta Corriente',
+               maskedNumber: '•••• 1035',
+               balanceCents: 125000,
+             ),
+           ];
 
   final List<Account> accounts;
   final List<AccountTransaction> movements;
+  final String segment;
 
   /// Transfers requested so far, in order.
   final transfers = <TransferReceipt>[];
@@ -129,6 +133,10 @@ class FakeAccountsRepository implements AccountsRepository {
     required String name,
     required String email,
   }) async => const Right(unit);
+
+  @override
+  Stream<Either<Failure, String>> watchSegment(String userId) =>
+      Stream.value(Right(segment));
 
   @override
   String newTransferId() => 'transfer-${transfers.length + 1}';

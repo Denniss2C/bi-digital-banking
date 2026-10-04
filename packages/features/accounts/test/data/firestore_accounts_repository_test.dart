@@ -104,6 +104,35 @@ void main() {
     });
   });
 
+  group('watchSegment', () {
+    test('a new customer is new_user', () async {
+      await open();
+
+      final first = await repository.watchSegment(uid).first;
+
+      expect(first, const Right<Failure, String>('new_user'));
+    });
+
+    test('follows changes to the segment', () async {
+      await open();
+      final segments = repository
+          .watchSegment(uid)
+          .map((result) => result.getRight().toNullable())
+          .take(2)
+          .toList();
+
+      await firestore.doc('users/$uid').update({'segment': 'saver'});
+
+      expect(await segments, ['new_user', 'saver']);
+    });
+
+    test('without a profile yet it is new_user', () async {
+      final first = await repository.watchSegment(uid).first;
+
+      expect(first, const Right<Failure, String>('new_user'));
+    });
+  });
+
   group('fetchTransactions', () {
     test('pages newest first without overlaps', () async {
       await open();
