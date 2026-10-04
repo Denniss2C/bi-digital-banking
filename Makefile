@@ -4,10 +4,11 @@
 
 MELOS   := dart run melos
 APP_DIR := apps/banking_app
+FIREBASE_PROJECT := bi-digital-banking
 
 .DEFAULT_GOAL := help
 .PHONY: help setup bootstrap gen analyze format format-check test coverage \
-        run-dev run-prod build-apk-dev build-apk-prod clean
+        run-dev run-prod build-apk-dev build-apk-prod rc-template deploy-rc clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -63,6 +64,12 @@ build-apk-dev: ## Build a release APK for the dev flavor
 
 build-apk-prod: ## Build a release APK for the prod flavor
 	cd $(APP_DIR) && flutter build apk --release --flavor prod -t lib/main_prod.dart
+
+rc-template: ## Build the Remote Config template from firebase/remote-config/*.json
+	cd $(APP_DIR) && dart run tool/remote_config_template.dart
+
+deploy-rc: rc-template ## Publish the Remote Config template (needs `firebase login`)
+	firebase deploy --only remoteconfig --project $(FIREBASE_PROJECT)
 
 clean: ## Remove build outputs and coverage reports
 	$(MELOS) exec -- flutter clean

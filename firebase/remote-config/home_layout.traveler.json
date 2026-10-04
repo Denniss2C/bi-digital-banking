@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "components": [
+    {
+      "type": "balance_card",
+      "id": "balance",
+      "props": {
+        "action": {
+          "type": "navigate",
+          "route": "/accounts"
+        }
+      }
+    },
+    {
+      "type": "fx_widget",
+      "id": "fx",
+      "props": {
+        "currencies": [
+          "EUR",
+          "COP",
+          "PEN",
+          "MXN"
+        ]
+      }
+    },
+    {
+      "type": "promo_banner",
+      "id": "promo-traveler",
+      "props": {
+        "eyebrow": {
+          "es": "¿Viajas pronto?",
+          "en": "Traveling soon?"
+        },
+        "title": {
+          "es": "Revisa las tasas del día antes de cambiar",
+          "en": "Check today's rates before you exchange"
+        },
+        "body": {
+          "es": "Tasas de mercado actualizadas para las monedas de tu viaje.",
+          "en": "Up-to-date market rates for the currencies of your trip."
+        },
+        "icon": "travel",
+        "tone": "neutral",
+        "cta": {
+          "label": {
+            "es": "Ver tasas",
+            "en": "See rates"
+          },
+          "action": {
+            "type": "navigate",
+            "route": "/fx"
+          }
+        }
+      }
+    },
+    {
+      "type": "quick_actions",
+      "id": "shortcuts",
+      "props": {
+        "title": {
+          "es": "Operaciones frecuentes",
+          "en": "Frequent actions"
+        },
+        "items": [
+          {
+            "label": {
+              "es": "Divisas",
+              "en": "Exchange"
+            },
+            "icon": "fx",
+            "highlighted": true,
+            "action": {
+              "type": "navigate",
+              "route": "/fx"
+            }
+          },
+          {
+            "label": {
+              "es": "Transferir",
+              "en": "Transfer"
+            },
+            "icon": "send",
+            "action": {
+              "type": "navigate",
+              "route": "/accounts/transfer"
+            }
+          },
+          {
+            "label": {
+              "es": "Mis cuentas",
+              "en": "My accounts"
+            },
+            "icon": "accounts",
+            "action": {
+              "type": "navigate",
+              "route": "/accounts"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "tx_list",
+      "id": "recent-movements",
+      "props": {
+        "title": {
+          "es": "Movimientos recientes",
+          "en": "Recent activity"
+        },
+        "limit": 3,
+        "action": {
+          "type": "navigate",
+          "route": "/accounts"
+        }
+      }
+    }
+  ]
+}
