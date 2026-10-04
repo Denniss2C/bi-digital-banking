@@ -259,15 +259,17 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - ExchangeRate-API (acceso abierto, sin clave, con atribución) y caché stale-while-revalidate en `hive_ce`; decisión en ADR-006. `fx_widget` en la home y `feature_fx_enabled` aplicado. Plantilla de Remote Config republicada (el widget abre Divisas).
 - [x] `feat/push`: FCM + deep links
   - Paquete `notifications` sin UI y `PushCoordinator` en el shell. Las rutas de los mensajes se validan como las acciones SDUI. Token en `users/{uid}.fcmTokens` (se quita al cerrar sesión). Demo en Android con "Enviar mensaje de prueba" y el token del panel de depuración; iOS sin APNs (documentado en `deployment-operations.md` §7).
-- [ ] `feat/observability`: Crashlytics, Performance, Analytics
+- [x] `feat/observability`: Crashlytics, Performance, Analytics
+  - Interfaz `Telemetry` en `core` y `FirebaseTelemetry` en el shell; eventos sin datos personales. SLOs, alertas y detección de problemas de UX en `docs/deployment-operations.md` §6. Plugin de Gradle de Crashlytics 3.0.8 (AGP 9).
+  - **Fase 3 completa** el 2026-10-04.
 
 ### Fase 4 — Calidad y entrega (lunes)
 - [ ] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
-- [ ] README final reproducible — _parcial: estructura (#2)_
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-022_
+- [ ] README final reproducible — _parcial: estructura (#2). Pendiente también: el README de `core` sigue siendo la plantilla de `flutter create`._
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-023_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 

@@ -34,6 +34,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-020](#ia-020--resiliencia-y-panel-de-depuración) | 2026-10-04 | Fase 3 · resilience | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-021](#ia-021--divisas-con-api-real-y-caché) | 2026-10-04 | Fase 3 · fx-rates | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-022](#ia-022--notificaciones-push) | 2026-10-04 | Fase 3 · push | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-023](#ia-023--observabilidad) | 2026-10-04 | Fase 3 · observability | Claude Code (Claude Opus 5.5) | 2 |
 
 ---
 
@@ -1389,6 +1390,67 @@ Revisión de la IA sobre `DESIGN.md`:
   usuarios.
 - **Documentación:** README de `notifications`, guía de envío, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** `notifications` 7, app 85.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-023 · Observabilidad
+
+- **Rama:** `feat/observability`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/observability`: Crashlytics, Performance y Analytics, más la
+  documentación de métricas, alertas, SLOs y detección de problemas de UX.
+
+### Qué produjo la IA
+
+- **Verificación previa:** el plugin de Gradle de Crashlytics tenía que convivir con AGP 9. La IA consultó la última
+  versión en el Maven de Google (3.0.8) y compiló el APK antes de escribir código.
+- **`Telemetry` en `core`:** eventos, pantallas, errores, trazas y usuario, con `NoopTelemetry` y `RecordingTelemetry`
+  (`core/testing.dart`). Los features reportan sin depender de Firebase.
+- **Shell:**
+  - `FirebaseTelemetry`, que nunca rompe la app si falla al reportar;
+  - `PerformanceHttpInterceptor` (dio);
+  - `AppObservability`: pantallas por patrón de ruta, usuario y `login`, que no cuenta las sesiones restauradas;
+  - errores no capturados a Crashlytics desde `bootstrap`.
+- **Eventos sin datos personales:** el embudo de transferencias (con la traza `transfer_submit` y el motivo de los
+  fallos, nunca el monto), `home_layout`, componentes SDUI que fallan, rutas ignoradas, funciones apagadas y
+  notificaciones abiertas.
+- **Criterio:** solo lo inesperado va a Crashlytics; estar sin conexión es un evento esperado y no llena Crashlytics
+  de ruido.
+- **Panel de depuración:** enviar un error de prueba y forzar un crash.
+- **`deployment-operations.md` §6:** qué se recoge, privacidad, SLOs, alertas, detección de problemas de UX y cómo
+  verificarlo en la demo.
+- **22 tests nuevos:** 2 en `core`, 3 en `accounts` y 17 en la app.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Un test comparaba records que contienen mapas.** Dos `Map` con el mismo contenido no son iguales con `==`, así
+   que el test fallaba aunque el código estaba bien. Ahora compara el nombre y los parámetros por separado.
+2. **Un tipo de retorno demasiado genérico en el doble de test.** `RecordingTelemetry.startTrace` devolvía la interfaz
+   y los tests no podían leer la traza grabada. Ahora devuelve `RecordedTrace`.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias.
+- **Builds:** APK de dev e iOS para dispositivo sin firma, los dos compilan con los tres plugins nuevos.
+- **Mutaciones: 8 de 8 detectadas.** Contar una sesión restaurada como `login`, pantallas con ids, fallos al reportar
+  que escapan, llamadas fallidas sin código, estar sin conexión reportado como error, sin `home_layout`, sin
+  `push_opened` y cualquier fallo contado como transferencia.
+- **Pendiente con el proyecto real:** ver el error de prueba en Crashlytics y los eventos en DebugView. Performance
+  procesa con horas de retraso.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y media.
+- **Calidad:** los errores inesperados y los embudos clave quedan medidos, sin datos personales, y con SLOs
+  propuestos para operar.
+- **Documentación:** `deployment-operations.md` §6, CHANGELOG y `CLAUDE.md` (Fase 3 completa).
+- **Pruebas:** `core` 29, `accounts` 90, app 102.
 
 ### Revisión del autor
 

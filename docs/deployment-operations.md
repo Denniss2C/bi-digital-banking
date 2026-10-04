@@ -176,7 +176,75 @@ _Pendiente:_ firma de release, distribución (Firebase App Distribution), versio
 
 ## 6. Observabilidad
 
-_Pendiente:_ Crashlytics (errores no capturados de Flutter y de la plataforma), Performance (trazas HTTP y de arranque), logger con niveles por flavor.
+Todo pasa por la interfaz `Telemetry` de `core`, que el shell implementa con Firebase (`FirebaseTelemetry`). Los
+features reportan sin depender de Firebase, y en los tests usan `RecordingTelemetry`.
+
+### Qué se recoge
+
+| Herramienta | Qué | Dónde |
+|-------------|-----|-------|
+| Crashlytics | Errores no capturados (Flutter y plataforma), como fatales | `bootstrap.dart` |
+| Crashlytics | Errores inesperados no fatales: un componente SDUI que falla, la apertura de cuentas con error de servidor | home, `SessionEffects` |
+| Performance | Arranque de la app y pantallas lentas o congeladas (automático) | SDK |
+| Performance | Cada llamada HTTP: duración, código y tamaño, por intento | `PerformanceHttpInterceptor` (dio) |
+| Performance | Traza `transfer_submit`: duración de la transferencia, con el atributo `result` | `TransferPage` |
+| Analytics | Pantallas y eventos de negocio y de UX (tabla siguiente) | shell y features |
+
+| Evento | Parámetros | Para qué |
+|--------|------------|----------|
+| `screen_view` | `screen_name` (patrón de ruta, p. ej. `/accounts/:accountId`) | Navegación y embudos |
+| `login` | — | Inicios de sesión reales (una sesión restaurada no cuenta) |
+| `transfer_completed` | — | Conversión del embudo de transferencias |
+| `transfer_failed` | `reason` (regla rota o tipo de fallo) | Por qué fallan las transferencias |
+| `home_layout` | `source` (`remote`/`fallback`), `issues` | Salud de Remote Config y del SDUI |
+| `sdui_component_failed` | `type` | Componentes que fallan en producción |
+| `sdui_route_ignored` | `route` | Layouts con rutas que la app no tiene |
+| `feature_unavailable` | `route` | Usuarios que intentan usar una función apagada |
+| `push_opened` | `route` | Qué notificaciones se abren |
+
+**Privacidad:**
+- el usuario es el uid de Firebase (seudónimo);
+- nunca se envían nombres, correos, números de cuenta ni montos;
+- las rutas van por patrón, sin ids;
+- estar sin conexión es un evento esperado, no un error: no llena Crashlytics de ruido.
+
+### SLOs propuestos
+
+| Indicador | Objetivo | Fuente |
+|-----------|----------|--------|
+| Usuarios sin crashes | ≥ 99.5 % en 7 días | Crashlytics |
+| Éxito técnico de transferencias | ≥ 99 % (`transfer_failed` con `reason` `network`, `server` o `auth` frente al total; las reglas de negocio no cuentan) | Analytics |
+| Duración de `transfer_submit` | p95 < 3 s | Performance |
+| Respuestas 2xx de la API de divisas | ≥ 98 % | Performance (HTTP) |
+| Home con layout remoto | ≥ 95 % de `home_layout` con `source=remote` | Analytics |
+
+### Alertas propuestas
+
+Se configuran en la consola; este repo no las automatiza.
+
+- **Crashlytics:** alerta de velocidad (un issue que afecta a más del 1 % de los usuarios en una hora), regresiones e
+  issues fatales nuevos, enviadas por correo o Slack.
+- **Performance:** umbral en `transfer_submit` (p95 > 3 s) y en la tasa de éxito de la API de divisas (< 98 %).
+- **Analytics** (con export a BigQuery): `home_layout` con `fallback` por encima del 5 % en una hora (señal de un
+  JSON roto recién publicado) y picos de `feature_unavailable`.
+
+### Cómo detectar problemas de UX
+
+- **Embudo** `screen_view /accounts/transfer` → `transfer_completed`: dónde se cae la gente.
+- **`transfer_failed` por `reason`:** muchos `insufficientFunds` sugieren mostrar mejor el saldo disponible; muchos
+  `network`, problemas de conectividad.
+- **`feature_unavailable` y `sdui_route_ignored`:** una configuración remota que confunde o lleva a callejones sin
+  salida.
+- **Pantallas lentas o congeladas** (Performance) y `home_layout` con `issues` > 0 después de publicar un layout.
+
+### Verificarlo en la demo
+
+- **Crashlytics:** en **Perfil → Panel de depuración → Observabilidad**, "Enviar error de prueba" aparece en
+  Crashlytics del proyecto dev en minutos. "Forzar cierre" aparece al volver a abrir la app.
+- **Analytics en tiempo real:** `adb shell setprop debug.firebase.analytics.app com.dennis.banking_app.dev`; los
+  eventos se ven en **Analytics → DebugView**.
+- **Performance** procesa los datos con algunas horas de retraso: sirve para tendencias, no para la demo en vivo.
+- **Builds de Android:** el plugin de Gradle de Crashlytics (3.0.8) inyecta el build ID que necesita el SDK.
 
 ## 7. Operación de contenido (sin publicar versión)
 
