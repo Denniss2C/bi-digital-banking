@@ -1,0 +1,143 @@
+{
+  "@@locale": "es",
+  "fxTitle": "Divisas",
+  "@fxTitle": {
+    "description": "fx_rates."
+  },
+  "fxSubtitle": "Ecuador (USD). Tasas de referencia del mercado, sin margen de compra o venta.",
+  "@fxSubtitle": {
+    "description": "fx_rates."
+  },
+  "statusLive": "Tasas al día",
+  "@statusLive": {
+    "description": "fx_rates."
+  },
+  "statusOffline": "Sin conexión",
+  "@statusOffline": {
+    "description": "fx_rates."
+  },
+  "converterTitle": "Cotizador",
+  "@converterTitle": {
+    "description": "fx_rates."
+  },
+  "currencyLabel": "Moneda",
+  "@currencyLabel": {
+    "description": "fx_rates."
+  },
+  "youHave": "Tú tienes",
+  "@youHave": {
+    "description": "fx_rates."
+  },
+  "youGet": "Recibes aproximadamente",
+  "@youGet": {
+    "description": "fx_rates."
+  },
+  "swapDirection": "Invertir la conversión",
+  "@swapDirection": {
+    "description": "fx_rates."
+  },
+  "invalidAmount": "Ingresa un monto válido",
+  "@invalidAmount": {
+    "description": "fx_rates."
+  },
+  "rateLine": "1 USD = {rate} {code}",
+  "@rateLine": {
+    "description": "Mid-market rate for one US dollar.",
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "referenceRateNote": "Tasa media de mercado: no es una cotización de compra o venta.",
+  "@referenceRateNote": {
+    "description": "fx_rates."
+  },
+  "ratesTitle": "Tasas de referencia",
+  "@ratesTitle": {
+    "description": "fx_rates."
+  },
+  "updatedJustNow": "Actualizado hace un momento",
+  "@updatedJustNow": {
+    "description": "fx_rates."
+  },
+  "updatedMinutesAgo": "{count, plural, =1{Actualizado hace 1 minuto} other{Actualizado hace {count} minutos}}",
+  "@updatedMinutesAgo": {
+    "description": "fx_rates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "updatedHoursAgo": "{count, plural, =1{Actualizado hace 1 hora} other{Actualizado hace {count} horas}}",
+  "@updatedHoursAgo": {
+    "description": "fx_rates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "updatedDaysAgo": "{count, plural, =1{Actualizado hace 1 día} other{Actualizado hace {count} días}}",
+  "@updatedDaysAgo": {
+    "description": "fx_rates.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "refreshing": "Actualizando…",
+  "@refreshing": {
+    "description": "fx_rates."
+  },
+  "offlineNotice": "Sin conexión · mostrando las últimas tasas guardadas",
+  "@offlineNotice": {
+    "description": "fx_rates."
+  },
+  "staleNotice": "No pudimos actualizar · mostrando las últimas tasas guardadas",
+  "@staleNotice": {
+    "description": "fx_rates."
+  },
+  "errorTitle": "No pudimos cargar las tasas",
+  "@errorTitle": {
+    "description": "fx_rates."
+  },
+  "errorNetworkMessage": "Revisa tu conexión e inténtalo de nuevo.",
+  "@errorNetworkMessage": {
+    "description": "fx_rates."
+  },
+  "errorGenericMessage": "Ocurrió un problema. Inténtalo de nuevo.",
+  "@errorGenericMessage": {
+    "description": "fx_rates."
+  },
+  "retry": "Reintentar",
+  "@retry": {
+    "description": "fx_rates."
+  },
+  "attribution": "Rates By Exchange Rate API · exchangerate-api.com",
+  "@attribution": {
+    "description": "Required by ExchangeRate-API's open access terms. Keep \"Rates By Exchange Rate API\" verbatim."
+  },
+  "currencyName": "{code, select, USD{Dólar estadounidense} EUR{Euro} COP{Peso colombiano} PEN{Sol peruano} MXN{Peso mexicano} BRL{Real brasileño} CLP{Peso chileno} ARS{Peso argentino} GBP{Libra esterlina} CAD{Dólar canadiense} JPY{Yen japonés} CNY{Yuan chino} other{{code}}}",
+  "@currencyName": {
+    "description": "Currency name by ISO code; unknown codes show the code.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "widgetTitle": "Mercado de divisas",
+  "@widgetTitle": {
+    "description": "fx_rates."
+  },
+  "widgetOpen": "Abrir cotizador",
+  "@widgetOpen": {
+    "description": "fx_rates."
+  }
+}
