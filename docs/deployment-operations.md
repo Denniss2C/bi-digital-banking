@@ -101,8 +101,9 @@ Alternativas que sí funcionan, porque compilan una sola arquitectura:
 
 ### Aviso conocido: plugins con Kotlin Gradle Plugin en Android
 
-El build de Android termina bien, pero Flutter 3.44 avisa que `firebase_auth` y `firebase_core` aplican el Kotlin
-Gradle Plugin (KGP) y que **una versión futura de Flutter dejará de compilarlos** hasta que migren a "Built-in
+El build de Android termina bien, pero Flutter 3.44 avisa que `firebase_auth`, `firebase_core` y
+`firebase_remote_config` aplican el Kotlin Gradle Plugin (KGP) y que **una versión futura de Flutter dejará de
+compilarlos** hasta que migren a "Built-in
 Kotlin". El aviso viene de los plugins: ya usamos sus últimas versiones (`flutter pub outdated`), así que no hay nada
 que corregir en el proyecto. Hay que revisarlo antes de actualizar Flutter.
 
@@ -213,6 +214,27 @@ pide el layout nuevo en el momento.
 - **Sin conexión**, la app usa los últimos valores que activó, o los embebidos si nunca descargó ninguno.
 - **Cuotas.** En prod, la app pide valores como mucho una vez por hora; en dev, en cada pull to refresh. Las
   actualizaciones en tiempo real llegan en ambos casos. Cambiar de segmento pide los valores en el momento.
+
+### Enviar notificaciones push
+
+La demo es en **Android**: iOS necesita una clave APNs en Firebase y la capacidad de Push en Xcode, que este proyecto
+no tiene configuradas. Sin eso la app funciona en iOS, pero no recibe notificaciones.
+
+1. Con `make run-dev`, inicia sesión y acepta el permiso. La app guarda el token en `users/{uid}.fcmTokens`.
+2. En **Perfil → Panel de depuración → Notificaciones push**, toca **Copiar token**.
+3. En la consola de Firebase: **Messaging → Nueva campaña → Notificaciones**, escribe el título y el texto, y toca
+   **Enviar mensaje de prueba** con el token copiado.
+4. Opcional: en **Opciones adicionales → Datos personalizados**, agrega `route` = `/fx` (o `/accounts`,
+   `/accounts/transfer`).
+
+| Estado de la app | Qué pasa |
+|------------------|----------|
+| Abierta | Aparece un aviso con el título y el texto; **Ver** abre `route` |
+| En segundo plano o cerrada | El sistema muestra la notificación; al tocarla, la app abre `route` |
+| `route` desconocida o externa | Solo se abre la app: el shell nunca navega fuera de sus pantallas |
+
+Para notificar desde un backend, los tokens de cada usuario están en `users/{uid}.fcmTokens`. Una Cloud Function al
+crear un movimiento necesitaría el plan Blaze.
 
 ## 8. Runbook de incidentes
 

@@ -11,6 +11,11 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Notificaciones push (FCM), con un paquete `notifications` sin UI y un `PushCoordinator` en el shell:
+  - al iniciar sesión se pide el permiso y se guarda el token en `users/{uid}.fcmTokens`; al cerrar sesión se quita;
+  - tocar una notificación abre su `route` (solo pantallas de la app; sin sesión, después del login);
+  - con la app abierta se muestra un aviso con "Ver".
+- Panel de depuración: el token FCM, con un botón para copiarlo y enviar mensajes de prueba desde la consola.
 - Divisas (`fx_rates`): cotizador con tasas reales de ExchangeRate-API (sin clave, con atribución) según la pantalla
   `divisas_y_remesas_*`: moneda, monto, invertir la conversión y tasas de referencia. Se muestra la tasa media de
   mercado, sin compra/venta inventada. Usa caché stale-while-revalidate en `hive_ce`, con aviso offline,
