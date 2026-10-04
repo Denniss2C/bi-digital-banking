@@ -20,7 +20,11 @@
           "COP",
           "PEN",
           "MXN"
-        ]
+        ],
+        "action": {
+          "type": "navigate",
+          "route": "/fx"
+        }
       }
     },
     {

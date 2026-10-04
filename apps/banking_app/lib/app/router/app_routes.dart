@@ -41,6 +41,7 @@ abstract final class AppRoutes {
     if (path == transfer || path.startsWith('$transfer/')) {
       return flags.transfers;
     }
+    if (path == fx || path.startsWith('$fx/')) return flags.fx;
     return true;
   }
 }

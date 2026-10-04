@@ -11,6 +11,7 @@ import 'package:banking_app/app/personalization/personalization_source.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:core/core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fx_rates/fx_rates.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -219,6 +220,31 @@ class FakePersonalizationSource implements PersonalizationSource {
   }
 }
 
+/// Exchange rates published on 2026-10-04 (no network).
+class FakeFxRatesRepository implements FxRatesRepository {
+  @override
+  Stream<Either<Failure, FxSnapshot>> watchRates({bool forceRefresh = false}) =>
+      Stream.value(
+        Right(
+          FxSnapshot(
+            rates: FxRates(
+              base: 'USD',
+              rates: const {
+                'USD': 1,
+                'EUR': 0.8888,
+                'COP': 3311.64,
+                'PEN': 3.44,
+              },
+              updatedAt: DateTime.utc(2026, 10, 4),
+              nextUpdateAt: DateTime.utc(2026, 10, 5),
+            ),
+            fetchedAt: DateTime.utc(2026, 10, 4, 15),
+            source: FxSource.network,
+          ),
+        ),
+      );
+}
+
 class InMemoryKeyValueStore implements KeyValueStore {
   final _values = <String, Object?>{};
 
@@ -242,6 +268,7 @@ Future<void> pumpApp(
   FakeAccountsRepository? accountsRepository,
   PersonalizationSource? personalization,
   DebugTools? debugTools,
+  FxRatesRepository? fxRatesRepository,
 }) async {
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -280,6 +307,7 @@ Future<void> pumpApp(
     onboardingRepository: onboarding,
     authRepository: auth,
     accountsRepository: accounts,
+    fxRatesRepository: fxRatesRepository ?? FakeFxRatesRepository(),
     debugTools: debugTools,
   );
   addTearDown(router.dispose);

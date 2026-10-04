@@ -11,9 +11,6 @@ import 'package:sdui/sdui.dart';
 import '../../../tool/remote_config_template.dart';
 import '../../helpers/fakes.dart';
 
-/// Types whose feature is not built yet (they are skipped meanwhile).
-const _pendingTypes = {'fx_widget'};
-
 void main() {
   const firebaseDir = '../../firebase';
   final layoutFiles = Directory('$firebaseDir/remote-config')
@@ -40,6 +37,7 @@ void main() {
   test('every layout is valid, renderable and opens only app screens', () {
     final registry = createHomeRegistry(
       accountsRepository: FakeAccountsRepository(),
+      fxRatesRepository: FakeFxRatesRepository(),
       userId: 'uid-1',
     );
     expect(layoutFiles, hasLength(1 + segmentColors.length));
@@ -53,7 +51,7 @@ void main() {
         for (final node in layout.components)
           if (!registry.supports(node.type)) node.type,
       };
-      expect(_pendingTypes.containsAll(unknown), isTrue, reason: file.path);
+      expect(unknown, isEmpty, reason: file.path);
       for (final match in RegExp(r'"route": "([^"]+)"').allMatches(source)) {
         expect(
           AppRoutes.isAppLocation(match.group(1)!),

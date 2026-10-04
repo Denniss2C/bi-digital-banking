@@ -1,8 +1,7 @@
 /// Home layout embedded in the app (SDUI contract, see `packages/sdui`).
 ///
 /// It replicates the "Inicio" screen of the design and is used whenever the
-/// remote layout is missing or unusable, so the home never breaks. `fx_widget`
-/// is skipped until the fx_rates feature registers it.
+/// remote layout is missing or unusable, so the home never breaks.
 const defaultHomeLayout = r'''
 {
   "schemaVersion": 1,
@@ -68,7 +67,10 @@ const defaultHomeLayout = r'''
     {
       "type": "fx_widget",
       "id": "fx",
-      "props": { "currencies": ["EUR", "COP", "PEN"] }
+      "props": {
+        "currencies": ["EUR", "COP", "PEN"],
+        "action": { "type": "navigate", "route": "/fx" }
+      }
     },
     {
       "type": "tx_list",

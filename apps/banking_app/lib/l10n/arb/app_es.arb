@@ -20,10 +20,6 @@
   "@tabProfile": {
     "description": "Bottom navigation: profile tab."
   },
-  "comingSoonMessage": "Esta sección llega en las siguientes fases del proyecto.",
-  "@comingSoonMessage": {
-    "description": "Placeholder text for sections that are not implemented yet."
-  },
   "signOutAction": "Cerrar sesión",
   "profileSignedInAs": "Sesión iniciada como {email}",
   "@signOutAction": {

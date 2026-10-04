@@ -9,6 +9,7 @@ import 'package:banking_app/app/session_effects.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:core/core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:fx_rates/fx_rates.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
@@ -50,6 +51,29 @@ abstract class AppModule {
     accounts: accounts,
   );
 
+  /// Exchange rates over HTTP: in dev the client also gets the chaos
+  /// interceptor that the debug panel controls.
+  @dev
+  @lazySingleton
+  FxRatesRepository devFxRatesRepository(
+    ChaosController chaos,
+    KeyValueStore store,
+  ) => ExchangeRateApiRepository(
+    dio: createDioClient(
+      baseUrl: ExchangeRateApiRepository.baseUrl,
+      chaos: chaos,
+    ),
+    store: store,
+  );
+
+  @prod
+  @lazySingleton
+  FxRatesRepository prodFxRatesRepository(KeyValueStore store) =>
+      ExchangeRateApiRepository(
+        dio: createDioClient(baseUrl: ExchangeRateApiRepository.baseUrl),
+        store: store,
+      );
+
   /// The dev router adds the debug panel; prod has no route to it.
   @dev
   @lazySingleton
@@ -59,6 +83,7 @@ abstract class AppModule {
     OnboardingRepository onboardingRepository,
     AuthRepository authRepository,
     AccountsRepository accountsRepository,
+    FxRatesRepository fxRatesRepository,
     DebugTools debugTools,
   ) => createRouter(
     session: session,
@@ -66,6 +91,7 @@ abstract class AppModule {
     onboardingRepository: onboardingRepository,
     authRepository: authRepository,
     accountsRepository: accountsRepository,
+    fxRatesRepository: fxRatesRepository,
     debugTools: debugTools,
   );
 
@@ -77,12 +103,14 @@ abstract class AppModule {
     OnboardingRepository onboardingRepository,
     AuthRepository authRepository,
     AccountsRepository accountsRepository,
+    FxRatesRepository fxRatesRepository,
   ) => createRouter(
     session: session,
     personalization: personalization,
     onboardingRepository: onboardingRepository,
     authRepository: authRepository,
     accountsRepository: accountsRepository,
+    fxRatesRepository: fxRatesRepository,
   );
 
   /// Debug tooling: registered only in the dev environment (dev flavor).

@@ -128,12 +128,6 @@ abstract class AppLocalizations {
   /// **'Perfil'**
   String get tabProfile;
 
-  /// Placeholder text for sections that are not implemented yet.
-  ///
-  /// In es, this message translates to:
-  /// **'Esta sección llega en las siguientes fases del proyecto.'**
-  String get comingSoonMessage;
-
   /// Profile: sign out button.
   ///
   /// In es, this message translates to:

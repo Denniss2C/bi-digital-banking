@@ -10,6 +10,7 @@ import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fx_rates/fx_rates.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sdui/sdui.dart';
 
@@ -21,11 +22,13 @@ import 'package:sdui/sdui.dart';
 class HomePage extends StatefulWidget {
   const HomePage({
     required this.accountsRepository,
+    required this.fxRatesRepository,
     required this.userId,
     super.key,
   });
 
   final AccountsRepository accountsRepository;
+  final FxRatesRepository fxRatesRepository;
   final String userId;
 
   @override
@@ -33,14 +36,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late final SduiRegistry _registry = createHomeRegistry(
-    accountsRepository: widget.accountsRepository,
-    userId: widget.userId,
-  );
+  /// Registry for the current flags; built again when a flag changes.
+  bool? _registryFxEnabled;
+  late SduiRegistry _registry;
 
   /// Remote layout already resolved, to resolve again only when it changes.
   String? _resolvedSource;
   late SduiResolvedLayout _resolved;
+
+  SduiRegistry _registryFor({required bool fxEnabled}) {
+    if (fxEnabled != _registryFxEnabled) {
+      _registryFxEnabled = fxEnabled;
+      _registry = createHomeRegistry(
+        accountsRepository: widget.accountsRepository,
+        fxRatesRepository: widget.fxRatesRepository,
+        userId: widget.userId,
+        fxEnabled: fxEnabled,
+      );
+      // The registry decides what is renderable: resolve again.
+      _resolvedSource = null;
+    }
+    return _registry;
+  }
 
   /// Pull to refresh creates every component again, so each one reloads.
   var _generation = 0;
@@ -88,6 +105,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    _registryFor(
+      fxEnabled: context.select(
+        (PersonalizationCubit cubit) => cubit.state.flags.fx,
+      ),
+    );
     final layout = _resolve(
       context.select((PersonalizationCubit cubit) => cubit.state.homeLayout),
     );
