@@ -1,39 +1,39 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# notifications
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Notificaciones push de Nexo con Firebase Cloud Messaging. Dueño: `@team-notifications`. Depende de `core`; **no
+tiene UI**: el shell decide cómo mostrar y abrir los mensajes (`PushCoordinator`).
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## Piezas
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- **`PushService`** (`FirebasePushService`) envuelve FCM:
+  - permiso: Android 13+ e iOS muestran un diálogo del sistema una sola vez;
+  - token del dispositivo y sus renovaciones;
+  - mensajes recibidos con la app abierta;
+  - toques en notificaciones con la app en segundo plano;
+  - el mensaje que abrió la app estando cerrada.
+- **`PushMessage`:** `title`, `body` y `route`, que sale de `data.route` del mensaje, por ejemplo `/fx`.
+- **`PushTokenRegistry`** (`FirestorePushTokenRegistry`) guarda los tokens en `users/{uid}.fcmTokens` con
+  `arrayUnion`, porque un usuario puede tener varios dispositivos. Las reglas de Firestore solo permiten escribir el
+  propio documento.
 
-## Features
+## Cómo lo usa la app
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+El `PushCoordinator` del shell:
 
-## Getting started
+| Momento | Qué hace |
+|---------|----------|
+| Inicio de sesión | Pide el permiso y guarda el token (y cada token renovado) |
+| Cierre de sesión | Quita el token, para que un dispositivo compartido no reciba los avisos del usuario anterior |
+| Toque en una notificación | Abre `route` si es una pantalla de la app (la misma regla que las acciones SDUI); sin sesión, espera al login |
+| Mensaje con la app abierta | Android no muestra nada, así que la app muestra un aviso con "Ver" |
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Cómo enviar una notificación de prueba: [`deployment-operations.md`](../../../docs/deployment-operations.md) §7.
 
-## Usage
+## Tests
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
-```dart
-const like = 'sample';
+```bash
+cd packages/features/notifications && flutter test
 ```
 
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+FCM mockeado (permisos, token, mensajes) y el registro de tokens con `fake_cloud_firestore` (sin duplicados, borrado
+y el resto del perfil intacto).

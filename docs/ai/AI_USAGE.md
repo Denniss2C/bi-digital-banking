@@ -33,6 +33,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-019](#ia-019--personalización-con-remote-config) | 2026-10-04 | Fase 3 · personalization (Remote Config) | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-020](#ia-020--resiliencia-y-panel-de-depuración) | 2026-10-04 | Fase 3 · resilience | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-021](#ia-021--divisas-con-api-real-y-caché) | 2026-10-04 | Fase 3 · fx-rates | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-022](#ia-022--notificaciones-push) | 2026-10-04 | Fase 3 · push | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -1324,6 +1325,70 @@ Revisión de la IA sobre `DESIGN.md`:
   pantalla. El modo caos ya tiene dónde verse.
 - **Documentación:** ADR-006, README de `fx_rates`, `resilience.md`, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** `fx_rates` 30, app 72.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-022 · Notificaciones push
+
+- **Rama:** `feat/push`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/push`: FCM con deep links, según §4 "Push" de `CLAUDE.md` (demo en
+  Android; iOS sin APNs documentado).
+
+### Qué produjo la IA
+
+- **Revisión previa del plugin** (`firebase_messaging` 16.7): ya declara el permiso de Android 13, y sus streams de
+  mensajes son estáticos, así que el servicio los recibe por constructor para poder testearlo.
+- **Paquete `notifications`,** sin UI:
+  - `PushService` sobre FCM (permiso, token, mensajes, toques y mensaje inicial);
+  - `PushMessage`, con la ruta en `data.route`;
+  - `PushTokenRegistry`, que guarda en `users/{uid}.fcmTokens` con `arrayUnion`.
+- **`PushCoordinator` en el shell:**
+  - pide el permiso y guarda el token al iniciar sesión, y lo quita al cerrarla;
+  - abre la ruta de un toque solo si es una pantalla de la app; si llega sin sesión, después del login;
+  - no rompe la app si el dispositivo no tiene push.
+- **Aviso en primer plano** con "Ver" (sin plugin extra) y **token en el panel de depuración**, con un botón para
+  copiarlo y enviar mensajes de prueba desde la consola.
+- **Guía de envío** en `deployment-operations.md` §7; la nota de KGP ahora incluye `firebase_remote_config`.
+- **20 tests nuevos:** 7 en `notifications` y 13 en la app.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Un ciclo de dependencias en DI.** La primera versión hacía depender las herramientas de depuración del
+   coordinador (coordinador → router → herramientas de depuración → coordinador), y lo rompía con un `getIt` dentro del
+   módulo. La IA lo cambió antes de compilar: el panel toma el token directamente del `PushService`, que no depende
+   del router.
+2. **Un estado de permiso que no conocía.** El `switch` no cubría `AuthorizationStatus.deniedPermanently`; lo detectó
+   el análisis (`switch` exhaustivo) y ahora cuenta como denegado.
+3. **Errores menores en tests y código:** un helper usado antes de declararlo y una forma enrevesada de suscribirse en
+   `initState`. Los marcaron el análisis y la revisión.
+4. **Un archivo generado en el commit equivocado.** El registro de plugins de macOS, que Flutter regenera, quedó en el
+   commit de la app aunque cambia con el paquete `notifications`. La verificación por checkout lo detectó (Flutter lo
+   regeneraba en el commit intermedio), se movió al commit del paquete y se comprobó que el árbol final fuera idéntico.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias.
+- **Builds:** APK de dev e iOS para dispositivo sin firma, los dos compilan.
+- **Mutaciones: 9 de 9 detectadas.** Abrir cualquier ruta, conservar el token al cerrar sesión, abrir antes del login,
+  ignorar el mensaje inicial, no guardar el token renovado, que una falla de push rompa la app, acción del aviso con una
+  ruta inválida, copiar sin escribir en el portapapeles y que guardar un token pise los de otros dispositivos.
+- **Pendiente en un dispositivo:** enviar un mensaje de prueba desde la consola con la app abierta, en segundo plano
+  y cerrada (guía en `deployment-operations.md` §7).
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y media, como se estimó.
+- **Calidad:** las notificaciones abren pantallas de forma segura, respetan la sesión y no dejan tokens de otros
+  usuarios.
+- **Documentación:** README de `notifications`, guía de envío, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** `notifications` 7, app 85.
 
 ### Revisión del autor
 
