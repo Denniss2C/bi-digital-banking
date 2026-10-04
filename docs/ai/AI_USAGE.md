@@ -31,6 +31,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-017](#ia-017--errores-del-ide-en-build-de-la-raíz) | 2026-10-04 | Errores del IDE en `build/` | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-018](#ia-018--home-por-sdui) | 2026-10-04 | Fase 3 · personalization (home) | Claude Code (Claude Opus 5.5) | 5 |
 | [IA-019](#ia-019--personalización-con-remote-config) | 2026-10-04 | Fase 3 · personalization (Remote Config) | Claude Code (Claude Opus 5.5) | 3 |
+| [IA-020](#ia-020--resiliencia-y-panel-de-depuración) | 2026-10-04 | Fase 3 · resilience | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -1187,6 +1188,71 @@ Revisión de la IA sobre `DESIGN.md`:
   plantilla del repo y la publicada están verificadas como idénticas.
 - **Documentación:** ADR-005, operación de contenido (cómo cambiar la home, revertir y cuotas), READMEs y CHANGELOG.
 - **Pruebas:** app 61, `accounts` 84.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-020 · Resiliencia y panel de depuración
+
+- **Rama:** `feat/resilience`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/resilience`, más el pendiente detectado en `feat/transfers`.
+
+### Qué produjo la IA
+
+- **Corrección del pendiente:** `SignInCubit` (login y recuperar contraseña), `SignUpCubit` y `TransactionsCubit`
+  (cargar y cargar más) descartan la respuesta si la pantalla ya se cerró. Hay un test por cada caso.
+- **Panel de depuración** (solo dev, desde Perfil), con cuatro palancas:
+  - modo caos HTTP: latencia, % de fallos y sin red;
+  - apagar la red de Firestore, para ver la caché offline y la recuperación;
+  - cambiar el segmento del cliente, con `accounts.setSegment`;
+  - flags de Remote Config y un botón para pedir valores.
+- **Solo en dev de verdad:** injectable registra las herramientas y un router con la ruta del panel solo en dev, y la
+  navegación del servidor nunca puede abrirlo.
+- **`resilience.md`:** guion de demo con 7 escenarios manuales. Se corrigió además la mención a `connectivity_plus`,
+  que nunca se implementó: el aviso offline sale de `isFromCache`.
+- **12 tests nuevos** (6 del panel, 3 en `auth` y 3 en `accounts`), más aserciones en el test de inyección de
+  dependencias.
+- **Verificación visual** del panel y de Perfil con fuentes reales, en un test temporal.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Pisó un archivo de tests existente sin leerlo.** La IA escribió `test/di/injection_test.dart` con un `cat >`,
+   sin revisar que ya existía, y perdió aserciones del original (todo el grafo de la app). Lo detectó porque git lo
+   marcó como modificado en vez de nuevo y porque la cuenta de tests no cerraba. Se restauró el original y se le
+   sumaron los casos nuevos; el diff final contra `main` solo agrega líneas. Lección: revisar si un archivo existe antes
+   de escribirlo con la terminal (la herramienta de escritura sí lo exige).
+2. **Choque de nombres con fpdart.** fpdart exporta un `State` que choca con el de Flutter, y además no es una
+   dependencia directa de la app. Lo marcó el IDE y se resolvió dejando que Dart infiera el tipo del stream.
+3. **Taps de test que no llegaban al widget.** `scrollUntilVisible` se detiene apenas el widget se construye, aunque
+   esté debajo de la pantalla. Antes de cambiar el test, la IA midió el layout para descartar que el panel quedara
+   detrás de la barra inferior (no era así) y después agregó un `ensureVisible`.
+4. **Documentación desactualizada:** `resilience.md` prometía `connectivity_plus`, que se descartó sin dejarlo
+   escrito. Ahora explica la decisión.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones: 11 de 11 detectadas.** Los 5 guards de `isClosed`, la entrada al panel en prod, que el servidor pueda
+  abrir el panel, los sliders editables con el caos apagado, el switch de Firestore que no recuerda su estado, el
+  segmento que no se guarda y el botón para pedir valores que no hace nada.
+- **Brecha conocida:** ningún test resuelve el router desde la inyección de dependencias, porque eso instancia
+  Firebase. Si el router de dev dejara de recibir las herramientas, no lo detectaría un test; lo cubren la revisión
+  del código y la prueba manual.
+- **Pendiente de probar en un dispositivo:** los escenarios 1 a 7 de `resilience.md` con `make run-dev`.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y cuarto, en línea con lo estimado.
+- **Calidad:** el comportamiento degradado ya se puede mostrar en vivo, y el bug del `StateError` está cerrado.
+- **Documentación:** guion de demo en `resilience.md`, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** app 67, `accounts` 87 y `auth` 45.
 
 ### Revisión del autor
 

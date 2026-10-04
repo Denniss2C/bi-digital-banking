@@ -11,6 +11,12 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Panel de depuración (solo flavor dev, desde Perfil) para demostrar el comportamiento degradado:
+  - modo caos HTTP (latencia, % de fallos y sin red);
+  - apagar la red de Firestore, para ver la caché offline y la recuperación;
+  - cambiar el segmento del cliente, para ver la home personalizada en vivo;
+  - ver los flags de Remote Config y pedir valores.
+- `accounts`: `setSegment` (herramienta de dev; en producción el segmento lo asignaría el servidor).
 - Personalización con Remote Config: la home llega por segmento de cliente (`users/{uid}.segment`, enviado como
   *custom signal*) y cambia en vivo al publicar en la consola, sin reiniciar la app. Si Remote Config falla o manda un
   JSON inválido, se usa el layout embebido. Pull to refresh pide los valores más recientes.
@@ -103,6 +109,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 ### Fixed
+- Login, registro y movimientos ya no lanzan un `StateError` si la pantalla se cierra mientras una petición está en
+  curso (en el login podía pasar con el redirect al iniciar sesión).
 - `promo_banner`: el botón ya no lleva un chevron antes del texto (el diseño lo pone después).
 - VS Code ya no muestra cientos de errores en `build/ios` y `build/macos` de la raíz. Son copias del código de los
   plugins que deja Swift Package Manager al resolver dependencias (`make bootstrap`); la raíz ahora tiene su propio
