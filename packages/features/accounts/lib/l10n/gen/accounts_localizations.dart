@@ -370,6 +370,18 @@ abstract class AccountsLocalizations {
   /// In es, this message translates to:
   /// **'Ver mis cuentas'**
   String get backToAccounts;
+
+  /// Link to the full list of movements.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos'**
+  String get seeAll;
+
+  /// Default title of the recent movements section on the home.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimientos recientes'**
+  String get recentMovementsTitle;
 }
 
 class _AccountsLocalizationsDelegate

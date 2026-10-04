@@ -170,4 +170,10 @@ class AccountsLocalizationsEs extends AccountsLocalizations {
 
   @override
   String get backToAccounts => 'Ver mis cuentas';
+
+  @override
+  String get seeAll => 'Ver todos';
+
+  @override
+  String get recentMovementsTitle => 'Movimientos recientes';
 }
