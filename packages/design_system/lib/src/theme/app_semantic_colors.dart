@@ -12,6 +12,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     required this.border,
     required this.heroSurface,
     required this.onHeroSurface,
+    required this.link,
   });
 
   static const light = AppSemanticColors(
@@ -22,6 +23,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     border: AppColors.border,
     heroSurface: AppColors.navy,
     onHeroSurface: AppColors.white,
+    link: AppColors.orangeText,
   );
 
   static const dark = AppSemanticColors(
@@ -32,6 +34,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     border: AppColors.darkBorder,
     heroSurface: AppColors.navy,
     onHeroSurface: AppColors.white,
+    link: AppColors.orange,
   );
 
   /// Incoming money (credits, income).
@@ -53,6 +56,10 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
   final Color heroSurface;
   final Color onHeroSurface;
 
+  /// Text links and text buttons. The brand orange only passes AA on dark
+  /// surfaces, so light mode uses the darker orange tone.
+  final Color link;
+
   @override
   AppSemanticColors copyWith({
     Color? positive,
@@ -62,6 +69,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
     Color? border,
     Color? heroSurface,
     Color? onHeroSurface,
+    Color? link,
   }) {
     return AppSemanticColors(
       positive: positive ?? this.positive,
@@ -71,6 +79,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       border: border ?? this.border,
       heroSurface: heroSurface ?? this.heroSurface,
       onHeroSurface: onHeroSurface ?? this.onHeroSurface,
+      link: link ?? this.link,
     );
   }
 
@@ -85,6 +94,7 @@ class AppSemanticColors extends ThemeExtension<AppSemanticColors> {
       border: Color.lerp(border, other.border, t)!,
       heroSurface: Color.lerp(heroSurface, other.heroSurface, t)!,
       onHeroSurface: Color.lerp(onHeroSurface, other.onHeroSurface, t)!,
+      link: Color.lerp(link, other.link, t)!,
     );
   }
 }

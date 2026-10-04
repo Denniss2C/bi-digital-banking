@@ -43,6 +43,8 @@ void main() {
       'negative amount on surface': (c.negative, s.surface),
       'warning on card': (c.warning, c.card),
       'onHeroSurface on heroSurface': (c.onHeroSurface, c.heroSurface),
+      'link on card': (c.link, c.card),
+      'link on surface': (c.link, s.surface),
     };
 
     group('$name theme meets WCAG AA', () {

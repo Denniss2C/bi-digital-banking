@@ -128,6 +128,25 @@ abstract final class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: semantic.border, thickness: 1),
+      // TextButton defaults to the orange primary, which fails AA as text on
+      // light surfaces; links use the semantic link color instead.
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: semantic.link,
+          minimumSize: const Size(48, AppSpacing.minTouchTarget),
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
+      // Selected segment in navy (secondary), as in the design's tabs.
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: SegmentedButton.styleFrom(
+          selectedBackgroundColor: scheme.secondary,
+          selectedForegroundColor: scheme.onSecondary,
+          foregroundColor: scheme.onSurfaceVariant,
+          minimumSize: const Size(48, AppSpacing.minTouchTarget),
+          textStyle: textTheme.labelLarge,
+        ),
+      ),
       // The design marks the active tab in orange text, which fails AA on
       // white (2.45:1). The orange accent lives in the indicator pill; icons
       // and labels use AA colors.
