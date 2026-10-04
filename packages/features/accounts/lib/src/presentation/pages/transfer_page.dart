@@ -15,6 +15,7 @@ class TransferPage extends StatelessWidget {
     required this.repository,
     required this.userId,
     required this.onDone,
+    this.telemetry = const NoopTelemetry(),
     super.key,
   });
 
@@ -24,14 +25,28 @@ class TransferPage extends StatelessWidget {
   /// Leaves the flow (the shell decides where to go).
   final VoidCallback onDone;
 
+  /// Reports the transfer funnel: `transfer_completed`, `transfer_failed`
+  /// (with the reason, never the amount) and the `transfer_submit` trace.
+  final Telemetry telemetry;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => TransferCubit(repository: repository, userId: userId),
-      child: _TransferView(onDone: onDone),
+      child: _TransferView(onDone: onDone, telemetry: telemetry),
     );
   }
 }
+
+/// Why a transfer failed, for analytics: the broken rule or the failure
+/// kind. Never personal data.
+String transferFailureReason(Failure failure) => switch (failure) {
+  ValidationFailure(:final code) => code,
+  NetworkFailure() => 'network',
+  ServerFailure() => 'server',
+  AuthFailure() => 'auth',
+  CacheFailure() => 'cache',
+};
 
 /// Localized text for a broken transfer rule.
 String transferErrorMessage(AccountsLocalizations l10n, TransferError error) {
@@ -62,9 +77,10 @@ String transferFailureMessage(AccountsLocalizations l10n, Failure failure) {
 }
 
 class _TransferView extends StatefulWidget {
-  const _TransferView({required this.onDone});
+  const _TransferView({required this.onDone, required this.telemetry});
 
   final VoidCallback onDone;
+  final Telemetry telemetry;
 
   @override
   State<_TransferView> createState() => _TransferViewState();
@@ -72,6 +88,34 @@ class _TransferView extends StatefulWidget {
 
 class _TransferViewState extends State<_TransferView> {
   final _amount = TextEditingController();
+
+  /// Running while a transfer is sent; null otherwise.
+  TelemetryTrace? _trace;
+
+  void _report(TransferState state) {
+    final telemetry = widget.telemetry;
+    switch (state.status) {
+      case TransferStatus.submitting:
+        _trace = telemetry.startTrace('transfer_submit');
+      case TransferStatus.success when _trace != null:
+        _trace!
+          ..setAttribute('result', 'success')
+          ..stop();
+        _trace = null;
+        telemetry.event('transfer_completed');
+      case TransferStatus.failure when _trace != null:
+        final reason = transferFailureReason(state.failure!);
+        _trace!
+          ..setAttribute('result', reason)
+          ..stop();
+        _trace = null;
+        telemetry.event('transfer_failed', {'reason': reason});
+      default:
+        // Loading or editing; a failure without a request in flight (e.g.
+        // the accounts stream) is not a transfer attempt.
+        break;
+    }
+  }
 
   @override
   void dispose() {
@@ -84,7 +128,9 @@ class _TransferViewState extends State<_TransferView> {
     final l10n = AccountsLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.transferTitle)),
-      body: BlocBuilder<TransferCubit, TransferState>(
+      body: BlocConsumer<TransferCubit, TransferState>(
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: (context, state) => _report(state),
         builder: (context, state) {
           final cubit = context.read<TransferCubit>();
           if (state.status == TransferStatus.loadingAccounts) {
