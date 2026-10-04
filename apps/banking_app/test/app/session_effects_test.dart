@@ -31,6 +31,19 @@ class _RecordingAccounts implements AccountsRepository {
     TransactionCursor? after,
     int pageSize = 20,
   }) async => const Right(TransactionPage(items: []));
+
+  @override
+  String newTransferId() => 'transfer-1';
+
+  @override
+  Future<Either<Failure, TransferReceipt>> transfer({
+    required String userId,
+    required String transferId,
+    required String fromAccountId,
+    required String toAccountId,
+    required int amountCents,
+    required String concept,
+  }) async => const Left(NetworkFailure());
 }
 
 void main() {

@@ -2,6 +2,7 @@ import 'package:accounts/accounts.dart';
 import 'package:core/core.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
 
 void main() {
   const uid = 'uid-1';
@@ -126,6 +127,138 @@ void main() {
       expect(all.map((t) => t.id).toSet(), hasLength(24));
       final dates = all.map((t) => t.createdAt).toList();
       expect(dates, [...dates]..sort((a, b) => b.compareTo(a)));
+    });
+  });
+
+  group('transfer', () {
+    Future<int> balance(String accountId) async {
+      final doc = await firestore.doc('users/$uid/accounts/$accountId').get();
+      return doc.data()!['balanceCents'] as int;
+    }
+
+    Future<List<Map<String, dynamic>>> transferMovements(
+      String accountId,
+    ) async {
+      final query = await firestore
+          .collection('users/$uid/accounts/$accountId/transactions')
+          .where('source', isEqualTo: 'transfer')
+          .get();
+      return query.docs.map((doc) => doc.data()).toList();
+    }
+
+    Future<Either<Failure, TransferReceipt>> send(
+      int amountCents, {
+      String to = 'checking',
+      String concept = '',
+      String? id,
+    }) => repository.transfer(
+      userId: uid,
+      transferId: id ?? repository.newTransferId(),
+      fromAccountId: 'savings',
+      toAccountId: to,
+      amountCents: amountCents,
+      concept: concept,
+    );
+
+    test('moves the money and records one movement on each side', () async {
+      await open();
+      final savingsBefore = await balance('savings');
+      final checkingBefore = await balance('checking');
+
+      final receipt = (await send(12550)).getRight().toNullable()!;
+
+      expect(await balance('savings'), savingsBefore - 12550);
+      expect(await balance('checking'), checkingBefore + 12550);
+      expect(receipt.fromBalanceAfterCents, savingsBefore - 12550);
+      expect(receipt.createdAt, DateTime(2026, 10, 3, 18));
+
+      final debit = (await transferMovements('savings')).single;
+      final credit = (await transferMovements('checking')).single;
+      expect(debit['type'], 'debit');
+      expect(credit['type'], 'credit');
+      expect([debit['amountCents'], credit['amountCents']], [12550, 12550]);
+      expect(debit['transferId'], receipt.transferId);
+      expect(credit['transferId'], receipt.transferId);
+      final debitDoc = firestore.doc(
+        'users/$uid/accounts/savings/transactions/${receipt.transferId}',
+      );
+      expect((await debitDoc.get()).exists, isTrue);
+      expect(debit['balanceAfterCents'], savingsBefore - 12550);
+      expect(credit['balanceAfterCents'], checkingBefore + 12550);
+      expect(debit['description'], 'Transferencia a Cuenta Corriente');
+      expect(credit['description'], 'Transferencia desde Cuenta de Ahorros');
+    });
+
+    test('repeating a transfer id moves the money only once', () async {
+      await open();
+      final savingsBefore = await balance('savings');
+      final checkingBefore = await balance('checking');
+      final id = repository.newTransferId();
+
+      final first = await send(1000, id: id);
+      final retry = await send(1000, id: id);
+
+      expect(retry, first);
+      expect(await balance('savings'), savingsBefore - 1000);
+      expect(await balance('checking'), checkingBefore + 1000);
+      expect(await transferMovements('savings'), hasLength(1));
+      expect(await transferMovements('checking'), hasLength(1));
+    });
+
+    test('the concept describes both movements', () async {
+      await open();
+
+      await send(1000, concept: 'Ahorro viaje');
+
+      for (final account in ['savings', 'checking']) {
+        final movement = (await transferMovements(account)).single;
+        expect(movement['description'], 'Ahorro viaje', reason: account);
+      }
+    });
+
+    test('the movement is the newest one in the history', () async {
+      await open();
+
+      await send(1000);
+
+      final page = (await repository.fetchTransactions(
+        userId: uid,
+        accountId: 'checking',
+      )).getRight().toNullable()!;
+      expect(page.items.first.category, 'transfer');
+      expect(page.items.first.type, TransactionType.credit);
+    });
+
+    test('the whole balance can be sent, but not one cent more', () async {
+      await open();
+      final all = await balance('savings');
+
+      final tooMuch = await send(all + 1);
+
+      expect(
+        tooMuch.getLeft().toNullable(),
+        const ValidationFailure(code: 'insufficientFunds'),
+      );
+      expect(await balance('savings'), all);
+      expect(await transferMovements('savings'), isEmpty);
+      expect(await transferMovements('checking'), isEmpty);
+
+      expect((await send(all)).isRight(), isTrue);
+      expect(await balance('savings'), 0);
+    });
+
+    test('an unknown account fails without writing anything', () async {
+      await open();
+      final before = await balance('savings');
+
+      final result = await send(1000, to: 'missing');
+
+      expect(
+        result.getLeft().toNullable(),
+        const ValidationFailure(code: 'accountNotFound'),
+      );
+      expect(await balance('savings'), before);
+      expect(await transferMovements('savings'), isEmpty);
     });
   });
 }

@@ -88,10 +88,20 @@ class FakeAccountsRepository implements AccountsRepository {
               maskedNumber: '•••• 4892',
               balanceCents: 384550,
             ),
+            Account(
+              id: 'checking',
+              type: AccountType.checking,
+              alias: 'Cuenta Corriente',
+              maskedNumber: '•••• 1035',
+              balanceCents: 125000,
+            ),
           ];
 
   final List<Account> accounts;
   final List<AccountTransaction> movements;
+
+  /// Transfers requested so far, in order.
+  final transfers = <TransferReceipt>[];
 
   @override
   Stream<Either<Failure, AccountsSnapshot>> watchAccounts(String userId) =>
@@ -113,6 +123,32 @@ class FakeAccountsRepository implements AccountsRepository {
     required String name,
     required String email,
   }) async => const Right(unit);
+
+  @override
+  String newTransferId() => 'transfer-${transfers.length + 1}';
+
+  @override
+  Future<Either<Failure, TransferReceipt>> transfer({
+    required String userId,
+    required String transferId,
+    required String fromAccountId,
+    required String toAccountId,
+    required int amountCents,
+    required String concept,
+  }) async {
+    final from = accounts.firstWhere((account) => account.id == fromAccountId);
+    final receipt = TransferReceipt(
+      transferId: transferId,
+      fromAccountId: fromAccountId,
+      toAccountId: toAccountId,
+      amountCents: amountCents,
+      concept: concept,
+      createdAt: DateTime(2026, 10, 3, 9, 5),
+      fromBalanceAfterCents: from.balanceCents - amountCents,
+    );
+    transfers.add(receipt);
+    return Right(receipt);
+  }
 }
 
 class InMemoryKeyValueStore implements KeyValueStore {
@@ -135,6 +171,7 @@ Future<void> pumpApp(
   bool hasSeenOnboarding = false,
   AppConfig config = AppConfig.prod,
   List<Locale> deviceLocales = const [Locale('es', 'EC')],
+  FakeAccountsRepository? accountsRepository,
 }) async {
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -150,19 +187,21 @@ Future<void> pumpApp(
     session: session,
     onboardingRepository: onboarding,
     authRepository: auth,
-    accountsRepository: FakeAccountsRepository(
-      movements: [
-        AccountTransaction(
-          id: 't1',
-          type: TransactionType.debit,
-          amountCents: 6430,
-          description: 'Supermaxi Mall del Sol',
-          category: 'groceries',
-          createdAt: DateTime(2026, 9, 20, 11, 30),
-          balanceAfterCents: 384550,
+    accountsRepository:
+        accountsRepository ??
+        FakeAccountsRepository(
+          movements: [
+            AccountTransaction(
+              id: 't1',
+              type: TransactionType.debit,
+              amountCents: 6430,
+              description: 'Supermaxi Mall del Sol',
+              category: 'groceries',
+              createdAt: DateTime(2026, 9, 20, 11, 30),
+              balanceAfterCents: 384550,
+            ),
+          ],
         ),
-      ],
-    ),
   );
   addTearDown(router.dispose);
 

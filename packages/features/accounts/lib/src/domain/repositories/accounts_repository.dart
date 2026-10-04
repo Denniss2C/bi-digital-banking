@@ -1,4 +1,5 @@
 import 'package:accounts/src/domain/entities/paging.dart';
+import 'package:accounts/src/domain/entities/transfer.dart';
 import 'package:core/core.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -22,5 +23,26 @@ abstract interface class AccountsRepository {
     required String userId,
     required String name,
     required String email,
+  });
+
+  /// A new idempotency key for [transfer], generated locally.
+  String newTransferId();
+
+  /// Atomically moves [amountCents] between two accounts of [userId]: both
+  /// balances change and a debit and a credit movement are written, or
+  /// nothing changes. Fails with `ValidationFailure(insufficientFunds)` when
+  /// the source balance is not enough, and with a `NetworkFailure` offline
+  /// (money movements need the server).
+  ///
+  /// [transferId] makes it idempotent: sending the same id again returns the
+  /// original receipt without moving the money twice, so a retry after an
+  /// unclear failure (e.g. a lost response) is always safe.
+  Future<Either<Failure, TransferReceipt>> transfer({
+    required String userId,
+    required String transferId,
+    required String fromAccountId,
+    required String toAccountId,
+    required int amountCents,
+    required String concept,
   });
 }
