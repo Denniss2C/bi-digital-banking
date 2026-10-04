@@ -87,6 +87,36 @@ void main() {
       expect(find.byType(NavigationBar), findsOneWidget);
     });
 
+    testWidgets('a transfer from the accounts tab returns to the list', (
+      tester,
+    ) async {
+      final accounts = FakeAccountsRepository();
+      await pumpApp(
+        tester,
+        signedInUser: testUser,
+        accountsRepository: accounts,
+      );
+
+      await tester.tap(_tab('Cuentas'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Transferir'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle('Transferir dinero'), findsOneWidget);
+
+      await tester.tap(find.text(r'$50.00'));
+      await tester.pumpAndSettle();
+      final send = find.widgetWithText(FilledButton, 'Transferir');
+      await tester.ensureVisible(send);
+      await tester.tap(send);
+      await tester.pumpAndSettle();
+      expect(find.text('Transferencia exitosa'), findsOneWidget);
+      expect(accounts.transfers.single.amountCents, 5000);
+
+      await tester.tap(find.text('Ver mis cuentas'));
+      await tester.pumpAndSettle();
+      expect(_appBarTitle('Cuentas'), findsOneWidget);
+    });
+
     testWidgets('tabs switch the visible section', (tester) async {
       await pumpApp(tester, signedInUser: testUser);
 
