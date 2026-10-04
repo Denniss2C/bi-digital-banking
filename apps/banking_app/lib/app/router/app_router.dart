@@ -78,8 +78,18 @@ GoRouter createRouter({
                   userId: userId(),
                   onOpenAccount: (account) =>
                       context.go(AppRoutes.accountDetail(account.id)),
+                  onTransfer: () => context.go(AppRoutes.transfer),
                 ),
                 routes: [
+                  // Declared before ':accountId' so 'transfer' is not an id.
+                  GoRoute(
+                    path: 'transfer',
+                    builder: (context, state) => TransferPage(
+                      repository: accountsRepository,
+                      userId: userId(),
+                      onDone: () => context.go(AppRoutes.accounts),
+                    ),
+                  ),
                   GoRoute(
                     path: ':accountId',
                     builder: (context, state) => AccountDetailPage(
