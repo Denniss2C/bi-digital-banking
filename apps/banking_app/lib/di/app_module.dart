@@ -4,14 +4,17 @@ import 'package:banking_app/app/config/app_config.dart';
 import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/personalization/personalization_source.dart';
+import 'package:banking_app/app/push/push_coordinator.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:banking_app/app/session_effects.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:core/core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:fx_rates/fx_rates.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
+import 'package:notifications/notifications.dart';
 
 /// Objects the shell owns or composes from the features.
 @module
@@ -49,6 +52,27 @@ abstract class AppModule {
     ),
     session: session,
     accounts: accounts,
+  );
+
+  @lazySingleton
+  PushService get pushService =>
+      FirebasePushService(FirebaseMessaging.instance);
+
+  @lazySingleton
+  PushTokenRegistry get pushTokenRegistry =>
+      FirestorePushTokenRegistry(FirebaseFirestore.instance);
+
+  @lazySingleton
+  PushCoordinator pushCoordinator(
+    SessionCubit session,
+    PushService push,
+    PushTokenRegistry tokens,
+    GoRouter router,
+  ) => PushCoordinator(
+    session: session,
+    push: push,
+    tokens: tokens,
+    navigate: router.go,
   );
 
   /// Exchange rates over HTTP: in dev the client also gets the chaos
@@ -131,5 +155,6 @@ abstract class AppModule {
   DebugTools debugTools(
     ChaosController chaos,
     FirestoreNetworkSwitch firestoreNetwork,
-  ) => DebugTools(chaos: chaos, firestoreNetwork: firestoreNetwork);
+    PushService push,
+  ) => DebugTools(chaos: chaos, firestoreNetwork: firestoreNetwork, push: push);
 }

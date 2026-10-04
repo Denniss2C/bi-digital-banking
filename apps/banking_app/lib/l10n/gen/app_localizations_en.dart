@@ -96,4 +96,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get debugOff => 'Off';
+
+  @override
+  String get pushOpen => 'Open';
+
+  @override
+  String get debugPushTitle => 'Push notifications';
+
+  @override
+  String get debugPushHint =>
+      'Copy the token and paste it in the Firebase console: Messaging → Send test message. With the custom data route (for example, /fx), tapping the notification opens that screen.';
+
+  @override
+  String get debugPushNoToken =>
+      'No token yet: sign in and accept the permission.';
+
+  @override
+  String get debugCopy => 'Copy token';
+
+  @override
+  String get debugCopied => 'Token copied';
 }

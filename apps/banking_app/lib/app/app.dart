@@ -2,6 +2,8 @@ import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/config/app_config.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
+import 'package:banking_app/app/push/foreground_push_listener.dart';
+import 'package:banking_app/app/push/push_coordinator.dart';
 import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ class App extends StatelessWidget {
     required this.router,
     required this.session,
     required this.personalization,
+    required this.push,
     super.key,
   });
 
@@ -23,6 +26,7 @@ class App extends StatelessWidget {
   final GoRouter router;
   final SessionCubit session;
   final PersonalizationCubit personalization;
+  final PushCoordinator push;
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +51,16 @@ class App extends StatelessWidget {
         localeListResolutionCallback: resolveAppLocale,
         // The DEV ribbon replaces Flutter's DEBUG banner in the same corner.
         debugShowCheckedModeBanner: false,
-        builder: (context, child) => config.enableDebugTools
-            ? Banner(
-                message: 'DEV',
-                location: BannerLocation.topEnd,
-                child: child!,
-              )
-            : child!,
+        builder: (context, child) => ForegroundPushListener(
+          coordinator: push,
+          child: config.enableDebugTools
+              ? Banner(
+                  message: 'DEV',
+                  location: BannerLocation.topEnd,
+                  child: child!,
+                )
+              : child!,
+        ),
       ),
     );
   }

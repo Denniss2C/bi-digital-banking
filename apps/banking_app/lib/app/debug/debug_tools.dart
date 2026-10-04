@@ -1,5 +1,6 @@
 import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:notifications/notifications.dart';
 
 /// Turns Firestore's network off and on (dev tooling). With it off, the app
 /// works from Firestore's offline cache, as without connectivity, and
@@ -21,9 +22,16 @@ class FirestoreNetworkSwitch extends ValueNotifier<bool> {
 /// What the debug panel controls. It only exists in the dev flavor: in prod
 /// nothing creates it and the panel's route does not exist.
 class DebugTools {
-  const DebugTools({required this.chaos, required this.firestoreNetwork});
+  const DebugTools({
+    required this.chaos,
+    required this.firestoreNetwork,
+    required this.push,
+  });
 
   /// Failures injected into HTTP calls (ChaosInterceptor).
   final ChaosController chaos;
   final FirestoreNetworkSwitch firestoreNetwork;
+
+  /// To show this device's token, for test messages from the console.
+  final PushService push;
 }

@@ -96,4 +96,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get debugOff => 'Apagado';
+
+  @override
+  String get pushOpen => 'Ver';
+
+  @override
+  String get debugPushTitle => 'Notificaciones push';
+
+  @override
+  String get debugPushHint =>
+      'Copia el token y pégalo en la consola de Firebase: Messaging → Enviar mensaje de prueba. Con el dato personalizado route (por ejemplo, /fx), tocar la notificación abre esa pantalla.';
+
+  @override
+  String get debugPushNoToken =>
+      'Todavía no hay token: inicia sesión y acepta el permiso.';
+
+  @override
+  String get debugCopy => 'Copiar token';
+
+  @override
+  String get debugCopied => 'Token copiado';
 }

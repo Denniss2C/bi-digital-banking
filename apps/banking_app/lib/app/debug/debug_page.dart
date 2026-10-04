@@ -6,6 +6,7 @@ import 'package:banking_app/l10n/l10n.dart';
 import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Debug panel (dev flavor only): switches to show how the app behaves
@@ -30,9 +31,9 @@ class DebugPage extends StatefulWidget {
 }
 
 class _DebugPageState extends State<DebugPage> {
-  // Created once: building the stream in build() would subscribe again on
-  // every rebuild.
+  // Created once: building them in build() would ask again on every rebuild.
   late final _segment = widget.accounts.watchSegment(widget.userId);
+  late final _pushToken = widget.tools.push.token();
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +130,47 @@ class _DebugPageState extends State<DebugPage> {
                       );
                     },
                   ),
+                );
+              },
+            ),
+          ),
+          _Section(
+            title: l10n.debugPushTitle,
+            hint: l10n.debugPushHint,
+            child: FutureBuilder<String?>(
+              future: _pushToken,
+              builder: (context, snapshot) {
+                final token = snapshot.data;
+                if (token == null) {
+                  return ListTile(title: Text(l10n.debugPushNoToken));
+                }
+                return Column(
+                  children: [
+                    ListTile(
+                      title: SelectableText(
+                        token,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
+                      child: AppButton(
+                        label: l10n.debugCopy,
+                        icon: Icons.copy,
+                        variant: AppButtonVariant.tertiary,
+                        onPressed: () async {
+                          await Clipboard.setData(ClipboardData(text: token));
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.debugCopied)),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 );
               },
             ),

@@ -16,6 +16,7 @@ import 'package:banking_app/app/config/app_config.dart' as _i110;
 import 'package:banking_app/app/debug/debug_tools.dart' as _i461;
 import 'package:banking_app/app/personalization/personalization_cubit.dart'
     as _i80;
+import 'package:banking_app/app/push/push_coordinator.dart' as _i981;
 import 'package:banking_app/app/session_effects.dart' as _i249;
 import 'package:banking_app/di/app_module.dart' as _i1038;
 import 'package:core/core.dart' as _i494;
@@ -23,6 +24,7 @@ import 'package:fx_rates/fx_rates.dart' as _i951;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:go_router/go_router.dart' as _i583;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:notifications/notifications.dart' as _i327;
 
 const String _dev = 'dev';
 const String _prod = 'prod';
@@ -39,6 +41,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i718.AccountsRepository>(
       () => appModule.accountsRepository,
     );
+    gh.lazySingleton<_i327.PushService>(() => appModule.pushService);
+    gh.lazySingleton<_i327.PushTokenRegistry>(
+      () => appModule.pushTokenRegistry,
+    );
     gh.lazySingleton<_i662.OnboardingRepository>(
       () => appModule.onboardingRepository(gh<_i494.KeyValueStore>()),
     );
@@ -54,6 +60,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.debugTools(
         gh<_i494.ChaosController>(),
         gh<_i461.FirestoreNetworkSwitch>(),
+        gh<_i327.PushService>(),
       ),
       registerFor: {_dev},
     );
@@ -106,6 +113,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i461.DebugTools>(),
       ),
       registerFor: {_dev},
+    );
+    gh.lazySingleton<_i981.PushCoordinator>(
+      () => appModule.pushCoordinator(
+        gh<_i662.SessionCubit>(),
+        gh<_i327.PushService>(),
+        gh<_i327.PushTokenRegistry>(),
+        gh<_i583.GoRouter>(),
+      ),
     );
     return this;
   }

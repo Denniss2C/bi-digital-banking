@@ -253,6 +253,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Apagado'**
   String get debugOff;
+
+  /// Action of the in-app banner for a push received while the app is open.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver'**
+  String get pushOpen;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones push'**
+  String get debugPushTitle;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Copia el token y pégalo en la consola de Firebase: Messaging → Enviar mensaje de prueba. Con el dato personalizado route (por ejemplo, /fx), tocar la notificación abre esa pantalla.'**
+  String get debugPushHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay token: inicia sesión y acepta el permiso.'**
+  String get debugPushNoToken;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar token'**
+  String get debugCopy;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Token copiado'**
+  String get debugCopied;
 }
 
 class _AppLocalizationsDelegate
