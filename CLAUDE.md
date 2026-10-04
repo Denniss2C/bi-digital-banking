@@ -239,14 +239,16 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Dinero en centavos (`balanceCents`, `amountCents`). Apertura idempotente desde el shell al iniciar sesión. Reglas desplegadas el 2026-10-03; ver ADR-003.
 - [x] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados
   - Pantalla `cuentas_y_tarjetas_*`: solo cuentas y movimientos (tarjeta virtual y metas quedan fuera).
-- [ ] `feat/transfers`: transferencia entre cuentas propias (`runTransaction`) — **recortable**
-  - Pantalla `transferir_dinero_*`, opción "A cuentas Nexo".
+- [x] `feat/transfers`: transferencia entre cuentas propias (`runTransaction`) — **recortable**
+  - Pantalla `transferir_dinero_*`, opción "A cuentas Nexo" (otros bancos, contactos y biometría quedan fuera).
+  - Idempotente con `transferId`, que es el id de documento de los dos movimientos. Límite demo de $5,000.00 por transferencia. Necesita conexión: las transacciones de Firestore no funcionan offline.
 
 ### Fase 3 — Diferenciadores (domingo)
 - [ ] `feat/sdui-engine`: parser + registry + render + fallback + tests
 - [ ] `feat/personalization`: Remote Config por segmento + feature flags; home renderizada por SDUI
   - La home por defecto replica la pantalla `inicio_*`; cada segmento cambia el orden, la promo o los componentes.
 - [ ] `feat/resilience`: caché, banner offline, panel de debug con Chaos (solo dev), tests de reintento
+  - Pendiente detectado en `feat/transfers`: `SignInCubit`, `SignUpCubit` y `TransactionsCubit` emiten después de un `await` sin comprobar `isClosed` (`StateError` si la pantalla se cierra antes; en el login puede pasar con el redirect). `TransferCubit` ya tiene el guard.
 - [ ] `feat/fx-rates`: micro app con API real + caché + degradación
   - Pantalla `divisas_y_remesas_*`: cotizador; tasa media real, sin spreads inventados.
 - [ ] `feat/push`: FCM + deep links
@@ -258,7 +260,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
 - [ ] README final reproducible — _parcial: estructura (#2)_
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-003_
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-015_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
@@ -284,4 +286,5 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · Una sola sesión de IA por carpeta.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el primer commit de `docs/design-reference`. Ese commit se rehízo limpio desde `main`. Regla: una sola sesión trabaja en la carpeta del repo; si hace falta otra en paralelo, va en su propio worktree (`../bi-digital-banking-<tema>`).
 - **2026-10-03 · Modelo de datos en centavos y `equatable` 2.x.** Los campos del modelo de §4 pasan a `balanceCents` y `amountCents` (enteros) y suman `source` (`seed` o `transfer`). `equatable` baja a 2.x porque `fake_cloud_firestore`, que se usa para testear Firestore, lo exige. Tampoco se usa json_serializable: el mapeo es manual, igual que la decisión sobre freezed.
 - **2026-10-03 · Sin freezed (decisión del autor).** freezed estable no es compatible con el toolchain: la 3.2.5 exige `analyzer <11`, `injectable_generator` exige `>=11` y freezed 4 exige Dart 3.13 (tenemos 3.12). Los estados y modelos usan clases `sealed` + equatable con `copyWith` escrito a mano, sin codegen ni prereleases. Revisar al subir a Dart 3.13.
+- **2026-10-03 · Transferencias idempotentes (fuera del plan).** Firestore reintenta una transacción si se pierde la respuesta del commit, aunque el servidor ya la haya aplicado, y el usuario puede reintentar tras un error de red: sin protección, una transferencia podía cobrarse dos veces. Se agregó una clave de idempotencia (`transferId`) que el formulario reutiliza en cada reintento. Costó unos 25 minutos más de lo estimado.
 - **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. La app adopta la marca: los nombres visibles pasan de "BI Banca" / "BI Dev" a "Nexo" / "Nexo Dev" (`docs/align-design`). Se corrigen tres contrastes del diseño que no cumplen AA (ver §4).

@@ -11,6 +11,16 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Transferencias entre cuentas propias ("A cuentas Nexo"), según la pantalla Transferir del diseño: cuentas de
+  origen y destino, montos rápidos, saldo disponible, concepto, costo $0.00 y comprobante. Se abren desde el botón
+  "Transferir" de la pestaña Cuentas.
+  - Procesamiento real con `runTransaction` de Firestore: valida el saldo con datos frescos, actualiza ambas cuentas
+    y registra un movimiento en cada una, todo o nada.
+  - Idempotentes: cada transferencia lleva un `transferId`, y reintentarla con el mismo id nunca mueve el dinero dos
+    veces (ni por los reintentos internos de Firestore ni por los del usuario).
+  - Reglas: cuentas distintas, monto mayor a cero, máximo $5,000.00 por transferencia y concepto de hasta 60
+    caracteres. Sin conexión, la pantalla explica que la transferencia necesita internet.
+- `core`: `ValidationFailure` para reglas de negocio rechazadas.
 - Cuentas (UI): pestaña Cuentas con el saldo total y tarjetas por cuenta, y detalle con saldo en vivo y
   movimientos con scroll infinito. Estados de carga, vacío, error con reintento y offline con aviso. Textos
   propios del feature (es/en).

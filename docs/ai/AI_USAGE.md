@@ -26,6 +26,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-012](#ia-012--auth-ui-sesión-y-redirect) | 2026-10-03 | Fase 2 · auth (UI) | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-013](#ia-013--cuentas-datos-en-firestore-y-reglas) | 2026-10-03 | Fase 2 · accounts (datos) | Claude Code (Claude Opus 5.5) | 2 |
 | [IA-014](#ia-014--cuentas-ui-y-estados) | 2026-10-03 | Fase 2 · accounts (UI) | Claude Code (Claude Opus 5.5) | 3 |
+| [IA-015](#ia-015--transferencias-entre-cuentas-propias) | 2026-10-03 | Fase 2 · transfers | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -849,6 +850,84 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Documentación:** README de `accounts` (presentación y estados) y del design system (trampa del hero), y
   `resilience.md`.
 - **Pruebas:** `accounts` 28, app 27.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-015 · Transferencias entre cuentas propias
+
+- **Rama:** `feat/transfers`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "listo, continua". Ítem `feat/transfers`: transferencia entre cuentas propias con
+  `runTransaction`, según la pantalla `transferir_dinero_*` (opción "A cuentas Nexo").
+
+### Qué produjo la IA
+
+- **Dominio:**
+  - `TransferBetweenOwnAccounts`: cuentas distintas, monto mayor a cero, máximo $5,000.00 y concepto de hasta 60
+    caracteres;
+  - `TransferReceipt` y `TransferError`;
+  - `ValidationFailure` en `core`.
+- **Datos:** `transfer` con `runTransaction`. Lee y después escribe, rechaza el saldo insuficiente con datos frescos y
+  escribe débito y crédito con el mismo `transferId`, todo o nada.
+- **Idempotencia**, agregada durante el paso y fuera del plan: la clave la genera el repositorio (`newTransferId`), el
+  cubit la reutiliza en cada reintento y la transacción no vuelve a escribir si el débito ya existe.
+- **Presentación:**
+  - `TransferCubit`: formulario, validaciones, envío y reintento con la misma clave;
+  - `TransferPage`: formulario según el diseño y comprobante;
+  - `parseAmountCents`: acepta `150,50` y `1,500.00`;
+  - botón Transferir en la pestaña Cuentas.
+- **Shell:** ruta `/accounts/transfer`, declarada antes de `/:accountId`.
+- **41 tests nuevos:** 40 en `accounts` y 1 de flujo en la app.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Riesgo de cobro doble que el diseño inicial no contemplaba.** La primera versión creaba el id de la
+   transferencia dentro de la transacción. Si la respuesta del commit se pierde, Firestore reintenta la transacción y
+   la habría aplicado dos veces; lo mismo si el usuario reintentaba después de un error de red. La IA lo detectó al
+   revisar el flujo offline, antes del PR, y agregó la clave de idempotencia (unos 25 minutos fuera del plan).
+2. **Formulario en un `ListView` perezoso.** Un widget test no encontraba el botón Transferir porque no se construye
+   fuera de pantalla. Al analizarlo apareció un bug real: en un teléfono pequeño, el campo de concepto se destruye al
+   salir de pantalla y pierde el texto. Se cambió a `SingleChildScrollView` + `Column`. No hay un test que reproduzca
+   la pérdida del texto; el motivo quedó en un comentario.
+3. **Emit después de cerrar el cubit.** Si el usuario sale de la pantalla mientras la transferencia está en curso, el
+   cubit se cierra y el `emit` final lanzaba un `StateError`, aunque la transferencia terminara bien. La IA lo vio al
+   revisar el código final. Se agregó `if (isClosed) return;` con su test, comprobado con una mutación. El mismo
+   problema existe en `SignInCubit`, `SignUpCubit` y `TransactionsCubit`, de pasos anteriores; quedó anotado en el
+   roadmap (`feat/resilience`) para no mezclarlo en este PR.
+4. **Tests y scripts mal planteados:**
+   - un test mezclaba dos escenarios en el mismo árbol de widgets. El segundo `pump` reutilizaba el cubit del primero
+     (`BlocProvider.create` corre una sola vez), así que fallaba aunque la pantalla estaba bien. Se separó en dos
+     tests;
+   - un script de reemplazos insertó un argumento dos veces, porque un patrón con 6 espacios también coincidía dentro
+     de las líneas con 8. El análisis lo detectó y se corrigió a mano;
+   - un primer intento de correr los tests usó `timeout`, que no existe en macOS: no corrió nada ni mostró salida. Se
+     repitió verificando el código de salida.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones:** 14 cambios en la lógica y 13 detectados por algún test. Entre ellos: sin chequeo de saldo (servidor
+  y cliente), sin protección contra el doble envío, límite con `>=`, coma decimal ignorada, ruta declarada después de
+  `:accountId`, sin el chequeo de reintento en la transacción, id nuevo en cada envío y sin el guard de `isClosed`.
+  - **Sobrevive uno:** quitar la renovación de la clave en `restart()`. Después de reiniciar, el monto queda vacío y
+    todo envío válido exige editar, lo que ya renueva la clave. Se mantiene como línea defensiva.
+- **Sin prueba en un dispositivo ni contra Firestore real:** el fake no reproduce el modo offline ni las reglas.
+  Pendiente: transferir con `make run-dev` y probar en modo avión.
+
+### Impacto
+
+- **Productividad:** algo más de la hora estimada; la idempotencia sumó unos 25 minutos.
+- **Calidad:** transferencias atómicas e idempotentes, con las mismas reglas en la UI y en el dominio.
+- **Documentación:** README de `accounts`, `resilience.md` (reintentos sin cobros dobles y transferencias sin
+  conexión) y CHANGELOG.
+- **Pruebas:** `accounts` 68, app 28.
 
 ### Revisión del autor
 
