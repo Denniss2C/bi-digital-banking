@@ -132,6 +132,9 @@ SduiView(
 
 `SduiView` no hace scroll: la pantalla que lo contiene decide cómo (por ejemplo, con pull to refresh).
 
+Los layouts de la home viven en `firebase/remote-config/` (uno por segmento) y llegan por Remote Config; cómo
+cambiarlos sin publicar la app está en [`deployment-operations.md`](../../docs/deployment-operations.md) §7.
+
 ## Agregar un componente (otro equipo)
 
 1. Escribe el widget y un `fromProps` que **lea y valide los props** con `SduiProps`. Si falta algo obligatorio,
