@@ -1,5 +1,6 @@
 import 'package:accounts/accounts.dart';
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,14 +45,18 @@ void main() {
     ),
   ).thenAnswer((_) async => result);
 
-  Future<void> pump(WidgetTester tester, {VoidCallback? onDone}) =>
-      tester.pumpLocalized(
-        TransferPage(
-          repository: repository,
-          userId: 'u',
-          onDone: onDone ?? () {},
-        ),
-      );
+  Future<void> pump(
+    WidgetTester tester, {
+    VoidCallback? onDone,
+    Telemetry telemetry = const NoopTelemetry(),
+  }) => tester.pumpLocalized(
+    TransferPage(
+      repository: repository,
+      userId: 'u',
+      onDone: onDone ?? () {},
+      telemetry: telemetry,
+    ),
+  );
 
   final sendButton = find.widgetWithText(AppButton, 'Transferir');
 
@@ -195,5 +200,49 @@ void main() {
       transferFailureMessage(l10n, const ServerFailure()),
       'Ocurrió un problema. Inténtalo de nuevo.',
     );
+  });
+
+  group('telemetry', () {
+    testWidgets('a successful transfer is reported with its duration', (
+      tester,
+    ) async {
+      stubTransfer(Right(receipt));
+      final telemetry = RecordingTelemetry();
+      await pump(tester, telemetry: telemetry);
+
+      await tapChip(tester, r'$50.00');
+      await send(tester);
+
+      expect(telemetry.eventNames, ['transfer_completed']);
+      final trace = telemetry.traces.single;
+      expect(trace.name, 'transfer_submit');
+      expect(trace.stopped, isTrue);
+      expect(trace.attributes, {'result': 'success'});
+    });
+
+    testWidgets('a failed transfer reports the reason, never the amount', (
+      tester,
+    ) async {
+      stubTransfer(const Left(ValidationFailure(code: 'insufficientFunds')));
+      final telemetry = RecordingTelemetry();
+      await pump(tester, telemetry: telemetry);
+
+      await tapChip(tester, r'$50.00');
+      await send(tester);
+
+      expect(telemetry.eventNames, ['transfer_failed']);
+      expect(telemetry.events.single.$2, {'reason': 'insufficientFunds'});
+      expect(telemetry.traces.single.stopped, isTrue);
+    });
+
+    testWidgets('an invalid form is not a transfer attempt', (tester) async {
+      final telemetry = RecordingTelemetry();
+      await pump(tester, telemetry: telemetry);
+
+      await send(tester);
+
+      expect(telemetry.events, isEmpty);
+      expect(telemetry.traces, isEmpty);
+    });
   });
 }
