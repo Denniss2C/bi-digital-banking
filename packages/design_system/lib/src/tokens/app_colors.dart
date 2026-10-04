@@ -9,6 +9,8 @@ abstract final class AppColors {
   // Brand.
   static const orange = Color(0xFFF28C28);
   static const orangePressed = Color(0xFFD97706);
+  // Material 3 "primary" tone of the design: orange that passes AA as text.
+  static const orangeText = Color(0xFF914D00); // 6.43:1 on white
   static const orangeContainer = Color(0xFFFFDCC3);
   static const onOrangeContainer = Color(0xFF2F1500);
   static const orangeDarkContainer = Color(0xFF6E3900);
