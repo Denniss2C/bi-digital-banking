@@ -25,6 +25,8 @@ String failureMessage(AuthLocalizations l10n, Failure failure) {
       AuthErrorCode.tooManyRequests => l10n.errorTooManyRequests,
       AuthErrorCode.unknown => l10n.errorUnknown,
     },
-    ServerFailure() || CacheFailure() => l10n.errorUnknown,
+    ServerFailure() ||
+    CacheFailure() ||
+    ValidationFailure() => l10n.errorUnknown,
   };
 }

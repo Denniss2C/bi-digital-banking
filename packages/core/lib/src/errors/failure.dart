@@ -58,3 +58,19 @@ final class AuthFailure extends Failure {
   @override
   List<Object?> get props => [message, code];
 }
+
+/// A business rule rejected the operation (e.g. insufficient funds).
+///
+/// [code] is defined by the feature that owns the rule (as an enum name), so
+/// the UI can show a precise message without core knowing every rule.
+final class ValidationFailure extends Failure {
+  const ValidationFailure({
+    required this.code,
+    String message = 'Validation error',
+  }) : super(message);
+
+  final String code;
+
+  @override
+  List<Object?> get props => [message, code];
+}
