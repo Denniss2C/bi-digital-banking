@@ -123,6 +123,9 @@ inyectan, así que no hay red real ni esperas.
 
 ### Escenarios manuales (guion de demo)
 
+Estos son los escenarios de resiliencia; el guion completo de la app está en
+[`docs/demo/guion-demo.md`](demo/guion-demo.md).
+
 Con `make run-dev`, en **Perfil → Panel de depuración** (solo existe en el flavor dev):
 
 | # | Qué hacer | Qué se ve |
@@ -130,7 +133,7 @@ Con `make run-dev`, en **Perfil → Panel de depuración** (solo existe en el fl
 | 1 | Apagar **Firestore conectado** | Cuentas muestra los datos guardados con el aviso offline. En Inicio, el saldo dice "Sin conexión". Transferir explica que necesita internet y no escribe nada a medias. |
 | 2 | Volver a encender Firestore | Los datos se sincronizan solos y los avisos desaparecen, sin reintentos manuales. |
 | 3 | Cambiar el **segmento** a `traveler` y después a `saver` | La home cambia de orden, promoción y atajos en segundos, sin reiniciar (Remote Config con el custom signal). |
-| 4 | En la consola de Remote Config, publicar un `home_layout` con un JSON roto | La home sigue con el layout embebido. Un componente con props inválidas se omite solo. |
+| 4 | En la consola de Remote Config, publicar un `home_layout` que la app no pueda usar, como `{"schemaVersion": 2, "components": []}` (la consola no acepta un JSON mal escrito) | La home sigue con el layout embebido. Un componente con props inválidas se omite solo. |
 | 5 | Poner `feature_transfers_enabled` en `false` y publicar | Desaparece el botón Transferir. El atajo de la home explica que no está disponible y la ruta redirige a Cuentas. |
 | 6 | **Modo caos HTTP**: latencia de 3 s, 50% de fallos o sin red; después, en **Divisas**, deslizar hacia abajo | Con latencia, la pantalla sigue mostrando las tasas guardadas mientras espera. Con fallos, los reintentos los absorben (se ven en los logs). Sin red, aparece el aviso offline con las tasas guardadas. Al apagar el caos y deslizar de nuevo, se recupera. |
 | 7 | Modo avión con la app abierta | Lo mismo que el escenario 1, más Remote Config con los últimos valores activos. |
