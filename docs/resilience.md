@@ -19,6 +19,9 @@ Toda pantalla maneja cinco estados:
 - el aviso offline sale de `metadata.isFromCache` de Firestore;
 - la carga de más páginas falla sin perder lo ya cargado.
 
+**Transferir:** carga de cuentas, error con salida a Cuentas, errores por campo después del primer intento y un
+mensaje claro sin conexión.
+
 ## 2. Política de reintentos (`RetryInterceptor`)
 
 Implementada en `packages/core/lib/src/network/retry_interceptor.dart` (`RetryPolicy` + `RetryInterceptor`).
@@ -34,6 +37,19 @@ Implementada en `packages/core/lib/src/network/retry_interceptor.dart` (`RetryPo
   - los métodos **no idempotentes**: solo se reintentan GET, HEAD, OPTIONS, PUT y DELETE, así un POST nunca se envía dos veces.
 - Cada reintento vuelve a pasar por `dio.fetch`, es decir, por **todos** los interceptores (incluido el caos).
 - Si se agotan los intentos, el último `DioException` se convierte en un `Failure` tipado con `mapDioException`.
+
+### Transferencias: reintentos sin cobros dobles
+
+Las transferencias no pasan por dio, sino por `runTransaction` de Firestore, que tiene su propio riesgo: si el commit
+llega al servidor pero la respuesta se pierde, el SDK **reintenta la transacción**, y el reintento lee saldos que ya
+incluyen la primera transferencia. Lo mismo pasa si el usuario reintenta después de un "Sin conexión".
+
+- Cada transferencia lleva un `transferId` (clave de idempotencia). El formulario lo pide una vez y lo reutiliza en
+  cada reintento; cualquier cambio en el formulario genera uno nuevo.
+- Los dos movimientos usan ese id como id de documento. Dentro de la transacción, si el débito ya existe, el
+  repositorio devuelve el comprobante original y no escribe nada.
+- Tests: el mismo id enviado dos veces mueve el dinero una sola vez (repositorio), y un reintento reutiliza el id
+  (cubit). Los dos se comprobaron con mutaciones.
 
 ## 3. Modo caos (`ChaosInterceptor`)
 
@@ -62,10 +78,13 @@ Solo disponible en el flavor `dev`, configurable en runtime desde el panel de de
 | `ServerFailure` | 5xx o respuesta inválida |
 | `CacheFailure` | Lectura o escritura de caché fallida |
 | `AuthFailure` | Credenciales inválidas, sesión expirada |
+| `ValidationFailure` | Regla de negocio rechazada (por ejemplo, saldo insuficiente); el feature define el código |
 
 ## 5. Offline
 
 - Firestore con persistencia offline habilitada.
+- **Las transferencias necesitan el servidor.** Las transacciones de Firestore no se encolan sin conexión: fallan
+  (`unavailable`), se traducen a `NetworkFailure` y la pantalla lo explica. Nunca queda nada escrito a medias.
 - APIs externas: estrategia _network first, cache fallback_ con `hive_ce` y marca de tiempo de la última actualización.
 - `connectivity_plus` para mostrar el aviso de conexión. La conectividad es una pista, no una garantía: la verdad la da el resultado de la petición.
 

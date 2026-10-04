@@ -9,7 +9,8 @@ Depende solo de `core`, `design_system` y `sdui`; el shell (`apps/banking_app`) 
 users/{uid}                                       perfil (nombre, email, segmento…)
 users/{uid}/accounts/{accountId}                  type, alias, maskedNumber, balanceCents, currency
 users/{uid}/accounts/{accountId}/transactions     type, amountCents, description, category,
-                                                  createdAt, balanceAfterCents, source
+                                                  createdAt, balanceAfterCents, source,
+                                                  transferId (solo transferencias)
 ```
 
 - **El dinero va en centavos enteros** (`balanceCents`, `amountCents`), nunca en `double`.
@@ -24,7 +25,8 @@ users/{uid}/accounts/{accountId}/transactions     type, amountCents, description
 
 ```text
 lib/src/
-  domain/   Account, AccountTransaction, TransactionPage/Cursor, AccountsSnapshot, AccountsRepository
+  domain/   Account, AccountTransaction, TransactionPage/Cursor, AccountsSnapshot, AccountsRepository,
+            TransferReceipt, TransferError y el caso de uso TransferBetweenOwnAccounts
   data/     FirestoreAccountsRepository, mapeo defensivo, errores de Firestore → Failure, datos de apertura
 ```
 
@@ -36,12 +38,31 @@ lib/src/
 - **Documentos mal formados:** se traducen a `ServerFailure` en lugar de romper la app. En `watchAccounts`, los errores
   llegan como `Left` sin cortar el stream.
 
+## Transferencias entre cuentas propias
+
+- **Caso de uso `TransferBetweenOwnAccounts`:** valida lo que no depende de datos frescos (cuentas distintas, monto
+  mayor a cero, máximo $5,000.00 y concepto de hasta 60 caracteres). El formulario usa las mismas reglas, así la UI y
+  el dominio nunca discrepan.
+- **`transfer` con `runTransaction`:** primero lee y después escribe. Rechaza el saldo insuficiente con el saldo de ese
+  instante, actualiza los dos saldos y deja un débito y un crédito (`source: transfer`), todo o nada.
+- **Idempotencia:** los dos movimientos usan el `transferId` como id de documento. Si el débito ya existe, `transfer`
+  devuelve el comprobante original sin mover dinero, así que ni los reintentos de Firestore ni los del usuario cobran
+  dos veces. Ver [`resilience.md`](../../../docs/resilience.md).
+- **Errores:** una regla rota llega como `ValidationFailure` con el nombre de la regla (`TransferError`) y la pantalla
+  muestra el mensaje exacto. Sin conexión llega un `NetworkFailure`: las transferencias necesitan internet.
+- **Seguridad:** las reglas de Firestore validan la forma y la propiedad, pero no que el dinero se conserve. Ver los
+  trade-offs de [ADR-003](../../../docs/adr/ADR-003-accounts-firestore.md); en producción, la transferencia la haría
+  el servidor.
+
 ## Presentación
 
 - **`AccountsPage`** (pestaña Cuentas): tarjeta hero navy con el saldo total y una tarjeta por cuenta.
 - **`AccountDetailPage`** (`/accounts/:id`): saldo en vivo (sigue correcto después de una transferencia) y movimientos
   con **scroll infinito** de 20 en 20.
-- **Los 5 estados en ambas pantallas:**
+- **`TransferPage`** (`/accounts/transfer`): formulario según la pantalla Transferir del diseño (montos rápidos,
+  saldo disponible en vivo, concepto y costo $0.00) y comprobante. Acepta montos como `150`, `150,50` o `1,500.00`.
+  Los errores por campo aparecen después del primer intento.
+- **Los 5 estados en las pantallas de Cuentas:**
 
   | Estado | Qué ve el usuario |
   |--------|-------------------|
