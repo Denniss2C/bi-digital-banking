@@ -1,0 +1,10 @@
+# Analysis options for the workspace root.
+#
+# The root has no Dart code of its own (each package has its own
+# analysis_options.yaml), but IDEs analyze it as one more context. Resolving
+# the workspace (`make bootstrap`) makes Swift Package Manager copy plugin
+# sources, with their tests and examples, into build/ios and build/macos. They
+# are generated, ignored by git, and must never be analyzed.
+analyzer:
+  exclude:
+    - build/**
