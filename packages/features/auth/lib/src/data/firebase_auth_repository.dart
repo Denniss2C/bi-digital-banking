@@ -12,6 +12,9 @@ import 'package:fpdart/fpdart.dart';
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._auth);
 
+  /// Uses the default Firebase app (initialized at startup).
+  FirebaseAuthRepository.instance() : this(FirebaseAuth.instance);
+
   final FirebaseAuth _auth;
 
   @override
