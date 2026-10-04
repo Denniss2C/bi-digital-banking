@@ -16,7 +16,7 @@ dependencies:
   design_system: ^0.0.1
   sdui: ^0.0.1
   flutter_bloc: ^9.1.1
-  equatable: ^3.0.0
+  equatable: ^2.0.7
   fpdart: ^1.2.0
   get_it: ^9.3.0
   injectable: ^3.0.0

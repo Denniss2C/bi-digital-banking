@@ -10,7 +10,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  equatable: ^3.0.0
+  equatable: ^2.0.7
   flutter:
     sdk: flutter
 

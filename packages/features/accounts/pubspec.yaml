@@ -16,11 +16,12 @@ dependencies:
   design_system: ^0.0.1
   sdui: ^0.0.1
   flutter_bloc: ^9.1.1
-  equatable: ^3.0.0
+  equatable: ^2.0.7
   fpdart: ^1.2.0
   get_it: ^9.3.0
   injectable: ^3.0.0
   go_router: ^18.0.2
+  cloud_firestore: ^6.10.0
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +31,4 @@ dev_dependencies:
   mocktail: ^1.0.5
   build_runner: ^2.15.1
   injectable_generator: ^3.1.3
+  fake_cloud_firestore: ^4.3.0
