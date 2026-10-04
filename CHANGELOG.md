@@ -11,6 +11,16 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Observabilidad:
+  - interfaz `Telemetry` en `core` (con `RecordingTelemetry` para tests en `core/testing.dart`), implementada con
+    Firebase en el shell;
+  - Crashlytics recibe todos los errores no capturados y los inesperados (componentes SDUI que fallan, apertura de
+    cuentas);
+  - Performance mide cada llamada HTTP de dio y la traza `transfer_submit`;
+  - Analytics registra las pantallas por patrón de ruta y los eventos de negocio y UX (`login`, `transfer_completed`,
+    `transfer_failed`, `home_layout`, `feature_unavailable`, `push_opened`…), sin datos personales;
+  - el panel de depuración permite enviar un error de prueba y forzar un crash;
+  - SLOs, alertas y detección de problemas de UX en `deployment-operations.md` §6.
 - Notificaciones push (FCM), con un paquete `notifications` sin UI y un `PushCoordinator` en el shell:
   - al iniciar sesión se pide el permiso y se guarda el token en `users/{uid}.fcmTokens`; al cerrar sesión se quita;
   - tocar una notificación abre su `route` (solo pantallas de la app; sin sesión, después del login);
