@@ -23,6 +23,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-009](#ia-009--ci-con-github-actions) | 2026-10-03 | Paso 5 · CI | Claude Code (Claude Opus 5.5) | 1 (proceso) |
 | [IA-010](#ia-010--adr-001-monorepo-modular) | 2026-10-03 | Paso 6 · ADR-001 | Claude Code (Claude Opus 5.5) | 0 |
 | [IA-011](#ia-011--auth-dominio-y-datos) | 2026-10-03 | Fase 2 · auth (datos) | Claude Code (Claude Opus 5.5) | 0 |
+| [IA-012](#ia-012--auth-ui-sesión-y-redirect) | 2026-10-03 | Fase 2 · auth (UI) | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -653,6 +654,79 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** errores de autenticación tipados (nunca se revela si un email existe) y pruebas sin Firebase real.
 - **Documentación:** README del paquete con capas, decisiones y tests.
 - **Pruebas:** 24 tests nuevos.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-012 · Auth: UI, sesión y redirect
+
+- **Rama:** `feat/auth-ui` (sobre `feat/auth-data`)
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Segunda mitad de `feat/auth` del roadmap: onboarding, registro, login, logout y
+  redirect por sesión, siguiendo las pantallas del diseño.
+
+### Qué produjo la IA
+
+- **`auth`:**
+  - `SessionCubit`, `SignInCubit` y `SignUpCubit` con estados `sealed` + equatable;
+  - validaciones y mensajes por código de error;
+  - `AuthPage` (login y registro) y `OnboardingPage` (3 pasos);
+  - textos propios del feature (`AuthLocalizations`, es/en).
+- **Shell:**
+  - redirect por sesión como función pura (`authRedirect`) y un router que se refresca con el stream de la sesión;
+  - Perfil con logout;
+  - Hive se abre en `bootstrap` y se inyecta como `KeyValueStore`.
+- **Design system:** color `link` (AA) y temas de `TextButton` y `SegmentedButton`, porque el `TextButton` por defecto
+  pintaba los enlaces en naranja (2.45:1).
+- **Melos:** script `gen-l10n`, incluido en `make gen` y por lo tanto en la verificación de código generado de CI.
+- **Tests:** 22 nuevos en `auth` y 9 en la app, entre ellos el flujo completo con un `FakeAuthRepository`: onboarding →
+  registro, login → home, logout → login y sesión guardada → home.
+
+### Decisión del autor durante el paso
+
+- freezed estable no se puede usar con este toolchain (detalle en el log de desvíos de `CLAUDE.md`). La IA presentó
+  tres opciones y el autor eligió `sealed` + equatable. La IA había agregado freezed como dependencia y lo quitó.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Helpers de errores enredados.** El primer borrador de los formularios tenía un `as dynamic` y un helper que
+   mezclaba el error del email con el de la contraseña. Se detectó al releer el código y se reemplazó por una sola
+   función tipada.
+2. **Nombres equivocados.** Se usó `SwitchSignIn` (el widget se llama `SwitchModePrompt`) y, en un test,
+   `failureMessageForTest` como nombre provisional. Los detectó el analizador.
+3. **Tests de la app colgados por 10 minutos.**
+   - La IA atribuyó el problema primero a un generador `async*` del fake y lo cambió por `Stream.multi`. **Esa
+     hipótesis era incorrecta.**
+   - Con logs paso a paso se aisló la causa real: `SessionCubit.close()` **no termina dentro del reloj falso de
+     `testWidgets`**, con cualquier tipo de stream. Fuera del reloj falso (bloc_test) cierra bien.
+   - Solución: cerrar el cubit con `tester.runAsync` en el teardown.
+
+   Lección: no cambiar código por una hipótesis sin verificarla primero con logs.
+4. **Herramientas que ocultaron el diagnóstico.** `timeout` no existe en macOS y `grep` acumula su salida cuando
+   escribe a un pipe, así que no se veía el progreso. Se pasó a escribir la salida cruda a un archivo.
+
+### Verificación
+
+- `melos run format`, `analyze` (8 paquetes) y `test` en verde. Sin diferencias en el código generado (`make gen`
+  sobre el estado en stage).
+- APK de dev compilado.
+- **No se probó contra Firebase real en un dispositivo**: los tests usan fakes. Esa prueba queda para el E2E
+  (Fase 4) o para el autor con `make run-dev`.
+
+### Impacto
+
+- **Productividad:** unos 60 minutos. Unos 20 se fueron en el cuelgue de los tests, alargado por la hipótesis
+  equivocada.
+- **Calidad:** el redirect por sesión es una función pura cubierta por una tabla de casos, más el flujo completo en
+  widget tests.
+- **Documentación:** README de `auth` con presentación, accesibilidad y decisiones; desvío de freezed en
+  `CLAUDE.md`.
+- **Pruebas:** 31 tests nuevos (auth 42 en total, app 24).
 
 ### Revisión del autor
 
