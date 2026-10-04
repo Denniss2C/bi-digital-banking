@@ -12,17 +12,24 @@ class TransactionCursor {
 
 /// One page of transactions, newest first.
 class TransactionPage extends Equatable {
-  const TransactionPage({required this.items, this.next});
+  const TransactionPage({
+    required this.items,
+    this.next,
+    this.isFromCache = false,
+  });
 
   final List<AccountTransaction> items;
 
   /// Cursor for the following page; `null` when there are no more.
   final TransactionCursor? next;
 
+  /// True when the page was served from the offline cache.
+  final bool isFromCache;
+
   bool get hasMore => next != null;
 
   @override
-  List<Object?> get props => [items, hasMore];
+  List<Object?> get props => [items, hasMore, isFromCache];
 }
 
 /// Accounts plus where they came from: `isFromCache` is true while offline
