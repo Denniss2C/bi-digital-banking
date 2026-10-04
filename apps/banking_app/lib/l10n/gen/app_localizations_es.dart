@@ -24,10 +24,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tabProfile => 'Perfil';
 
   @override
-  String get comingSoonMessage =>
-      'Esta sección llega en las siguientes fases del proyecto.';
-
-  @override
   String get signOutAction => 'Cerrar sesión';
 
   @override

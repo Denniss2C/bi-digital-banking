@@ -6,6 +6,7 @@ import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fx_rates/fx_rates.dart';
 import 'package:go_router/go_router.dart';
 
 /// Root widget: session, theme, localization and routing of the app shell.
@@ -40,6 +41,7 @@ class App extends StatelessWidget {
           ...AppLocalizations.localizationsDelegates,
           AuthLocalizations.delegate,
           AccountsLocalizations.delegate,
+          FxLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
         localeListResolutionCallback: resolveAppLocale,

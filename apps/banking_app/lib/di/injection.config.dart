@@ -19,6 +19,7 @@ import 'package:banking_app/app/personalization/personalization_cubit.dart'
 import 'package:banking_app/app/session_effects.dart' as _i249;
 import 'package:banking_app/di/app_module.dart' as _i1038;
 import 'package:core/core.dart' as _i494;
+import 'package:fx_rates/fx_rates.dart' as _i951;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:go_router/go_router.dart' as _i583;
 import 'package:injectable/injectable.dart' as _i526;
@@ -56,6 +57,17 @@ extension GetItInjectableX on _i174.GetIt {
       ),
       registerFor: {_dev},
     );
+    gh.lazySingleton<_i951.FxRatesRepository>(
+      () => appModule.devFxRatesRepository(
+        gh<_i494.ChaosController>(),
+        gh<_i494.KeyValueStore>(),
+      ),
+      registerFor: {_dev},
+    );
+    gh.lazySingleton<_i951.FxRatesRepository>(
+      () => appModule.prodFxRatesRepository(gh<_i494.KeyValueStore>()),
+      registerFor: {_prod},
+    );
     gh.lazySingleton<_i662.SessionCubit>(
       () => appModule.sessionCubit(gh<_i662.AuthRepository>()),
     );
@@ -66,16 +78,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i718.AccountsRepository>(),
       ),
     );
-    gh.lazySingleton<_i583.GoRouter>(
-      () => appModule.devRouter(
+    gh.lazySingleton<_i249.SessionEffects>(
+      () => appModule.sessionEffects(
         gh<_i662.SessionCubit>(),
-        gh<_i80.PersonalizationCubit>(),
-        gh<_i662.OnboardingRepository>(),
-        gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
-        gh<_i461.DebugTools>(),
       ),
-      registerFor: {_dev},
     );
     gh.lazySingleton<_i583.GoRouter>(
       () => appModule.prodRouter(
@@ -84,14 +91,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i662.OnboardingRepository>(),
         gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
+        gh<_i951.FxRatesRepository>(),
       ),
       registerFor: {_prod},
     );
-    gh.lazySingleton<_i249.SessionEffects>(
-      () => appModule.sessionEffects(
+    gh.lazySingleton<_i583.GoRouter>(
+      () => appModule.devRouter(
         gh<_i662.SessionCubit>(),
+        gh<_i80.PersonalizationCubit>(),
+        gh<_i662.OnboardingRepository>(),
+        gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
+        gh<_i951.FxRatesRepository>(),
+        gh<_i461.DebugTools>(),
       ),
+      registerFor: {_dev},
     );
     return this;
   }

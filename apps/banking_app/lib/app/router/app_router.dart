@@ -3,7 +3,7 @@ import 'package:auth/auth.dart';
 import 'package:banking_app/app/debug/debug_page.dart';
 import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/home/home_page.dart';
-import 'package:banking_app/app/pages/coming_soon_page.dart';
+import 'package:banking_app/app/pages/feature_unavailable_page.dart';
 import 'package:banking_app/app/personalization/personalization_config.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/pages/profile_page.dart';
@@ -15,6 +15,7 @@ import 'package:banking_app/app/shell/home_shell.dart';
 import 'package:banking_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fx_rates/fx_rates.dart';
 import 'package:go_router/go_router.dart';
 
 /// Builds the app router: splash → onboarding / login → home shell.
@@ -27,6 +28,7 @@ GoRouter createRouter({
   required OnboardingRepository onboardingRepository,
   required AuthRepository authRepository,
   required AccountsRepository accountsRepository,
+  required FxRatesRepository fxRatesRepository,
   DebugTools? debugTools,
   String initialLocation = AppRoutes.splash,
 }) {
@@ -78,6 +80,7 @@ GoRouter createRouter({
                 path: AppRoutes.home,
                 builder: (context, state) => HomePage(
                   accountsRepository: accountsRepository,
+                  fxRatesRepository: fxRatesRepository,
                   userId: userId(),
                 ),
               ),
@@ -132,10 +135,28 @@ GoRouter createRouter({
               ),
             ],
           ),
-          _comingSoonTab(
-            AppRoutes.fx,
-            Icons.currency_exchange,
-            (l10n) => l10n.tabFx,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.fx,
+                // Divisas follows its remote flag live.
+                builder: (context, state) =>
+                    BlocSelector<
+                      PersonalizationCubit,
+                      PersonalizationConfig,
+                      bool
+                    >(
+                      bloc: personalization,
+                      selector: (config) => config.flags.fx,
+                      builder: (context, fxEnabled) => fxEnabled
+                          ? FxPage(repository: fxRatesRepository)
+                          : FeatureUnavailablePage(
+                              title: context.l10n.tabFx,
+                              icon: Icons.currency_exchange,
+                            ),
+                    ),
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [
@@ -174,21 +195,4 @@ Future<void> _leaveOnboarding(
 ) async {
   await repository.markOnboardingSeen();
   if (context.mounted) context.go(destination);
-}
-
-/// Placeholder branch until the feature that owns the tab provides a screen.
-StatefulShellBranch _comingSoonTab(
-  String path,
-  IconData icon,
-  String Function(AppLocalizations l10n) title,
-) {
-  return StatefulShellBranch(
-    routes: [
-      GoRoute(
-        path: path,
-        builder: (context, state) =>
-            ComingSoonPage(title: title(context.l10n), icon: icon),
-      ),
-    ],
-  );
 }

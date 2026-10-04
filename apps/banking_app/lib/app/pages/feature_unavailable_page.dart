@@ -2,9 +2,13 @@ import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 
-/// Temporary tab content until the feature that owns it is implemented.
-class ComingSoonPage extends StatelessWidget {
-  const ComingSoonPage({required this.title, required this.icon, super.key});
+/// Tab content when its feature is turned off remotely (feature flag).
+class FeatureUnavailablePage extends StatelessWidget {
+  const FeatureUnavailablePage({
+    required this.title,
+    required this.icon,
+    super.key,
+  });
 
   final String title;
   final IconData icon;
@@ -16,7 +20,7 @@ class ComingSoonPage extends StatelessWidget {
       body: AppEmptyView(
         icon: icon,
         title: title,
-        message: context.l10n.comingSoonMessage,
+        message: context.l10n.featureUnavailable,
       ),
     );
   }
