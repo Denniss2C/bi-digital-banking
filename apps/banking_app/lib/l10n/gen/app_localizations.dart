@@ -145,6 +145,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Sesión iniciada como {email}'**
   String profileSignedInAs(String email);
+
+  /// Home header with the first name of the customer.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Hola, {name}!'**
+  String homeGreeting(String name);
+
+  /// Home header when the customer has no name yet.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Hola!'**
+  String get homeGreetingNoName;
 }
 
 class _AppLocalizationsDelegate

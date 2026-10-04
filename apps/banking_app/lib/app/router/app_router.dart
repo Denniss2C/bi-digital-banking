@@ -1,5 +1,6 @@
 import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
+import 'package:banking_app/app/home/home_page.dart';
 import 'package:banking_app/app/pages/coming_soon_page.dart';
 import 'package:banking_app/app/pages/profile_page.dart';
 import 'package:banking_app/app/pages/splash_page.dart';
@@ -64,10 +65,16 @@ GoRouter createRouter({
         builder: (context, state, navigationShell) =>
             HomeShell(navigationShell: navigationShell),
         branches: [
-          _comingSoonTab(
-            AppRoutes.home,
-            Icons.home_outlined,
-            (l10n) => l10n.tabHome,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                builder: (context, state) => HomePage(
+                  accountsRepository: accountsRepository,
+                  userId: userId(),
+                ),
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [

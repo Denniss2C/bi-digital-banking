@@ -42,7 +42,43 @@ void main() {
       await pumpApp(tester, signedInUser: testUser);
 
       expect(find.byType(NavigationDestination), findsNWidgets(4));
-      expect(_appBarTitle('Inicio'), findsOneWidget);
+      expect(find.text('¡Hola, Mateo!'), findsOneWidget);
+    });
+  });
+
+  group('Home (server-driven layout)', () {
+    testWidgets('shows the balance, shortcuts, promo and movements', (
+      tester,
+    ) async {
+      await pumpApp(tester, signedInUser: testUser);
+
+      expect(find.text(r'$5,095.50'), findsOneWidget);
+      expect(find.text('Operaciones frecuentes'), findsOneWidget);
+      expect(find.text('NEXO AHORRO FLEXIBLE'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('Supermaxi Mall del Sol'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('Movimientos recientes'), findsOneWidget);
+    });
+
+    testWidgets('a shortcut opens its screen', (tester) async {
+      await pumpApp(tester, signedInUser: testUser);
+
+      await tester.tap(find.text('Transferir'));
+      await tester.pumpAndSettle();
+
+      expect(_appBarTitle('Transferir dinero'), findsOneWidget);
+    });
+
+    testWidgets('the balance card opens the accounts tab', (tester) async {
+      await pumpApp(tester, signedInUser: testUser);
+
+      await tester.tap(find.text(r'$5,095.50'));
+      await tester.pumpAndSettle();
+
+      expect(_appBarTitle('Cuentas'), findsOneWidget);
     });
   });
 

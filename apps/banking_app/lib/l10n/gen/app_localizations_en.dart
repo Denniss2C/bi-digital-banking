@@ -34,4 +34,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String profileSignedInAs(String email) {
     return 'Signed in as $email';
   }
+
+  @override
+  String homeGreeting(String name) {
+    return 'Hi, $name!';
+  }
+
+  @override
+  String get homeGreetingNoName => 'Hi!';
 }

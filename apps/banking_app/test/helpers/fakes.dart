@@ -115,7 +115,13 @@ class FakeAccountsRepository implements AccountsRepository {
     required String accountId,
     TransactionCursor? after,
     int pageSize = 20,
-  }) async => Right(TransactionPage(items: movements));
+  }) async => Right(
+    // Only the first account has movements, so lists that merge accounts
+    // (the home) do not repeat them.
+    TransactionPage(
+      items: accountId == accounts.first.id ? movements : const [],
+    ),
+  );
 
   @override
   Future<Either<Failure, Unit>> ensureOpeningData({
