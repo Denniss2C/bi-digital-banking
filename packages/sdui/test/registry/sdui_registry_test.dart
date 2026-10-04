@@ -19,4 +19,11 @@ void main() {
 
     expect(() => registry.register('a', emptyComponent), throwsStateError);
   });
+
+  test('the standard components need no feature data', () {
+    expect(SduiRegistry(standardSduiComponents).types, {
+      'promo_banner',
+      'quick_actions',
+    });
+  });
 }
