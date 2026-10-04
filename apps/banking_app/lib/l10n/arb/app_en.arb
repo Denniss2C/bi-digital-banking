@@ -31,5 +31,10 @@
   "debugPushHint": "Copy the token and paste it in the Firebase console: Messaging → Send test message. With the custom data route (for example, /fx), tapping the notification opens that screen.",
   "debugPushNoToken": "No token yet: sign in and accept the permission.",
   "debugCopy": "Copy token",
-  "debugCopied": "Token copied"
+  "debugCopied": "Token copied",
+  "debugObservabilityTitle": "Observability",
+  "debugObservabilityHint": "Errors reach the dev project's Crashlytics within minutes. The forced crash shows up after reopening the app.",
+  "debugSendError": "Send a test error",
+  "debugErrorSent": "Error sent to Crashlytics",
+  "debugCrash": "Force an app crash"
 }

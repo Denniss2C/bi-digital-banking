@@ -2,12 +2,17 @@ import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/session_effects.dart';
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../helpers/fakes.dart';
 
 class _RecordingAccounts implements AccountsRepository {
+  _RecordingAccounts([this.failure]);
+
+  /// What ensureOpeningData fails with, if anything.
+  final Failure? failure;
   final calls = <(String, String, String)>[];
 
   @override
@@ -17,7 +22,7 @@ class _RecordingAccounts implements AccountsRepository {
     required String email,
   }) async {
     calls.add((userId, name, email));
-    return const Right(unit);
+    return failure == null ? const Right(unit) : Left(failure!);
   }
 
   @override
@@ -94,5 +99,38 @@ void main() {
     });
 
     expect(accounts.calls, [('uid-1', 'Mateo Moreno', 'mateo@nexo.ec')]);
+  });
+
+  group('opening data failures', () {
+    Future<RecordingTelemetry> signInWith(Failure failure) async {
+      final session = SessionCubit(FakeAuthRepository(signedInUser: testUser));
+      await pumpEventQueue();
+      final telemetry = RecordingTelemetry();
+      final effects = SessionEffects(
+        session: session,
+        accounts: _RecordingAccounts(failure),
+        telemetry: telemetry,
+      );
+      addTearDown(() async {
+        await effects.dispose();
+        await session.close();
+      });
+      await pumpEventQueue();
+      return telemetry;
+    }
+
+    test('an unexpected failure is reported to Crashlytics', () async {
+      final telemetry = await signInWith(
+        const ServerFailure(message: 'permission-denied'),
+      );
+
+      expect(telemetry.errors.single.$2, 'opening data');
+    });
+
+    test('being offline is expected and is not an error', () async {
+      final telemetry = await signInWith(const NetworkFailure());
+
+      expect(telemetry.errors, isEmpty);
+    });
   });
 }

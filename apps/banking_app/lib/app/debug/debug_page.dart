@@ -176,6 +176,39 @@ class _DebugPageState extends State<DebugPage> {
             ),
           ),
           _Section(
+            title: l10n.debugObservabilityTitle,
+            hint: l10n.debugObservabilityHint,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Column(
+                children: [
+                  AppButton(
+                    label: l10n.debugSendError,
+                    icon: Icons.bug_report_outlined,
+                    variant: AppButtonVariant.tertiary,
+                    onPressed: () {
+                      widget.tools.telemetry.recordError(
+                        StateError('Test error from the debug panel'),
+                        StackTrace.current,
+                        reason: 'debug panel',
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.debugErrorSent)),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  AppButton(
+                    label: l10n.debugCrash,
+                    icon: Icons.warning_amber_outlined,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: widget.tools.crash,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          _Section(
             title: l10n.debugRemoteConfigTitle,
             child: BlocBuilder<PersonalizationCubit, PersonalizationConfig>(
               builder: (context, config) => Column(

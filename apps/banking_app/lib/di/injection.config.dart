@@ -14,6 +14,7 @@ import 'package:accounts/accounts.dart' as _i718;
 import 'package:auth/auth.dart' as _i662;
 import 'package:banking_app/app/config/app_config.dart' as _i110;
 import 'package:banking_app/app/debug/debug_tools.dart' as _i461;
+import 'package:banking_app/app/observability/app_observability.dart' as _i81;
 import 'package:banking_app/app/personalization/personalization_cubit.dart'
     as _i80;
 import 'package:banking_app/app/push/push_coordinator.dart' as _i981;
@@ -41,6 +42,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i718.AccountsRepository>(
       () => appModule.accountsRepository,
     );
+    gh.lazySingleton<_i494.Telemetry>(() => appModule.telemetry);
     gh.lazySingleton<_i327.PushService>(() => appModule.pushService);
     gh.lazySingleton<_i327.PushTokenRegistry>(
       () => appModule.pushTokenRegistry,
@@ -56,14 +58,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.firestoreNetworkSwitch,
       registerFor: {_dev},
     );
-    gh.lazySingleton<_i461.DebugTools>(
-      () => appModule.debugTools(
-        gh<_i494.ChaosController>(),
-        gh<_i461.FirestoreNetworkSwitch>(),
-        gh<_i327.PushService>(),
-      ),
-      registerFor: {_dev},
-    );
     gh.lazySingleton<_i951.FxRatesRepository>(
       () => appModule.devFxRatesRepository(
         gh<_i494.ChaosController>(),
@@ -75,18 +69,21 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.prodFxRatesRepository(gh<_i494.KeyValueStore>()),
       registerFor: {_prod},
     );
+    gh.lazySingleton<_i461.DebugTools>(
+      () => appModule.debugTools(
+        gh<_i494.ChaosController>(),
+        gh<_i461.FirestoreNetworkSwitch>(),
+        gh<_i327.PushService>(),
+        gh<_i494.Telemetry>(),
+      ),
+      registerFor: {_dev},
+    );
     gh.lazySingleton<_i662.SessionCubit>(
       () => appModule.sessionCubit(gh<_i662.AuthRepository>()),
     );
     gh.lazySingleton<_i80.PersonalizationCubit>(
       () => appModule.personalizationCubit(
         gh<_i110.AppConfig>(),
-        gh<_i662.SessionCubit>(),
-        gh<_i718.AccountsRepository>(),
-      ),
-    );
-    gh.lazySingleton<_i249.SessionEffects>(
-      () => appModule.sessionEffects(
         gh<_i662.SessionCubit>(),
         gh<_i718.AccountsRepository>(),
       ),
@@ -99,8 +96,16 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
         gh<_i951.FxRatesRepository>(),
+        gh<_i494.Telemetry>(),
       ),
       registerFor: {_prod},
+    );
+    gh.lazySingleton<_i249.SessionEffects>(
+      () => appModule.sessionEffects(
+        gh<_i662.SessionCubit>(),
+        gh<_i718.AccountsRepository>(),
+        gh<_i494.Telemetry>(),
+      ),
     );
     gh.lazySingleton<_i583.GoRouter>(
       () => appModule.devRouter(
@@ -110,9 +115,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
         gh<_i951.FxRatesRepository>(),
+        gh<_i494.Telemetry>(),
         gh<_i461.DebugTools>(),
       ),
       registerFor: {_dev},
+    );
+    gh.lazySingleton<_i81.AppObservability>(
+      () => appModule.appObservability(
+        gh<_i494.Telemetry>(),
+        gh<_i662.SessionCubit>(),
+        gh<_i583.GoRouter>(),
+      ),
     );
     gh.lazySingleton<_i981.PushCoordinator>(
       () => appModule.pushCoordinator(
@@ -120,6 +133,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i327.PushService>(),
         gh<_i327.PushTokenRegistry>(),
         gh<_i583.GoRouter>(),
+        gh<_i494.Telemetry>(),
       ),
     );
     return this;
