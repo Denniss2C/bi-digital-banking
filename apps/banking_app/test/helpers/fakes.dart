@@ -8,10 +8,12 @@ import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/personalization/personalization_config.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/personalization/personalization_source.dart';
+import 'package:banking_app/app/push/push_coordinator.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:core/core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fx_rates/fx_rates.dart';
+import 'package:notifications/notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 
@@ -245,6 +247,66 @@ class FakeFxRatesRepository implements FxRatesRepository {
       );
 }
 
+/// Push service whose messages and tokens the test drives.
+class FakePushService implements PushService {
+  FakePushService({this.currentToken = 'token-1', this.launchMessage});
+
+  String? currentToken;
+
+  /// The notification that "launched" the app, if any.
+  PushMessage? launchMessage;
+  var permissionRequests = 0;
+
+  final foreground = StreamController<PushMessage>.broadcast();
+  final opened = StreamController<PushMessage>.broadcast();
+  final refreshedTokens = StreamController<String>.broadcast();
+
+  @override
+  Future<PushPermission> requestPermission() async {
+    permissionRequests++;
+    return PushPermission.granted;
+  }
+
+  @override
+  Future<String?> token() async => currentToken;
+
+  @override
+  Stream<String> get tokenRefreshes => refreshedTokens.stream;
+
+  @override
+  Stream<PushMessage> get foregroundMessages => foreground.stream;
+
+  @override
+  Stream<PushMessage> get openedMessages => opened.stream;
+
+  @override
+  Future<PushMessage?> initialMessage() async => launchMessage;
+}
+
+/// Records which tokens are saved and removed for each user.
+class FakePushTokenRegistry implements PushTokenRegistry {
+  final saved = <(String, String)>[];
+  final removed = <(String, String)>[];
+
+  @override
+  Future<Either<Failure, Unit>> save({
+    required String userId,
+    required String token,
+  }) async {
+    saved.add((userId, token));
+    return const Right(unit);
+  }
+
+  @override
+  Future<Either<Failure, Unit>> remove({
+    required String userId,
+    required String token,
+  }) async {
+    removed.add((userId, token));
+    return const Right(unit);
+  }
+}
+
 class InMemoryKeyValueStore implements KeyValueStore {
   final _values = <String, Object?>{};
 
@@ -269,6 +331,7 @@ Future<void> pumpApp(
   PersonalizationSource? personalization,
   DebugTools? debugTools,
   FxRatesRepository? fxRatesRepository,
+  FakePushService? push,
 }) async {
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -311,6 +374,14 @@ Future<void> pumpApp(
     debugTools: debugTools,
   );
   addTearDown(router.dispose);
+  final pushCoordinator = PushCoordinator(
+    session: session,
+    push: push ?? FakePushService(),
+    tokens: FakePushTokenRegistry(),
+    navigate: router.go,
+  );
+  await pushCoordinator.start();
+  addTearDown(() => tester.runAsync(pushCoordinator.dispose));
 
   await tester.pumpWidget(
     App(
@@ -318,6 +389,7 @@ Future<void> pumpApp(
       router: router,
       session: session,
       personalization: personalizationCubit,
+      push: pushCoordinator,
     ),
   );
   await tester.pumpAndSettle();

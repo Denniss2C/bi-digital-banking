@@ -27,6 +27,7 @@ void main() {
       firestoreNetwork: FirestoreNetworkSwitch(
         ({required enabled}) async => firestoreCalls.add(enabled),
       ),
+      push: FakePushService(currentToken: 'device-token-123'),
     );
     accounts = FakeAccountsRepository();
     source = FakePersonalizationSource();

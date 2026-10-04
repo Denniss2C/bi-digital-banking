@@ -123,5 +123,29 @@
   "debugOff": "Apagado",
   "@debugOff": {
     "description": "Debug panel (dev flavor only)."
+  },
+  "pushOpen": "Ver",
+  "@pushOpen": {
+    "description": "Action of the in-app banner for a push received while the app is open."
+  },
+  "debugPushTitle": "Notificaciones push",
+  "@debugPushTitle": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugPushHint": "Copia el token y pégalo en la consola de Firebase: Messaging → Enviar mensaje de prueba. Con el dato personalizado route (por ejemplo, /fx), tocar la notificación abre esa pantalla.",
+  "@debugPushHint": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugPushNoToken": "Todavía no hay token: inicia sesión y acepta el permiso.",
+  "@debugPushNoToken": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugCopy": "Copiar token",
+  "@debugCopy": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugCopied": "Token copiado",
+  "@debugCopied": {
+    "description": "Debug panel (dev flavor only)."
   }
 }
