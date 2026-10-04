@@ -94,4 +94,80 @@ class AccountsLocalizationsEs extends AccountsLocalizations {
   String debitSemantics(String amount) {
     return 'gasto de $amount';
   }
+
+  @override
+  String get transferAction => 'Transferir';
+
+  @override
+  String get transferTitle => 'Transferir dinero';
+
+  @override
+  String get transferToOwnAccounts => 'A cuentas Nexo · gratis e inmediato';
+
+  @override
+  String get fromLabel => 'Desde';
+
+  @override
+  String get toLabel => 'Para';
+
+  @override
+  String accountOption(String alias, String amount) {
+    return '$alias · $amount';
+  }
+
+  @override
+  String get amountLabel => 'Monto a enviar (USD)';
+
+  @override
+  String availableInAccount(String amount) {
+    return 'Disponible en tu cuenta: $amount';
+  }
+
+  @override
+  String get conceptLabel => 'Concepto o detalle (opcional)';
+
+  @override
+  String get transferCost =>
+      'Costo de la transferencia: \$0.00 · acreditación inmediata';
+
+  @override
+  String get errorSameAccount => 'Elige una cuenta distinta a la de origen';
+
+  @override
+  String get errorInvalidAmount => 'Ingresa un monto válido';
+
+  @override
+  String errorLimitExceeded(String amount) {
+    return 'El máximo por transferencia es $amount';
+  }
+
+  @override
+  String errorConceptTooLong(int max) {
+    return 'Usa máximo $max caracteres';
+  }
+
+  @override
+  String get errorInsufficientFunds =>
+      'Saldo insuficiente en la cuenta de origen';
+
+  @override
+  String get errorAccountNotFound => 'La cuenta ya no está disponible';
+
+  @override
+  String get errorTransferOffline =>
+      'Sin conexión. Las transferencias necesitan internet; inténtalo de nuevo.';
+
+  @override
+  String get transferSuccessTitle => 'Transferencia exitosa';
+
+  @override
+  String transferSuccessMessage(String amount, String from, String to) {
+    return '$amount de $from a $to';
+  }
+
+  @override
+  String get newTransfer => 'Nueva transferencia';
+
+  @override
+  String get backToAccounts => 'Ver mis cuentas';
 }

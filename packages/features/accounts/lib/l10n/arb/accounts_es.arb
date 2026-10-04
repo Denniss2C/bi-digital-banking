@@ -4,7 +4,11 @@
   "totalBalanceLabel": "Saldo total disponible",
   "accountsCount": "{count, plural, =1{1 cuenta} other{{count} cuentas}}",
   "@accountsCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "savingsType": "Ahorros",
   "checkingType": "Corriente",
@@ -13,9 +17,15 @@
   "@accountCardSemantics": {
     "description": "Screen reader summary of an account card.",
     "placeholders": {
-      "alias": { "type": "String" },
-      "number": { "type": "String" },
-      "amount": { "type": "String" }
+      "alias": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
     }
   },
   "accountsLoading": "Cargando tus cuentas",
@@ -35,10 +45,83 @@
   "yesterday": "Ayer",
   "creditSemantics": "ingreso de {amount}",
   "@creditSemantics": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
   },
   "debitSemantics": "gasto de {amount}",
   "@debitSemantics": {
-    "placeholders": { "amount": { "type": "String" } }
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "transferAction": "Transferir",
+  "transferTitle": "Transferir dinero",
+  "transferToOwnAccounts": "A cuentas Nexo · gratis e inmediato",
+  "fromLabel": "Desde",
+  "toLabel": "Para",
+  "accountOption": "{alias} · {amount}",
+  "amountLabel": "Monto a enviar (USD)",
+  "availableInAccount": "Disponible en tu cuenta: {amount}",
+  "conceptLabel": "Concepto o detalle (opcional)",
+  "transferCost": "Costo de la transferencia: $0.00 · acreditación inmediata",
+  "errorSameAccount": "Elige una cuenta distinta a la de origen",
+  "errorInvalidAmount": "Ingresa un monto válido",
+  "errorLimitExceeded": "El máximo por transferencia es {amount}",
+  "errorConceptTooLong": "Usa máximo {max} caracteres",
+  "errorInsufficientFunds": "Saldo insuficiente en la cuenta de origen",
+  "errorAccountNotFound": "La cuenta ya no está disponible",
+  "errorTransferOffline": "Sin conexión. Las transferencias necesitan internet; inténtalo de nuevo.",
+  "transferSuccessTitle": "Transferencia exitosa",
+  "transferSuccessMessage": "{amount} de {from} a {to}",
+  "newTransfer": "Nueva transferencia",
+  "backToAccounts": "Ver mis cuentas",
+  "@accountOption": {
+    "placeholders": {
+      "alias": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@availableInAccount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@errorLimitExceeded": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@errorConceptTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "@transferSuccessMessage": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
   }
 }
