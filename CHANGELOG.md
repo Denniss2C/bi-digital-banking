@@ -11,6 +11,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Cuentas (datos): modelo en Firestore con dinero en centavos, cuentas en tiempo real con aviso de caché,
+  movimientos paginados y apertura idempotente de cuentas en el primer inicio de sesión. Persistencia offline
+  de Firestore habilitada.
+- Reglas de seguridad de Firestore versionadas y desplegadas (`firebase/firestore.rules`) y ADR-003.
 - Auth (UI): onboarding de 3 pasos, login y registro según el diseño, recuperar contraseña, sesión persistente,
   redirect del router por sesión (splash → onboarding / login → home) y logout en Perfil. Textos propios del
   feature (`AuthLocalizations`, es/en).
@@ -51,6 +55,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- `equatable` baja de 3.x a 2.x en todo el monorepo, por compatibilidad con `fake_cloud_firestore`.
 - Design system: color semántico `link` (AA) y temas de `TextButton` y `SegmentedButton`.
 - El análisis y el formato ignoran `build/`, donde Swift Package Manager deja código fuente de terceros de los
   plugins (antes rompía `make analyze` y `make format-check` en local).
