@@ -1024,7 +1024,9 @@ Revisión de la IA sobre `DESIGN.md`:
   la raíz la regenera siempre; los paquetes ya excluían `build/**`, pero la raíz no tenía `analysis_options.yaml`.
 - **Corrección:** `analysis_options.yaml` en la raíz que excluye `build/**`. Después del cambio, VS Code no reporta
   errores; solo queda un aviso informativo de la extensión de Java para recargar Gradle.
-- **Builds reales** de Android (APK de dev) e iOS (dispositivo, sin firma) para descartar errores de compilación.
+- **Builds reales** de Android (APK de dev) e iOS (dispositivo, sin firma): los dos compilan sin errores. Android
+  muestra un aviso de Flutter porque `firebase_auth` y `firebase_core` aplican el Kotlin Gradle Plugin. Ya usamos sus
+  últimas versiones, así que quedó documentado como riesgo conocido en `deployment-operations.md`.
 
 ### Errores de la IA y cómo se corrigieron
 
@@ -1035,7 +1037,9 @@ Revisión de la IA sobre `DESIGN.md`:
 ### Verificación
 
 - Diagnósticos de VS Code antes (654 errores) y después (0 errores) del cambio.
-- `make analyze` con código de salida 0. Los builds de Android e iOS se detallan en el PR.
+- `make analyze` y `make format-check` con código de salida 0.
+- `flutter build apk --flavor dev --debug` y `flutter build ios --flavor dev --no-codesign --debug` con código de
+  salida 0.
 
 ### Impacto
 
