@@ -235,7 +235,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [x] `feat/auth`: onboarding (2-3 pantallas), registro, login, sesión persistente, logout, redirect con go_router
   - Partido en dos PRs: `feat/auth-data` (dominio y datos) y `feat/auth-ui` (cubits, pantallas, redirect y textos del feature).
   - Pantallas `onboarding_*` y `autenticaci_n_*`: email y contraseña; login con cédula y biometría quedan fuera.
-- [ ] `feat/accounts-data`: modelo Firestore, seed al registrarse, reglas de seguridad
+- [x] `feat/accounts-data`: modelo Firestore, seed al registrarse, reglas de seguridad
+  - Dinero en centavos (`balanceCents`, `amountCents`). Apertura idempotente desde el shell al iniciar sesión. Reglas desplegadas el 2026-10-03; ver ADR-003.
 - [ ] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados
   - Pantalla `cuentas_y_tarjetas_*`: solo cuentas y movimientos (tarjeta virtual y metas quedan fuera).
 - [ ] `feat/transfers`: transferencia entre cuentas propias (`runTransaction`) — **recortable**
@@ -281,5 +282,6 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · iOS sin CocoaPods.** Flutter 3.44 resuelve todos los plugins con Swift Package Manager; el proyecto no tiene `Podfile`.
 - **2026-10-03 · `flutter build ios --simulator` no funciona con Xcode 27** (incompatibilidad de `lipo` con Flutter 3.44.7). iOS se verifica con builds de dispositivo sin firma o con `flutter run` sobre un simulador concreto. Ver `docs/deployment-operations.md`.
 - **2026-10-03 · Una sola sesión de IA por carpeta.** Dos sesiones en la misma carpeta compartían rama e índice, y cambios de `feat/flavors` terminaron en el primer commit de `docs/design-reference`. Ese commit se rehízo limpio desde `main`. Regla: una sola sesión trabaja en la carpeta del repo; si hace falta otra en paralelo, va en su propio worktree (`../bi-digital-banking-<tema>`).
+- **2026-10-03 · Modelo de datos en centavos y `equatable` 2.x.** Los campos del modelo de §4 pasan a `balanceCents` y `amountCents` (enteros) y suman `source` (`seed` o `transfer`). `equatable` baja a 2.x porque `fake_cloud_firestore`, que se usa para testear Firestore, lo exige. Tampoco se usa json_serializable: el mapeo es manual, igual que la decisión sobre freezed.
 - **2026-10-03 · Sin freezed (decisión del autor).** freezed estable no es compatible con el toolchain: la 3.2.5 exige `analyzer <11`, `injectable_generator` exige `>=11` y freezed 4 exige Dart 3.13 (tenemos 3.12). Los estados y modelos usan clases `sealed` + equatable con `copyWith` escrito a mano, sin codegen ni prereleases. Revisar al subir a Dart 3.13.
 - **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. La app adopta la marca: los nombres visibles pasan de "BI Banca" / "BI Dev" a "Nexo" / "Nexo Dev" (`docs/align-design`). Se corrigen tres contrastes del diseño que no cumplen AA (ver §4).

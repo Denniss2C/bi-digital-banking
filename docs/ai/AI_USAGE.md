@@ -24,6 +24,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-010](#ia-010--adr-001-monorepo-modular) | 2026-10-03 | Paso 6 · ADR-001 | Claude Code (Claude Opus 5.5) | 0 |
 | [IA-011](#ia-011--auth-dominio-y-datos) | 2026-10-03 | Fase 2 · auth (datos) | Claude Code (Claude Opus 5.5) | 0 |
 | [IA-012](#ia-012--auth-ui-sesión-y-redirect) | 2026-10-03 | Fase 2 · auth (UI) | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-013](#ia-013--cuentas-datos-en-firestore-y-reglas) | 2026-10-03 | Fase 2 · accounts (datos) | Claude Code (Claude Opus 5.5) | 2 |
 
 ---
 
@@ -727,6 +728,70 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Documentación:** README de `auth` con presentación, accesibilidad y decisiones; desvío de freezed en
   `CLAUDE.md`.
 - **Pruebas:** 31 tests nuevos (auth 42 en total, app 24).
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-013 · Cuentas: datos en Firestore y reglas
+
+- **Rama:** `feat/accounts-data`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal y al CLI de Firebase.
+- **Prompt (resumen):** "sigue y dime en qué vamos". Ítem `feat/accounts-data` del roadmap: modelo de Firestore, datos
+  iniciales al registrarse y reglas de seguridad.
+
+### Qué produjo la IA
+
+- **Dominio:**
+  - `Account` y `AccountTransaction` con el dinero en centavos;
+  - un cursor de paginación opaco, para que el dominio no dependa de Firestore;
+  - `AccountsSnapshot` con `isFromCache`, para el aviso offline.
+- **Datos:**
+  - `FirestoreAccountsRepository`: cuentas en tiempo real (los errores llegan como `Left`), movimientos paginados y
+    apertura idempotente dentro de una transacción;
+  - mapeo defensivo y errores de Firestore traducidos a `Failure`;
+  - persistencia offline habilitada de forma explícita.
+- **Shell:** `SessionEffects` prepara los datos de apertura al iniciar sesión, componiendo `auth` y `accounts` sin
+  que se conozcan.
+- **Reglas** de Firestore versionadas y **desplegadas** con el CLI, más el ADR-003 con la decisión de escribir desde
+  el cliente en el plan Spark.
+- **17 tests nuevos:** 15 en `accounts` con `fake_cloud_firestore` y 2 de los efectos de sesión en la app.
+
+### Decisiones durante el paso
+
+- `fake_cloud_firestore` exige `equatable` 2.x. La IA bajó `equatable` de 3.x a 2.x en todo el monorepo; el código
+  solo usa la API común a ambas versiones, y el análisis y los tests completos pasaron después del cambio.
+- Sin json_serializable: el mapeo es manual, coherente con la decisión de no usar freezed.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **El test de paginación falló: la segunda página traía 1 elemento en lugar de 4.** Con logs de IDs y cursores se
+   encontró la causa: el fake aplica los modificadores **en el orden en que se llaman**, y la query hacía
+   `limit()` antes de `startAfterDocument()`. Se reordenó a la forma convencional (`orderBy → startAfter → limit`).
+   Firestore real no estaba afectado, pero el código queda más claro.
+2. **Un filtro de verificación ocultó un fallo.** Al resumir `melos run analyze` con
+   `grep "issues found"`, no se vio un `1 issue found` (singular) en `banking_app`. Se detectó porque aparecían solo
+   3 de 8 paquetes, y se corrigió el lint (`prefer_initializing_formals`). Desde ahí las verificaciones usan el
+   **código de salida** de cada comando, no filtros de texto.
+
+### Verificación
+
+- `melos run analyze`, `test` y `format` con código de salida 0. Sin diferencias en el código generado. APK de dev
+  compilado.
+- Reglas compiladas y publicadas en el proyecto (`firebase deploy --only firestore:rules`).
+- **Pendiente:** probar la apertura de cuentas contra Firestore real. Llega con la UI de cuentas o con el E2E.
+
+### Impacto
+
+- **Productividad:** unos 60 minutos.
+- **Calidad:** contrato de datos protegido por reglas (libro inmutable, validación de forma y de propiedad) y errores
+  de datos que no rompen la app.
+- **Documentación:** ADR-003, README de `accounts` y despliegue de reglas en `deployment-operations.md`.
+- **Pruebas:** 17 tests nuevos.
 
 ### Revisión del autor
 

@@ -108,6 +108,18 @@ Alternativas que sí funcionan, porque compilan una sola arquitectura:
   - _Planificado:_ App Check.
 - Los valores que cambian sin publicar versión (feature flags, contenido SDUI) viven en Remote Config.
 
+## 2.1 Reglas de seguridad de Firestore
+
+Versionadas en `firebase/firestore.rules` (configuración en `firebase.json` y `.firebaserc` de la raíz). Se despliegan
+con el CLI de Firebase:
+
+```bash
+firebase deploy --only firestore:rules --project bi-digital-banking
+```
+
+El CLI compila las reglas antes de publicarlas: si tienen un error de sintaxis, no se cambia nada. La consola guarda el
+historial de versiones, así que se pueden revertir. Contenido y trade-offs en [ADR-003](adr/ADR-003-accounts-firestore.md).
+
 ## 3. Integración continua
 
 Workflow [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): un job (`Analyze, format and test`) en cada
