@@ -1,0 +1,7 @@
+# Strings owned by the fx_rates feature. Spanish is the template (default).
+arb-dir: lib/l10n/arb
+template-arb-file: fx_es.arb
+output-dir: lib/l10n/gen
+output-localization-file: fx_localizations.dart
+output-class: FxLocalizations
+nullable-getter: false
