@@ -42,4 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeGreetingNoName => 'Hi!';
+
+  @override
+  String get featureUnavailable => 'This feature is not available right now.';
 }

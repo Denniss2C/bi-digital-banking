@@ -20,6 +20,7 @@ dependencies:
   fx_rates: ^0.0.1
   cupertino_icons: ^1.0.8
   firebase_core: ^4.15.0
+  equatable: ^2.0.7
   flutter_bloc: ^9.1.1
   get_it: ^9.3.0
   injectable: ^3.0.0
@@ -27,6 +28,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  firebase_remote_config: ^6.7.0
 
 dev_dependencies:
   flutter_test:

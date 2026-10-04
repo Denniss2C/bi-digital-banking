@@ -4,6 +4,9 @@ import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/app.dart';
 import 'package:banking_app/app/config/app_config.dart';
+import 'package:banking_app/app/personalization/personalization_config.dart';
+import 'package:banking_app/app/personalization/personalization_cubit.dart';
+import 'package:banking_app/app/personalization/personalization_source.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:core/core.dart';
 import 'package:flutter/widgets.dart';
@@ -165,6 +168,44 @@ class FakeAccountsRepository implements AccountsRepository {
   }
 }
 
+/// Remote Config stand-in: [bySegment] plays the role of the template's
+/// conditions and [publish] the role of publishing in the console.
+class FakePersonalizationSource implements PersonalizationSource {
+  FakePersonalizationSource({
+    this.current = PersonalizationConfig.defaults,
+    Map<String, PersonalizationConfig>? bySegment,
+  }) : bySegment = bySegment ?? {};
+
+  @override
+  PersonalizationConfig current;
+  final Map<String, PersonalizationConfig> bySegment;
+
+  /// Segments set so far, in order (`null` = unset).
+  final segments = <String?>[];
+  var refreshes = 0;
+  final _updates = StreamController<PersonalizationConfig>.broadcast();
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<void> setSegment(String? segment) async {
+    segments.add(segment);
+    current = bySegment[segment] ?? current;
+  }
+
+  @override
+  Future<void> refresh() async => refreshes++;
+
+  @override
+  Stream<PersonalizationConfig> get updates => _updates.stream;
+
+  void publish(PersonalizationConfig config) {
+    current = config;
+    _updates.add(config);
+  }
+}
+
 class InMemoryKeyValueStore implements KeyValueStore {
   final _values = <String, Object?>{};
 
@@ -186,6 +227,7 @@ Future<void> pumpApp(
   AppConfig config = AppConfig.prod,
   List<Locale> deviceLocales = const [Locale('es', 'EC')],
   FakeAccountsRepository? accountsRepository,
+  PersonalizationSource? personalization,
 }) async {
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -197,30 +239,43 @@ Future<void> pumpApp(
   // Closing a cubit inside testWidgets' fake clock never completes; close it
   // in the real event loop instead.
   addTearDown(() => tester.runAsync(session.close));
+  final accounts =
+      accountsRepository ??
+      FakeAccountsRepository(
+        movements: [
+          AccountTransaction(
+            id: 't1',
+            type: TransactionType.debit,
+            amountCents: 6430,
+            description: 'Supermaxi Mall del Sol',
+            category: 'groceries',
+            createdAt: DateTime(2026, 9, 20, 11, 30),
+            balanceAfterCents: 384550,
+          ),
+        ],
+      );
+  final personalizationCubit = PersonalizationCubit(
+    source: personalization ?? FakePersonalizationSource(),
+    session: session,
+    accounts: accounts,
+  );
+  addTearDown(() => tester.runAsync(personalizationCubit.close));
   final router = createRouter(
     session: session,
+    personalization: personalizationCubit,
     onboardingRepository: onboarding,
     authRepository: auth,
-    accountsRepository:
-        accountsRepository ??
-        FakeAccountsRepository(
-          movements: [
-            AccountTransaction(
-              id: 't1',
-              type: TransactionType.debit,
-              amountCents: 6430,
-              description: 'Supermaxi Mall del Sol',
-              category: 'groceries',
-              createdAt: DateTime(2026, 9, 20, 11, 30),
-              balanceAfterCents: 384550,
-            ),
-          ],
-        ),
+    accountsRepository: accounts,
   );
   addTearDown(router.dispose);
 
   await tester.pumpWidget(
-    App(config: config, router: router, session: session),
+    App(
+      config: config,
+      router: router,
+      session: session,
+      personalization: personalizationCubit,
+    ),
   );
   await tester.pumpAndSettle();
 }

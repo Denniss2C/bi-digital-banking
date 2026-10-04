@@ -12,6 +12,9 @@
 
 import 'package:accounts/accounts.dart' as _i718;
 import 'package:auth/auth.dart' as _i662;
+import 'package:banking_app/app/config/app_config.dart' as _i110;
+import 'package:banking_app/app/personalization/personalization_cubit.dart'
+    as _i80;
 import 'package:banking_app/app/session_effects.dart' as _i249;
 import 'package:banking_app/di/app_module.dart' as _i1038;
 import 'package:core/core.dart' as _i494;
@@ -43,9 +46,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i662.SessionCubit>(
       () => appModule.sessionCubit(gh<_i662.AuthRepository>()),
     );
+    gh.lazySingleton<_i80.PersonalizationCubit>(
+      () => appModule.personalizationCubit(
+        gh<_i110.AppConfig>(),
+        gh<_i662.SessionCubit>(),
+        gh<_i718.AccountsRepository>(),
+      ),
+    );
     gh.lazySingleton<_i583.GoRouter>(
       () => appModule.router(
         gh<_i662.SessionCubit>(),
+        gh<_i80.PersonalizationCubit>(),
         gh<_i662.OnboardingRepository>(),
         gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),

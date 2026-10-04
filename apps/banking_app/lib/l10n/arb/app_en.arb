@@ -9,5 +9,6 @@
   "signOutAction": "Sign out",
   "profileSignedInAs": "Signed in as {email}",
   "homeGreeting": "Hi, {name}!",
-  "homeGreetingNoName": "Hi!"
+  "homeGreetingNoName": "Hi!",
+  "featureUnavailable": "This feature is not available right now."
 }

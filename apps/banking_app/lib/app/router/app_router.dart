@@ -2,6 +2,8 @@ import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/home/home_page.dart';
 import 'package:banking_app/app/pages/coming_soon_page.dart';
+import 'package:banking_app/app/personalization/personalization_config.dart';
+import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/pages/profile_page.dart';
 import 'package:banking_app/app/pages/splash_page.dart';
 import 'package:banking_app/app/router/app_routes.dart';
@@ -10,6 +12,7 @@ import 'package:banking_app/app/router/stream_listenable.dart';
 import 'package:banking_app/app/shell/home_shell.dart';
 import 'package:banking_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 /// Builds the app router: splash → onboarding / login → home shell.
@@ -18,6 +21,7 @@ import 'package:go_router/go_router.dart';
 /// onboarding ends and redirects on every session change.
 GoRouter createRouter({
   required SessionCubit session,
+  required PersonalizationCubit personalization,
   required OnboardingRepository onboardingRepository,
   required AuthRepository authRepository,
   required AccountsRepository accountsRepository,
@@ -80,17 +84,33 @@ GoRouter createRouter({
             routes: [
               GoRoute(
                 path: AppRoutes.accounts,
-                builder: (context, state) => AccountsPage(
-                  repository: accountsRepository,
-                  userId: userId(),
-                  onOpenAccount: (account) =>
-                      context.go(AppRoutes.accountDetail(account.id)),
-                  onTransfer: () => context.go(AppRoutes.transfer),
-                ),
+                // The transfer button follows its remote flag live.
+                builder: (context, state) =>
+                    BlocSelector<
+                      PersonalizationCubit,
+                      PersonalizationConfig,
+                      bool
+                    >(
+                      bloc: personalization,
+                      selector: (config) => config.flags.transfers,
+                      builder: (context, transfersEnabled) => AccountsPage(
+                        repository: accountsRepository,
+                        userId: userId(),
+                        onOpenAccount: (account) =>
+                            context.go(AppRoutes.accountDetail(account.id)),
+                        onTransfer: transfersEnabled
+                            ? () => context.go(AppRoutes.transfer)
+                            : null,
+                      ),
+                    ),
                 routes: [
                   // Declared before ':accountId' so 'transfer' is not an id.
                   GoRoute(
                     path: 'transfer',
+                    redirect: (context, state) =>
+                        personalization.state.flags.transfers
+                        ? null
+                        : AppRoutes.accounts,
                     builder: (context, state) => TransferPage(
                       repository: accountsRepository,
                       userId: userId(),
