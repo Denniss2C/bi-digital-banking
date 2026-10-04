@@ -1,10 +1,12 @@
 import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/config/app_config.dart';
+import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/personalization/personalization_source.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:banking_app/app/session_effects.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:core/core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:go_router/go_router.dart';
@@ -48,8 +50,28 @@ abstract class AppModule {
     accounts: accounts,
   );
 
+  /// The dev router adds the debug panel; prod has no route to it.
+  @dev
   @lazySingleton
-  GoRouter router(
+  GoRouter devRouter(
+    SessionCubit session,
+    PersonalizationCubit personalization,
+    OnboardingRepository onboardingRepository,
+    AuthRepository authRepository,
+    AccountsRepository accountsRepository,
+    DebugTools debugTools,
+  ) => createRouter(
+    session: session,
+    personalization: personalization,
+    onboardingRepository: onboardingRepository,
+    authRepository: authRepository,
+    accountsRepository: accountsRepository,
+    debugTools: debugTools,
+  );
+
+  @prod
+  @lazySingleton
+  GoRouter prodRouter(
     SessionCubit session,
     PersonalizationCubit personalization,
     OnboardingRepository onboardingRepository,
@@ -67,4 +89,19 @@ abstract class AppModule {
   @dev
   @lazySingleton
   ChaosController get chaosController => ChaosController();
+
+  @dev
+  @lazySingleton
+  FirestoreNetworkSwitch get firestoreNetworkSwitch => FirestoreNetworkSwitch(
+    ({required enabled}) => enabled
+        ? FirebaseFirestore.instance.enableNetwork()
+        : FirebaseFirestore.instance.disableNetwork(),
+  );
+
+  @dev
+  @lazySingleton
+  DebugTools debugTools(
+    ChaosController chaos,
+    FirestoreNetworkSwitch firestoreNetwork,
+  ) => DebugTools(chaos: chaos, firestoreNetwork: firestoreNetwork);
 }

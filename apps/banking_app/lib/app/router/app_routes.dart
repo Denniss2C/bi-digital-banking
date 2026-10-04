@@ -17,11 +17,16 @@ abstract final class AppRoutes {
   static const fx = '/fx';
   static const profile = '/profile';
 
+  /// Debug panel; only exists in the dev flavor.
+  static const debug = '$profile/debug';
+
   /// Whether [location] is a screen of this app version. Server-driven
   /// navigation (SDUI actions) may only open these.
   static bool isAppLocation(String location) {
     final uri = Uri.tryParse(location);
     if (uri == null || uri.hasScheme || uri.hasAuthority) return false;
+    // Dev tooling is never a destination for the server.
+    if (uri.path == debug || uri.path.startsWith('$debug/')) return false;
     return const [
       home,
       accounts,

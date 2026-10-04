@@ -91,6 +91,15 @@ class FirestoreAccountsRepository implements AccountsRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> setSegment({
+    required String userId,
+    required String segment,
+  }) => _guard(() async {
+    await _user(userId).set({'segment': segment}, SetOptions(merge: true));
+    return unit;
+  });
+
+  @override
   Future<Either<Failure, TransactionPage>> fetchTransactions({
     required String userId,
     required String accountId,

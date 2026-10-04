@@ -163,6 +163,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Esta función no está disponible por ahora.'**
   String get featureUnavailable;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Panel de depuración'**
+  String get debugEntry;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Solo en dev: modo caos, red y segmentos'**
+  String get debugEntryHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Red HTTP (modo caos)'**
+  String get debugHttpTitle;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Afecta las llamadas HTTP de la app, como Divisas. Los fallos inyectados pasan por los reintentos.'**
+  String get debugHttpHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Activar modo caos'**
+  String get debugChaosEnabled;
+
+  /// Debug panel: injected HTTP latency.
+  ///
+  /// In es, this message translates to:
+  /// **'Latencia: {ms} ms'**
+  String debugLatency(int ms);
+
+  /// Debug panel: probability of injected HTTP failures.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallos: {percent}%'**
+  String debugFailureRate(int percent);
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Sin red (HTTP)'**
+  String get debugHttpOffline;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión, la app trabaja con su caché offline: las cuentas muestran el aviso y transferir explica que necesita internet.'**
+  String get debugFirestoreHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Firestore conectado'**
+  String get debugFirestoreOnline;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Segmento del cliente'**
+  String get debugSegmentTitle;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Cambia el segmento guardado en Firestore: Remote Config envía en vivo la home de ese segmento.'**
+  String get debugSegmentHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Remote Config'**
+  String get debugRemoteConfigTitle;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Pedir valores ahora'**
+  String get debugFetchNow;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Activo'**
+  String get debugOn;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Apagado'**
+  String get debugOff;
 }
 
 class _AppLocalizationsDelegate

@@ -22,6 +22,13 @@ abstract interface class AccountsRepository {
   /// errors arrive as `Left` values instead of stream errors.
   Stream<Either<Failure, String>> watchSegment(String userId);
 
+  /// Changes the customer's segment. Dev tooling (debug panel): in
+  /// production a server process would assign segments.
+  Future<Either<Failure, Unit>> setSegment({
+    required String userId,
+    required String segment,
+  });
+
   /// Creates the profile and the opening accounts the first time a customer
   /// signs in. Safe to call on every sign-in: it does nothing afterwards.
   Future<Either<Failure, Unit>> ensureOpeningData({

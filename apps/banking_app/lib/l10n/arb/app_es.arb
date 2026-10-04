@@ -53,5 +53,79 @@
   "featureUnavailable": "Esta función no está disponible por ahora.",
   "@featureUnavailable": {
     "description": "Shown when a remotely disabled feature is opened."
+  },
+  "debugEntry": "Panel de depuración",
+  "@debugEntry": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugEntryHint": "Solo en dev: modo caos, red y segmentos",
+  "@debugEntryHint": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugHttpTitle": "Red HTTP (modo caos)",
+  "@debugHttpTitle": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugHttpHint": "Afecta las llamadas HTTP de la app, como Divisas. Los fallos inyectados pasan por los reintentos.",
+  "@debugHttpHint": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugChaosEnabled": "Activar modo caos",
+  "@debugChaosEnabled": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugLatency": "Latencia: {ms} ms",
+  "@debugLatency": {
+    "description": "Debug panel: injected HTTP latency.",
+    "placeholders": {
+      "ms": {
+        "type": "int"
+      }
+    }
+  },
+  "debugFailureRate": "Fallos: {percent}%",
+  "@debugFailureRate": {
+    "description": "Debug panel: probability of injected HTTP failures.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "debugHttpOffline": "Sin red (HTTP)",
+  "@debugHttpOffline": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugFirestoreHint": "Sin conexión, la app trabaja con su caché offline: las cuentas muestran el aviso y transferir explica que necesita internet.",
+  "@debugFirestoreHint": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugFirestoreOnline": "Firestore conectado",
+  "@debugFirestoreOnline": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugSegmentTitle": "Segmento del cliente",
+  "@debugSegmentTitle": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugSegmentHint": "Cambia el segmento guardado en Firestore: Remote Config envía en vivo la home de ese segmento.",
+  "@debugSegmentHint": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugRemoteConfigTitle": "Remote Config",
+  "@debugRemoteConfigTitle": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugFetchNow": "Pedir valores ahora",
+  "@debugFetchNow": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugOn": "Activo",
+  "@debugOn": {
+    "description": "Debug panel (dev flavor only)."
+  },
+  "debugOff": "Apagado",
+  "@debugOff": {
+    "description": "Debug panel (dev flavor only)."
   }
 }

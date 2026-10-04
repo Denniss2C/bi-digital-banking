@@ -48,6 +48,7 @@ void main() {
     expect(AppRoutes.isAppLocation('/fxx'), isFalse);
     expect(AppRoutes.isAppLocation('https://evil.example/accounts'), isFalse);
     expect(AppRoutes.isAppLocation('//evil.example/accounts'), isFalse);
+    expect(AppRoutes.isAppLocation(AppRoutes.debug), isFalse);
   });
 
   test('the greeting uses the first name only', () {

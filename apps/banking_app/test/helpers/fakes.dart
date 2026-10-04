@@ -4,6 +4,7 @@ import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/app.dart';
 import 'package:banking_app/app/config/app_config.dart';
+import 'package:banking_app/app/debug/debug_tools.dart';
 import 'package:banking_app/app/personalization/personalization_config.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/personalization/personalization_source.dart';
@@ -141,6 +142,18 @@ class FakeAccountsRepository implements AccountsRepository {
   Stream<Either<Failure, String>> watchSegment(String userId) =>
       Stream.value(Right(segment));
 
+  /// Segments set so far, in order.
+  final segmentsSet = <String>[];
+
+  @override
+  Future<Either<Failure, Unit>> setSegment({
+    required String userId,
+    required String segment,
+  }) async {
+    segmentsSet.add(segment);
+    return const Right(unit);
+  }
+
   @override
   String newTransferId() => 'transfer-${transfers.length + 1}';
 
@@ -228,6 +241,7 @@ Future<void> pumpApp(
   List<Locale> deviceLocales = const [Locale('es', 'EC')],
   FakeAccountsRepository? accountsRepository,
   PersonalizationSource? personalization,
+  DebugTools? debugTools,
 }) async {
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -266,6 +280,7 @@ Future<void> pumpApp(
     onboardingRepository: onboarding,
     authRepository: auth,
     accountsRepository: accounts,
+    debugTools: debugTools,
   );
   addTearDown(router.dispose);
 

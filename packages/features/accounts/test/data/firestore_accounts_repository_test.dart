@@ -126,6 +126,20 @@ void main() {
       expect(await segments, ['new_user', 'saver']);
     });
 
+    test('setSegment changes it and keeps the rest of the profile', () async {
+      await open();
+
+      final result = await repository.setSegment(userId: uid, segment: 'saver');
+
+      expect(result.isRight(), isTrue);
+      expect(
+        await repository.watchSegment(uid).first,
+        const Right<Failure, String>('saver'),
+      );
+      final profile = await firestore.doc('users/$uid').get();
+      expect(profile.data()?['email'], 'mateo@nexo.ec');
+    });
+
     test('without a profile yet it is new_user', () async {
       final first = await repository.watchSegment(uid).first;
 

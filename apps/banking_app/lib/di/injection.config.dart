@@ -13,6 +13,7 @@
 import 'package:accounts/accounts.dart' as _i718;
 import 'package:auth/auth.dart' as _i662;
 import 'package:banking_app/app/config/app_config.dart' as _i110;
+import 'package:banking_app/app/debug/debug_tools.dart' as _i461;
 import 'package:banking_app/app/personalization/personalization_cubit.dart'
     as _i80;
 import 'package:banking_app/app/session_effects.dart' as _i249;
@@ -23,6 +24,7 @@ import 'package:go_router/go_router.dart' as _i583;
 import 'package:injectable/injectable.dart' as _i526;
 
 const String _dev = 'dev';
+const String _prod = 'prod';
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
@@ -43,6 +45,17 @@ extension GetItInjectableX on _i174.GetIt {
       () => appModule.chaosController,
       registerFor: {_dev},
     );
+    gh.lazySingleton<_i461.FirestoreNetworkSwitch>(
+      () => appModule.firestoreNetworkSwitch,
+      registerFor: {_dev},
+    );
+    gh.lazySingleton<_i461.DebugTools>(
+      () => appModule.debugTools(
+        gh<_i494.ChaosController>(),
+        gh<_i461.FirestoreNetworkSwitch>(),
+      ),
+      registerFor: {_dev},
+    );
     gh.lazySingleton<_i662.SessionCubit>(
       () => appModule.sessionCubit(gh<_i662.AuthRepository>()),
     );
@@ -54,13 +67,25 @@ extension GetItInjectableX on _i174.GetIt {
       ),
     );
     gh.lazySingleton<_i583.GoRouter>(
-      () => appModule.router(
+      () => appModule.devRouter(
+        gh<_i662.SessionCubit>(),
+        gh<_i80.PersonalizationCubit>(),
+        gh<_i662.OnboardingRepository>(),
+        gh<_i662.AuthRepository>(),
+        gh<_i718.AccountsRepository>(),
+        gh<_i461.DebugTools>(),
+      ),
+      registerFor: {_dev},
+    );
+    gh.lazySingleton<_i583.GoRouter>(
+      () => appModule.prodRouter(
         gh<_i662.SessionCubit>(),
         gh<_i80.PersonalizationCubit>(),
         gh<_i662.OnboardingRepository>(),
         gh<_i662.AuthRepository>(),
         gh<_i718.AccountsRepository>(),
       ),
+      registerFor: {_prod},
     );
     gh.lazySingleton<_i249.SessionEffects>(
       () => appModule.sessionEffects(
