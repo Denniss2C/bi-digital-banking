@@ -94,4 +94,79 @@ class AccountsLocalizationsEn extends AccountsLocalizations {
   String debitSemantics(String amount) {
     return 'expense of $amount';
   }
+
+  @override
+  String get transferAction => 'Transfer';
+
+  @override
+  String get transferTitle => 'Transfer money';
+
+  @override
+  String get transferToOwnAccounts => 'To Nexo accounts · free and instant';
+
+  @override
+  String get fromLabel => 'From';
+
+  @override
+  String get toLabel => 'To';
+
+  @override
+  String accountOption(String alias, String amount) {
+    return '$alias · $amount';
+  }
+
+  @override
+  String get amountLabel => 'Amount to send (USD)';
+
+  @override
+  String availableInAccount(String amount) {
+    return 'Available in your account: $amount';
+  }
+
+  @override
+  String get conceptLabel => 'Concept (optional)';
+
+  @override
+  String get transferCost => 'Transfer cost: \$0.00 · instant credit';
+
+  @override
+  String get errorSameAccount => 'Choose an account different from the source';
+
+  @override
+  String get errorInvalidAmount => 'Enter a valid amount';
+
+  @override
+  String errorLimitExceeded(String amount) {
+    return 'The maximum per transfer is $amount';
+  }
+
+  @override
+  String errorConceptTooLong(int max) {
+    return 'Use at most $max characters';
+  }
+
+  @override
+  String get errorInsufficientFunds =>
+      'Insufficient balance in the source account';
+
+  @override
+  String get errorAccountNotFound => 'The account is no longer available';
+
+  @override
+  String get errorTransferOffline =>
+      'No connection. Transfers need internet; try again.';
+
+  @override
+  String get transferSuccessTitle => 'Transfer completed';
+
+  @override
+  String transferSuccessMessage(String amount, String from, String to) {
+    return '$amount from $from to $to';
+  }
+
+  @override
+  String get newTransfer => 'New transfer';
+
+  @override
+  String get backToAccounts => 'See my accounts';
 }

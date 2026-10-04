@@ -17,6 +17,7 @@ class AccountsPage extends StatelessWidget {
     required this.repository,
     required this.userId,
     required this.onOpenAccount,
+    this.onTransfer,
     super.key,
   });
 
@@ -25,6 +26,9 @@ class AccountsPage extends StatelessWidget {
 
   /// The shell decides how to navigate to the account detail.
   final ValueChanged<Account> onOpenAccount;
+
+  /// Opens the transfer flow; hidden when `null`.
+  final VoidCallback? onTransfer;
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +56,7 @@ class AccountsPage extends StatelessWidget {
             final AccountsLoaded loaded => _AccountsList(
               state: loaded,
               onOpenAccount: onOpenAccount,
+              onTransfer: onTransfer,
             ),
           },
         ),
@@ -61,10 +66,15 @@ class AccountsPage extends StatelessWidget {
 }
 
 class _AccountsList extends StatelessWidget {
-  const _AccountsList({required this.state, required this.onOpenAccount});
+  const _AccountsList({
+    required this.state,
+    required this.onOpenAccount,
+    required this.onTransfer,
+  });
 
   final AccountsLoaded state;
   final ValueChanged<Account> onOpenAccount;
+  final VoidCallback? onTransfer;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +91,16 @@ class _AccountsList extends StatelessWidget {
                 totalCents: state.totalCents,
                 caption: l10n.accountsCount(state.accounts.length),
               ),
+              // Transfers need two accounts and a connection.
+              if (onTransfer != null && state.accounts.length > 1) ...[
+                const SizedBox(height: AppSpacing.md),
+                AppButton(
+                  label: l10n.transferAction,
+                  icon: Icons.swap_horiz,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: onTransfer,
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               for (final account in state.accounts) ...[
                 AccountCard(

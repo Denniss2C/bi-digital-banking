@@ -244,6 +244,132 @@ abstract class AccountsLocalizations {
   /// In es, this message translates to:
   /// **'gasto de {amount}'**
   String debitSemantics(String amount);
+
+  /// No description provided for @transferAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Transferir'**
+  String get transferAction;
+
+  /// No description provided for @transferTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Transferir dinero'**
+  String get transferTitle;
+
+  /// No description provided for @transferToOwnAccounts.
+  ///
+  /// In es, this message translates to:
+  /// **'A cuentas Nexo · gratis e inmediato'**
+  String get transferToOwnAccounts;
+
+  /// No description provided for @fromLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde'**
+  String get fromLabel;
+
+  /// No description provided for @toLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Para'**
+  String get toLabel;
+
+  /// No description provided for @accountOption.
+  ///
+  /// In es, this message translates to:
+  /// **'{alias} · {amount}'**
+  String accountOption(String alias, String amount);
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Monto a enviar (USD)'**
+  String get amountLabel;
+
+  /// No description provided for @availableInAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible en tu cuenta: {amount}'**
+  String availableInAccount(String amount);
+
+  /// No description provided for @conceptLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Concepto o detalle (opcional)'**
+  String get conceptLabel;
+
+  /// No description provided for @transferCost.
+  ///
+  /// In es, this message translates to:
+  /// **'Costo de la transferencia: \$0.00 · acreditación inmediata'**
+  String get transferCost;
+
+  /// No description provided for @errorSameAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige una cuenta distinta a la de origen'**
+  String get errorSameAccount;
+
+  /// No description provided for @errorInvalidAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Ingresa un monto válido'**
+  String get errorInvalidAmount;
+
+  /// No description provided for @errorLimitExceeded.
+  ///
+  /// In es, this message translates to:
+  /// **'El máximo por transferencia es {amount}'**
+  String errorLimitExceeded(String amount);
+
+  /// No description provided for @errorConceptTooLong.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa máximo {max} caracteres'**
+  String errorConceptTooLong(int max);
+
+  /// No description provided for @errorInsufficientFunds.
+  ///
+  /// In es, this message translates to:
+  /// **'Saldo insuficiente en la cuenta de origen'**
+  String get errorInsufficientFunds;
+
+  /// No description provided for @errorAccountNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'La cuenta ya no está disponible'**
+  String get errorAccountNotFound;
+
+  /// No description provided for @errorTransferOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión. Las transferencias necesitan internet; inténtalo de nuevo.'**
+  String get errorTransferOffline;
+
+  /// No description provided for @transferSuccessTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Transferencia exitosa'**
+  String get transferSuccessTitle;
+
+  /// No description provided for @transferSuccessMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount} de {from} a {to}'**
+  String transferSuccessMessage(String amount, String from, String to);
+
+  /// No description provided for @newTransfer.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva transferencia'**
+  String get newTransfer;
+
+  /// No description provided for @backToAccounts.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver mis cuentas'**
+  String get backToAccounts;
 }
 
 class _AccountsLocalizationsDelegate

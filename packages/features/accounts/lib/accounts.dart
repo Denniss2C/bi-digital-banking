@@ -14,3 +14,4 @@ export 'src/domain/repositories/accounts_repository.dart';
 export 'src/domain/usecases/transfer_between_own_accounts.dart';
 export 'src/presentation/pages/account_detail_page.dart';
 export 'src/presentation/pages/accounts_page.dart';
+export 'src/presentation/pages/transfer_page.dart';

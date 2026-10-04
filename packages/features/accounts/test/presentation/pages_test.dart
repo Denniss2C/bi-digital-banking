@@ -66,6 +66,53 @@ void main() {
       }
     });
 
+    testWidgets('the transfer button opens the flow', (tester) async {
+      stubAccounts(
+        const Right(
+          AccountsSnapshot(accounts: [savings, checking], isFromCache: false),
+        ),
+      );
+      var transfers = 0;
+      await tester.pumpLocalized(
+        AccountsPage(
+          repository: repository,
+          userId: 'u',
+          onOpenAccount: (_) {},
+          onTransfer: () => transfers++,
+        ),
+      );
+
+      await tester.tap(find.text('Transferir'));
+      expect(transfers, 1);
+    });
+
+    testWidgets('no transfer button without a handler', (tester) async {
+      stubAccounts(
+        const Right(
+          AccountsSnapshot(accounts: [savings, checking], isFromCache: false),
+        ),
+      );
+      await pump(tester);
+
+      expect(find.text('Transferir'), findsNothing);
+    });
+
+    testWidgets('no transfer button with a single account', (tester) async {
+      stubAccounts(
+        const Right(AccountsSnapshot(accounts: [savings], isFromCache: false)),
+      );
+      await tester.pumpLocalized(
+        AccountsPage(
+          repository: repository,
+          userId: 'u',
+          onOpenAccount: (_) {},
+          onTransfer: () {},
+        ),
+      );
+
+      expect(find.text('Transferir'), findsNothing);
+    });
+
     testWidgets('cached data shows the offline notice', (tester) async {
       stubAccounts(
         const Right(AccountsSnapshot(accounts: [savings], isFromCache: true)),
