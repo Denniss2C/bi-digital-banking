@@ -12,12 +12,16 @@ class BalanceHeroCard extends StatelessWidget {
     required this.label,
     required this.totalCents,
     required this.caption,
+    this.onTap,
     super.key,
   });
 
   final String label;
   final int totalCents;
   final String caption;
+
+  /// Makes the whole card a button (e.g. on the home, to open the accounts).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +32,7 @@ class BalanceHeroCard extends StatelessWidget {
     return AppCard(
       variant: AppCardVariant.hero,
       padding: const EdgeInsets.all(AppSpacing.lg),
+      onTap: onTap,
       semanticsLabel: '$label: ${formatUsd(totalCents)}. $caption',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

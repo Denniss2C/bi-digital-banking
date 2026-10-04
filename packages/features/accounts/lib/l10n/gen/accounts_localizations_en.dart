@@ -169,4 +169,10 @@ class AccountsLocalizationsEn extends AccountsLocalizations {
 
   @override
   String get backToAccounts => 'See my accounts';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get recentMovementsTitle => 'Recent activity';
 }

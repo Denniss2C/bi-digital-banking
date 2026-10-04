@@ -44,5 +44,7 @@
   "transferSuccessTitle": "Transfer completed",
   "transferSuccessMessage": "{amount} from {from} to {to}",
   "newTransfer": "New transfer",
-  "backToAccounts": "See my accounts"
+  "backToAccounts": "See my accounts",
+  "seeAll": "See all",
+  "recentMovementsTitle": "Recent activity"
 }

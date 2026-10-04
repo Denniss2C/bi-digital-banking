@@ -123,5 +123,13 @@
         "type": "String"
       }
     }
+  },
+  "seeAll": "Ver todos",
+  "@seeAll": {
+    "description": "Link to the full list of movements."
+  },
+  "recentMovementsTitle": "Movimientos recientes",
+  "@recentMovementsTitle": {
+    "description": "Default title of the recent movements section on the home."
   }
 }
