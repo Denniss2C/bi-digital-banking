@@ -250,8 +250,10 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - La home por defecto replica la pantalla `inicio_*`; cada segmento cambia el orden, la promo o los componentes.
   - Partido en dos PRs (decisión del autor, 2026-10-04): `feat/home-sdui` (home por SDUI con el layout embebido; accounts aporta `balance_card` y `tx_list`) y `feat/remote-personalization` (Remote Config con el segmento como custom signal, flags, actualización en vivo y plantilla versionada desplegada con la CLI).
   - Plantilla publicada el 2026-10-04 (`make deploy-rc`). Decisión en ADR-005; operación en `docs/deployment-operations.md` §7. `feature_fx_enabled` se aplica en `feat/fx-rates`.
-- [ ] `feat/resilience`: caché, banner offline, panel de debug con Chaos (solo dev), tests de reintento
-  - Pendiente detectado en `feat/transfers`: `SignInCubit`, `SignUpCubit` y `TransactionsCubit` emiten después de un `await` sin comprobar `isClosed` (`StateError` si la pantalla se cierra antes; en el login puede pasar con el redirect). `TransferCubit` ya tiene el guard.
+- [x] `feat/resilience`: caché, banner offline, panel de debug con Chaos (solo dev), tests de reintento
+  - Corregido el pendiente de `feat/transfers`: `SignInCubit`, `SignUpCubit` y `TransactionsCubit` descartan la respuesta si la pantalla ya se cerró.
+  - Panel de depuración (solo dev): caos HTTP, Firestore sin red, segmento del cliente y Remote Config. Guion de demo en `docs/resilience.md` §6.
+  - El aviso offline sale de `isFromCache` de Firestore; se descartó `connectivity_plus` (ver `docs/resilience.md` §5). El caos HTTP se ve desde `feat/fx-rates`, que es la primera llamada con dio.
 - [ ] `feat/fx-rates`: micro app con API real + caché + degradación
   - Pantalla `divisas_y_remesas_*`: cotizador; tasa media real, sin spreads inventados.
 - [ ] `feat/push`: FCM + deep links
@@ -263,7 +265,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
 - [ ] README final reproducible — _parcial: estructura (#2)_
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-019_
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-020_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 

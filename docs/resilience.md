@@ -1,7 +1,8 @@
 # Resiliencia
 
-> Estado: la red resiliente de `core` (reintentos, modo caos y errores tipados) está implementada. Los estados de
-> pantalla, la caché offline y el panel de debug llegan en sus propios pasos.
+> Estado: implementados la red resiliente de `core` (reintentos, modo caos y errores tipados), los 5 estados en
+> Cuentas, Transferir e Inicio, la caché offline de Firestore, el fallback de la home (Remote Config y SDUI) y el
+> panel de depuración (solo dev). La caché de la API externa llega con Divisas (`feat/fx-rates`).
 
 ## 1. Estados de pantalla
 
@@ -21,6 +22,13 @@ Toda pantalla maneja cinco estados:
 
 **Transferir:** carga de cuentas, error con salida a Cuentas, errores por campo después del primer intento y un
 mensaje claro sin conexión.
+
+**Inicio:** cada componente maneja sus estados. Sin conexión, el saldo y los movimientos muestran los datos guardados
+con su aviso. Si el layout remoto falta o está roto, se usa el embebido, y un componente inválido se omite sin afectar
+al resto.
+
+**Pantallas que se cierran durante una petición** (por ejemplo, el login, que se cierra con el redirect apenas la
+sesión cambia): la respuesta que llega tarde se descarta, en vez de lanzar un `StateError`.
 
 ## 2. Política de reintentos (`RetryInterceptor`)
 
@@ -82,11 +90,14 @@ Solo disponible en el flavor `dev`, configurable en runtime desde el panel de de
 
 ## 5. Offline
 
-- Firestore con persistencia offline habilitada.
+- Firestore con persistencia offline habilitada. El panel de depuración puede apagar su red para mostrarlo sin
+  activar el modo avión.
 - **Las transferencias necesitan el servidor.** Las transacciones de Firestore no se encolan sin conexión: fallan
   (`unavailable`), se traducen a `NetworkFailure` y la pantalla lo explica. Nunca queda nada escrito a medias.
 - APIs externas: estrategia _network first, cache fallback_ con `hive_ce` y marca de tiempo de la última actualización.
-- `connectivity_plus` para mostrar el aviso de conexión. La conectividad es una pista, no una garantía: la verdad la da el resultado de la petición.
+- **El aviso offline sale de los datos**, no de un detector de conectividad. Firestore informa si lo que muestra viene
+  de la caché (`isFromCache`), y eso es lo que se le dice al usuario. Se descartó `connectivity_plus`: la conectividad
+  es una pista (hay wifi sin internet), mientras que la respuesta real de cada petición es la verdad.
 
 ## 6. Cómo probarlo
 
@@ -107,6 +118,19 @@ inyectan, así que no hay red real ni esperas.
 | Fallo inyectado por el caos → lo reintenta el `RetryInterceptor` | `chaos_interceptor_test.dart` |
 | `DioException` → `Failure` tipado | `dio_failure_mapper_test.dart` |
 
-### Escenarios manuales
+### Escenarios manuales (guion de demo)
 
-_Pendiente:_ se documentan cuando exista el panel de debug (`feat/resilience`).
+Con `make run-dev`, en **Perfil → Panel de depuración** (solo existe en el flavor dev):
+
+| # | Qué hacer | Qué se ve |
+|---|-----------|-----------|
+| 1 | Apagar **Firestore conectado** | Cuentas muestra los datos guardados con el aviso offline. En Inicio, el saldo dice "Sin conexión". Transferir explica que necesita internet y no escribe nada a medias. |
+| 2 | Volver a encender Firestore | Los datos se sincronizan solos y los avisos desaparecen, sin reintentos manuales. |
+| 3 | Cambiar el **segmento** a `traveler` y después a `saver` | La home cambia de orden, promoción y atajos en segundos, sin reiniciar (Remote Config con el custom signal). |
+| 4 | En la consola de Remote Config, publicar un `home_layout` con un JSON roto | La home sigue con el layout embebido. Un componente con props inválidas se omite solo. |
+| 5 | Poner `feature_transfers_enabled` en `false` y publicar | Desaparece el botón Transferir. El atajo de la home explica que no está disponible y la ruta redirige a Cuentas. |
+| 6 | **Modo caos HTTP**: latencia de 3 s, 50% de fallos o sin red | Afecta las llamadas con dio (Divisas, desde `feat/fx-rates`). Los fallos inyectados pasan por los reintentos, como un error real. |
+| 7 | Modo avión con la app abierta | Lo mismo que el escenario 1, más Remote Config con los últimos valores activos. |
+
+El panel no se compila en prod: el router de prod no tiene la ruta y la inyección de dependencias no registra sus
+herramientas (lo verifica `test/di/injection_test.dart`).
