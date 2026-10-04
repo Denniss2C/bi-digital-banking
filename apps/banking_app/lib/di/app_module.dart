@@ -35,10 +35,12 @@ abstract class AppModule {
     SessionCubit session,
     OnboardingRepository onboardingRepository,
     AuthRepository authRepository,
+    AccountsRepository accountsRepository,
   ) => createRouter(
     session: session,
     onboardingRepository: onboardingRepository,
     authRepository: authRepository,
+    accountsRepository: accountsRepository,
   );
 
   /// Debug tooling: registered only in the dev environment (dev flavor).

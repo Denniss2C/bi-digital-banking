@@ -48,6 +48,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i662.SessionCubit>(),
         gh<_i662.OnboardingRepository>(),
         gh<_i662.AuthRepository>(),
+        gh<_i718.AccountsRepository>(),
       ),
     );
     gh.lazySingleton<_i249.SessionEffects>(

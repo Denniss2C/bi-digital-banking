@@ -72,6 +72,21 @@ void main() {
       expect(find.text('Bienvenido de nuevo'), findsOneWidget);
     });
 
+    testWidgets('the accounts tab lists accounts and opens the detail', (
+      tester,
+    ) async {
+      await pumpApp(tester, signedInUser: testUser);
+
+      await tester.tap(_tab('Cuentas'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cuenta de Ahorros'));
+      await tester.pumpAndSettle();
+
+      expect(_appBarTitle('Cuenta de Ahorros'), findsOneWidget);
+      expect(find.text('Supermaxi Mall del Sol'), findsOneWidget);
+      expect(find.byType(NavigationBar), findsOneWidget);
+    });
+
     testWidgets('tabs switch the visible section', (tester) async {
       await pumpApp(tester, signedInUser: testUser);
 
