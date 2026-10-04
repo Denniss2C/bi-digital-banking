@@ -18,4 +18,10 @@ class AppConfig {
 
   /// Debug tooling (debug panel, ChaosInterceptor) only exists in dev.
   bool get enableDebugTools => flavor == Flavor.dev;
+
+  /// Minimum time between Remote Config fetches. Dev fetches on every pull to
+  /// refresh; prod respects the backend quotas. Real-time updates arrive in
+  /// both, whatever this interval.
+  Duration get remoteConfigFetchInterval =>
+      flavor == Flavor.dev ? Duration.zero : const Duration(hours: 1);
 }

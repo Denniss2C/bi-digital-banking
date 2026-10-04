@@ -1,3 +1,5 @@
+import 'package:banking_app/app/personalization/personalization_config.dart';
+
 /// Route paths of the app shell. Features add their own sub-routes here.
 abstract final class AppRoutes {
   static const splash = '/splash';
@@ -26,5 +28,14 @@ abstract final class AppRoutes {
       fx,
       profile,
     ].any((tab) => uri.path == tab || uri.path.startsWith('$tab/'));
+  }
+
+  /// Whether the feature behind [location] is enabled by its remote flag.
+  static bool isEnabled(String location, FeatureFlags flags) {
+    final path = Uri.tryParse(location)?.path ?? location;
+    if (path == transfer || path.startsWith('$transfer/')) {
+      return flags.transfers;
+    }
+    return true;
   }
 }

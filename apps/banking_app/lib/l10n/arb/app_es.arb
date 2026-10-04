@@ -49,5 +49,9 @@
   "homeGreetingNoName": "¡Hola!",
   "@homeGreetingNoName": {
     "description": "Home header when the customer has no name yet."
+  },
+  "featureUnavailable": "Esta función no está disponible por ahora.",
+  "@featureUnavailable": {
+    "description": "Shown when a remotely disabled feature is opened."
   }
 }

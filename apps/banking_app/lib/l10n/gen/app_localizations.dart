@@ -157,6 +157,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¡Hola!'**
   String get homeGreetingNoName;
+
+  /// Shown when a remotely disabled feature is opened.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta función no está disponible por ahora.'**
+  String get featureUnavailable;
 }
 
 class _AppLocalizationsDelegate

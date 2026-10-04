@@ -1,7 +1,10 @@
 import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
+import 'dart:developer' as developer;
+
 import 'package:banking_app/app/home/default_home_layout.dart';
 import 'package:banking_app/app/home/home_registry.dart';
+import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/router/app_routes.dart';
 import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
@@ -12,8 +15,9 @@ import 'package:sdui/sdui.dart';
 
 /// Inicio tab: a greeting and a server-driven layout (SDUI).
 ///
-/// The layout is the one embedded in the app for now; Remote Config will
-/// provide it per customer segment (feat/remote-personalization).
+/// The layout comes from Remote Config for the customer's segment (via
+/// [PersonalizationCubit]) and changes live when a new one is published. If
+/// it is missing or unusable, the layout embedded in the app is shown.
 class HomePage extends StatefulWidget {
   const HomePage({
     required this.accountsRepository,
@@ -34,33 +38,63 @@ class _HomePageState extends State<HomePage> {
     userId: widget.userId,
   );
 
-  late final SduiResolvedLayout _resolved = resolveSduiLayout(
-    remote: null,
-    fallback: defaultHomeLayout,
-    registry: _registry,
-  );
+  /// Remote layout already resolved, to resolve again only when it changes.
+  String? _resolvedSource;
+  late SduiResolvedLayout _resolved;
 
   /// Pull to refresh creates every component again, so each one reloads.
   var _generation = 0;
 
+  SduiResolvedLayout _resolve(String remote) {
+    if (remote != _resolvedSource) {
+      _resolvedSource = remote;
+      _resolved = resolveSduiLayout(
+        remote: remote,
+        fallback: defaultHomeLayout,
+        registry: _registry,
+      );
+      // Observability (feat/observability) will turn these into events.
+      for (final issue in _resolved.issues) {
+        developer.log(issue, name: 'sdui.${_resolved.source.name}');
+      }
+    }
+    return _resolved;
+  }
+
+  Future<void> _refresh() async {
+    await context.read<PersonalizationCubit>().refresh();
+    if (mounted) setState(() => _generation++);
+  }
+
   void _onAction(SduiAction action) {
     switch (action) {
       case SduiNavigateAction(:final route):
-        // The server may only open screens that exist in this app version.
-        if (AppRoutes.isAppLocation(route)) {
-          context.go(route);
-        } else {
-          debugPrint('SDUI: ignored unknown route "$route"');
+        // The server may only open screens that exist in this app version...
+        if (!AppRoutes.isAppLocation(route)) {
+          developer.log('Ignored unknown route "$route"', name: 'sdui');
+          return;
         }
+        // ...and only features that are enabled right now.
+        final flags = context.read<PersonalizationCubit>().state.flags;
+        if (!AppRoutes.isEnabled(route, flags)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.featureUnavailable)),
+          );
+          return;
+        }
+        context.go(route);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final layout = _resolve(
+      context.select((PersonalizationCubit cubit) => cubit.state.homeLayout),
+    );
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () async => setState(() => _generation++),
+          onRefresh: _refresh,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(AppSpacing.screenMargin),
@@ -71,12 +105,13 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: AppSpacing.lg),
                 SduiView(
                   key: ValueKey(_generation),
-                  layout: _resolved.layout,
+                  layout: layout.layout,
                   registry: _registry,
                   onAction: _onAction,
                   spacing: AppSpacing.lg,
-                  onComponentError: (node, error, _) => debugPrint(
-                    'SDUI: component "${node.type}" failed: $error',
+                  onComponentError: (node, error, _) => developer.log(
+                    'Component "${node.type}" failed: $error',
+                    name: 'sdui',
                   ),
                 ),
               ],

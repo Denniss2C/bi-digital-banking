@@ -1,6 +1,7 @@
 import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/config/app_config.dart';
+import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/l10n/l10n.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
@@ -13,17 +14,22 @@ class App extends StatelessWidget {
     required this.config,
     required this.router,
     required this.session,
+    required this.personalization,
     super.key,
   });
 
   final AppConfig config;
   final GoRouter router;
   final SessionCubit session;
+  final PersonalizationCubit personalization;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: session,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: session),
+        BlocProvider.value(value: personalization),
+      ],
       child: MaterialApp.router(
         title: config.appName,
         theme: AppTheme.light(),
