@@ -10,7 +10,9 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
+import 'package:accounts/accounts.dart' as _i718;
 import 'package:auth/auth.dart' as _i662;
+import 'package:banking_app/app/session_effects.dart' as _i249;
 import 'package:banking_app/di/app_module.dart' as _i1038;
 import 'package:core/core.dart' as _i494;
 import 'package:get_it/get_it.dart' as _i174;
@@ -28,6 +30,9 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final appModule = _$AppModule();
     gh.lazySingleton<_i662.AuthRepository>(() => appModule.authRepository);
+    gh.lazySingleton<_i718.AccountsRepository>(
+      () => appModule.accountsRepository,
+    );
     gh.lazySingleton<_i662.OnboardingRepository>(
       () => appModule.onboardingRepository(gh<_i494.KeyValueStore>()),
     );
@@ -43,6 +48,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i662.SessionCubit>(),
         gh<_i662.OnboardingRepository>(),
         gh<_i662.AuthRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i249.SessionEffects>(
+      () => appModule.sessionEffects(
+        gh<_i662.SessionCubit>(),
+        gh<_i718.AccountsRepository>(),
       ),
     );
     return this;

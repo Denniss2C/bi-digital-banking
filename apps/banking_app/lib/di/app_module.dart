@@ -1,5 +1,7 @@
+import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/router/app_router.dart';
+import 'package:banking_app/app/session_effects.dart';
 import 'package:core/core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
@@ -17,6 +19,16 @@ abstract class AppModule {
   @lazySingleton
   SessionCubit sessionCubit(AuthRepository repository) =>
       SessionCubit(repository);
+
+  @lazySingleton
+  AccountsRepository get accountsRepository =>
+      FirestoreAccountsRepository.instance();
+
+  @lazySingleton
+  SessionEffects sessionEffects(
+    SessionCubit session,
+    AccountsRepository accounts,
+  ) => SessionEffects(session: session, accounts: accounts);
 
   @lazySingleton
   GoRouter router(
