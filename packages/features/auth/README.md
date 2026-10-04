@@ -9,7 +9,8 @@ Depende solo de `core`, `design_system` y `sdui`; el shell (`apps/banking_app`) 
 lib/src/
   domain/   AppUser, AuthRepository, OnboardingRepository   (sin Flutter ni Firebase)
   data/     FirebaseAuthRepository, LocalOnboardingRepository, mapeo de errores de Firebase
-  presentation/   (llega en feat/auth-ui) cubits, pantallas y textos del feature
+  presentation/   SessionCubit, SignInCubit, SignUpCubit, AuthPage, OnboardingPage
+lib/l10n/          AuthLocalizations (es/en): los textos del feature son de este equipo
 ```
 
 - Las operaciones devuelven `Either<Failure, T>` (fpdart). Los errores de Firebase se traducen a
@@ -21,6 +22,21 @@ lib/src/
   cambio de perfil, como el nombre guardado al registrarse.
 - El onboarding "visto" es una marca del **dispositivo** (en un `KeyValueStore` de `core`), porque se muestra antes
   de que haya un usuario.
+
+## Presentación
+
+- **`SessionCubit`**: refleja `userChanges()` (`SessionUnknown` → `SessionAuthenticated` / `SessionUnauthenticated`).
+  El router del shell redirige con él; las pantallas nunca navegan al iniciar sesión.
+- **`SignInCubit` / `SignUpCubit`**: validan en cliente (email, nombre, contraseña nueva de 8 o más caracteres con letras
+  y números). Los errores aparecen recién después del primer intento. También manejan el envío del enlace para
+  recuperar la contraseña.
+- **Estados**: clases `sealed` + equatable con `copyWith` escrito a mano, sin freezed (ver el log de desvíos en
+  `CLAUDE.md`).
+- **Pantallas** según `docs/design/screens/`:
+  - `OnboardingPage`: 3 pasos, y solo avisa la elección del usuario al shell;
+  - `AuthPage`: login y registro, con su propia selección de modo.
+- **Accesibilidad**: etiquetas en cada campo, autofill, toggle de contraseña con tooltip para lectores de pantalla,
+  errores anunciados (`liveRegion`) y enlaces con color AA.
 
 ## Sin capa de casos de uso (decisión)
 

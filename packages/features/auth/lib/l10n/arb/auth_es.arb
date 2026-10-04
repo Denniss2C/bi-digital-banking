@@ -1,0 +1,62 @@
+{
+  "@@locale": "es",
+  "onboardingSkip": "Omitir",
+  "onboardingContinue": "Continuar",
+  "onboardingStart": "Comenzar",
+  "onboardingHaveAccount": "¿Ya tienes cuenta?",
+  "onboardingSignIn": "Inicia sesión",
+  "onboardingStep": "Paso {current} de {total}",
+  "@onboardingStep": {
+    "description": "Screen reader progress of the onboarding slides.",
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "onboardingBankingTab": "Banca",
+  "onboardingBankingTitle": "Tu banco en tu bolsillo",
+  "onboardingBankingBody": "Maneja tus cuentas, saldos y transferencias en Ecuador sin pisar una sucursal. 100% digital.",
+  "onboardingSecurityTab": "Seguridad",
+  "onboardingSecurityTitle": "Seguridad de grado bancario",
+  "onboardingSecurityBody": "Tu sesión está protegida y tus datos nunca se comparten con terceros.",
+  "onboardingSavingsTab": "Ahorro",
+  "onboardingSavingsTitle": "Haz crecer tu dinero",
+  "onboardingSavingsBody": "Revisa tus movimientos y consulta el tipo de cambio en tiempo real.",
+  "signInTab": "Iniciar sesión",
+  "signUpTab": "Crear cuenta",
+  "signInHeadline": "Bienvenido de nuevo",
+  "signInSubtitle": "Ingresa a tu banca digital",
+  "signUpHeadline": "Abre tu cuenta digital",
+  "signUpSubtitle": "En pocos minutos y sin filas",
+  "nameLabel": "Nombre completo",
+  "emailLabel": "Correo electrónico",
+  "passwordLabel": "Contraseña",
+  "passwordRules": "Mínimo 8 caracteres, con letras y números",
+  "showPassword": "Mostrar contraseña",
+  "hidePassword": "Ocultar contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "signInAction": "Iniciar sesión",
+  "signUpAction": "Crear cuenta",
+  "securityTipTitle": "Consejo de seguridad",
+  "securityTipBody": "Nunca compartas tu contraseña ni códigos de verificación con nadie, ni siquiera con Nexo.",
+  "noAccountQuestion": "¿No tienes una cuenta aún?",
+  "registerAction": "Registrarme",
+  "haveAccountQuestion": "¿Ya tienes cuenta?",
+  "errorNameRequired": "Ingresa tu nombre",
+  "errorEmailInvalid": "Ingresa un correo válido",
+  "errorPasswordRequired": "Ingresa tu contraseña",
+  "errorPasswordWeak": "Usa al menos 8 caracteres, con letras y números",
+  "errorInvalidCredentials": "Correo o contraseña incorrectos",
+  "errorEmailInUse": "Ya existe una cuenta con este correo",
+  "errorWeakPassword": "La contraseña es demasiado débil",
+  "errorUserDisabled": "Esta cuenta está deshabilitada",
+  "errorTooManyRequests": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
+  "errorNetwork": "Sin conexión. Revisa tu internet e inténtalo de nuevo.",
+  "errorUnknown": "Algo salió mal. Inténtalo de nuevo.",
+  "resetEmailSent": "Te enviamos un enlace para restablecer tu contraseña a {email}.",
+  "@resetEmailSent": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  }
+}
