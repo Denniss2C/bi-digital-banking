@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:accounts/src/data/firestore_failure_mapper.dart';
 import 'package:accounts/src/data/firestore_mappers.dart';
 import 'package:accounts/src/data/opening_data.dart';
+import 'package:accounts/src/domain/entities/account_transaction.dart';
 import 'package:accounts/src/domain/entities/paging.dart';
+import 'package:accounts/src/domain/entities/transfer.dart';
 import 'package:accounts/src/domain/repositories/accounts_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:core/core.dart';
@@ -143,6 +145,118 @@ class FirestoreAccountsRepository implements AccountsRepository {
         }
       });
       return unit;
+    });
+  }
+
+  // Firestore auto-ids are generated on the device; no document is created.
+  @override
+  String newTransferId() => _firestore.collection('transfers').doc().id;
+
+  @override
+  Future<Either<Failure, TransferReceipt>> transfer({
+    required String userId,
+    required String transferId,
+    required String fromAccountId,
+    required String toAccountId,
+    required int amountCents,
+    required String concept,
+  }) {
+    return _guard(() async {
+      final now = _clock();
+      final fromRef = _accounts(userId).doc(fromAccountId);
+      final toRef = _accounts(userId).doc(toAccountId);
+      // Both movements use the transfer id as their document id.
+      final debitRef = fromRef.collection('transactions').doc(transferId);
+      final creditRef = toRef.collection('transactions').doc(transferId);
+
+      // All reads first, then all writes: Firestore retries the function if
+      // another write touched these accounts meanwhile, so balances are
+      // always computed from fresh data.
+      return _firestore.runTransaction((transaction) async {
+        final fromDoc = await transaction.get(fromRef);
+        final toDoc = await transaction.get(toRef);
+        final debitDoc = await transaction.get(debitRef);
+        // Already applied: Firestore retries a transaction whose commit
+        // response was lost, and the user may retry after an error. Answer
+        // with the original result instead of moving the money again.
+        if (debitDoc.exists) {
+          final debit = transactionFromFirestore(debitDoc.id, debitDoc.data()!);
+          return TransferReceipt(
+            transferId: transferId,
+            fromAccountId: fromAccountId,
+            toAccountId: toAccountId,
+            amountCents: debit.amountCents,
+            concept: concept,
+            createdAt: debit.createdAt,
+            fromBalanceAfterCents: debit.balanceAfterCents,
+          );
+        }
+        if (!fromDoc.exists || !toDoc.exists) {
+          throw const TransferRuleException(TransferError.accountNotFound);
+        }
+        final from = accountFromFirestore(fromDoc.id, fromDoc.data()!);
+        final to = accountFromFirestore(toDoc.id, toDoc.data()!);
+        if (from.balanceCents < amountCents) {
+          throw const TransferRuleException(TransferError.insufficientFunds);
+        }
+
+        final fromBalance = from.balanceCents - amountCents;
+        final toBalance = to.balanceCents + amountCents;
+
+        transaction
+          ..update(fromRef, {
+            'balanceCents': fromBalance,
+            'updatedAt': FieldValue.serverTimestamp(),
+          })
+          ..update(toRef, {
+            'balanceCents': toBalance,
+            'updatedAt': FieldValue.serverTimestamp(),
+          })
+          ..set(debitRef, {
+            ...transactionToFirestore(
+              AccountTransaction(
+                id: debitRef.id,
+                type: TransactionType.debit,
+                amountCents: amountCents,
+                description: concept.isEmpty
+                    ? 'Transferencia a ${to.alias}'
+                    : concept,
+                category: 'transfer',
+                createdAt: now,
+                balanceAfterCents: fromBalance,
+              ),
+              source: 'transfer',
+            ),
+            'transferId': transferId,
+          })
+          ..set(creditRef, {
+            ...transactionToFirestore(
+              AccountTransaction(
+                id: creditRef.id,
+                type: TransactionType.credit,
+                amountCents: amountCents,
+                description: concept.isEmpty
+                    ? 'Transferencia desde ${from.alias}'
+                    : concept,
+                category: 'transfer',
+                createdAt: now,
+                balanceAfterCents: toBalance,
+              ),
+              source: 'transfer',
+            ),
+            'transferId': transferId,
+          });
+
+        return TransferReceipt(
+          transferId: transferId,
+          fromAccountId: fromAccountId,
+          toAccountId: toAccountId,
+          amountCents: amountCents,
+          concept: concept,
+          createdAt: now,
+          fromBalanceAfterCents: fromBalance,
+        );
+      });
     });
   }
 
