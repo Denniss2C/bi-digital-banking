@@ -155,7 +155,6 @@ class PromoBanner extends StatelessWidget {
                     if (ctaLabel != null)
                       AppButton(
                         label: ctaLabel!,
-                        icon: Icons.chevron_right,
                         variant: buttonVariant,
                         expand: false,
                         onPressed: onCta,
