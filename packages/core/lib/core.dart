@@ -2,6 +2,7 @@
 library;
 
 export 'src/errors/failure.dart';
+export 'src/formatting/money.dart';
 export 'src/network/chaos/chaos_config.dart';
 export 'src/network/chaos/chaos_interceptor.dart';
 export 'src/network/dio_client.dart';
