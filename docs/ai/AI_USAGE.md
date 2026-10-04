@@ -25,6 +25,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-011](#ia-011--auth-dominio-y-datos) | 2026-10-03 | Fase 2 · auth (datos) | Claude Code (Claude Opus 5.5) | 0 |
 | [IA-012](#ia-012--auth-ui-sesión-y-redirect) | 2026-10-03 | Fase 2 · auth (UI) | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-013](#ia-013--cuentas-datos-en-firestore-y-reglas) | 2026-10-03 | Fase 2 · accounts (datos) | Claude Code (Claude Opus 5.5) | 2 |
+| [IA-014](#ia-014--cuentas-ui-y-estados) | 2026-10-03 | Fase 2 · accounts (UI) | Claude Code (Claude Opus 5.5) | 3 |
 
 ---
 
@@ -792,6 +793,62 @@ Revisión de la IA sobre `DESIGN.md`:
   de datos que no rompen la app.
 - **Documentación:** ADR-003, README de `accounts` y despliegue de reglas en `deployment-operations.md`.
 - **Pruebas:** 17 tests nuevos.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-014 · Cuentas: UI y estados
+
+- **Rama:** `feat/accounts-ui`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/accounts-ui`: lista de cuentas, saldo y movimientos paginados con todos
+  los estados, según `cuentas_y_tarjetas_*` y la regla de los 5 estados.
+
+### Qué produjo la IA
+
+- **Pantallas:** `AccountsPage` (saldo total en tarjeta hero y tarjetas por cuenta) y `AccountDetailPage` (saldo en
+  vivo y movimientos con scroll infinito), con los 5 estados más el error al cargar más.
+- **Cubits:**
+  - `AccountsCubit`: stream de cuentas con reintento;
+  - `TransactionsCubit`: paginación, cargar más y fallo de cargar más, sin perder la lista ya mostrada.
+- **Piezas compartidas:** `formatUsd` en `core`, `AppOfflineBanner` en el design system y `isFromCache` en cada página
+  de movimientos.
+- **Shell:** detalle como ruta anidada (`/accounts/:id`), así se mantiene la barra inferior.
+- **25 tests nuevos:** 14 en `accounts`, 1 de flujo en la app y los de `core` y el design system.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Contraste roto en la tarjeta hero.** Los textos usaban estilos del tema, cuyo color `onSurface` (oscuro) pisa el
+   color claro de la tarjeta hero: habría quedado texto oscuro sobre navy. La IA lo notó al releer el código, antes
+   de cualquier test. Se corrigió con `onHeroSurface` en cada texto, se agregó un test que verifica esos colores y se
+   comprobó con una mutación que el test falla si el bug vuelve. La trampa quedó documentada en el README del
+   design system.
+2. **Constructores que rompían el lint** (`prefer_initializing_formals`) y un script de reemplazos que falló a mitad
+   de camino. Se rehízo con ediciones puntuales.
+3. **Expectativas de test mal planteadas:**
+   - la hora en español es `9:05`, no `09:05`;
+   - con una sola cuenta, el total y el saldo de la cuenta coinciden, así que `find.text` encontraba dos widgets.
+
+   Se corrigieron los tests acotando la búsqueda; la app no tenía el problema.
+
+### Verificación
+
+- `format`, `analyze` y `test` con código de salida 0; código generado sin diferencias; APK de dev compilado.
+- **Sin prueba visual en un dispositivo.** Pendiente: recorrer la pestaña con `make run-dev` contra Firestore real.
+
+### Impacto
+
+- **Productividad:** unos 60 minutos.
+- **Calidad:** los 5 estados implementados y testeados. El contraste del hero queda protegido por un test probado con
+  mutación.
+- **Documentación:** README de `accounts` (presentación y estados) y del design system (trampa del hero), y
+  `resilience.md`.
+- **Pruebas:** `accounts` 28, app 27.
 
 ### Revisión del autor
 

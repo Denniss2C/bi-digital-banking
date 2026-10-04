@@ -15,6 +15,10 @@ Toda pantalla maneja cinco estados:
 | `error` | `AppErrorView` con botón **Reintentar** |
 | `offline` | Datos en caché y aviso de que pueden no estar actualizados |
 
+**Implementado en Cuentas** (`AccountsPage` y `AccountDetailPage`):
+- el aviso offline sale de `metadata.isFromCache` de Firestore;
+- la carga de más páginas falla sin perder lo ya cargado.
+
 ## 2. Política de reintentos (`RetryInterceptor`)
 
 Implementada en `packages/core/lib/src/network/retry_interceptor.dart` (`RetryPolicy` + `RetryInterceptor`).

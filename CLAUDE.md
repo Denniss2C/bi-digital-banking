@@ -237,7 +237,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Pantallas `onboarding_*` y `autenticaci_n_*`: email y contraseña; login con cédula y biometría quedan fuera.
 - [x] `feat/accounts-data`: modelo Firestore, seed al registrarse, reglas de seguridad
   - Dinero en centavos (`balanceCents`, `amountCents`). Apertura idempotente desde el shell al iniciar sesión. Reglas desplegadas el 2026-10-03; ver ADR-003.
-- [ ] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados
+- [x] `feat/accounts-ui`: lista de cuentas, saldo, movimientos (paginados) con todos los estados
   - Pantalla `cuentas_y_tarjetas_*`: solo cuentas y movimientos (tarjeta virtual y metas quedan fuera).
 - [ ] `feat/transfers`: transferencia entre cuentas propias (`runTransaction`) — **recortable**
   - Pantalla `transferir_dinero_*`, opción "A cuentas Nexo".
