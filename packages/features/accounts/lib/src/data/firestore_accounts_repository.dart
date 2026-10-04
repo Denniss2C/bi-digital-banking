@@ -86,7 +86,8 @@ class FirestoreAccountsRepository implements AccountsRepository {
       // One extra document tells whether another page exists.
       query = query.limit(pageSize + 1);
 
-      final docs = (await query.get()).docs;
+      final snapshot = await query.get();
+      final docs = snapshot.docs;
       final pageDocs = docs.take(pageSize).toList();
       return TransactionPage(
         items: [
@@ -94,6 +95,7 @@ class FirestoreAccountsRepository implements AccountsRepository {
             transactionFromFirestore(doc.id, doc.data()),
         ],
         next: docs.length > pageSize ? TransactionCursor(pageDocs.last) : null,
+        isFromCache: snapshot.metadata.isFromCache,
       );
     });
   }

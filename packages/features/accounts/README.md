@@ -36,11 +36,31 @@ lib/src/
 - **Documentos mal formados:** se traducen a `ServerFailure` en lugar de romper la app. En `watchAccounts`, los errores
   llegan como `Left` sin cortar el stream.
 
+## Presentación
+
+- **`AccountsPage`** (pestaña Cuentas): tarjeta hero navy con el saldo total y una tarjeta por cuenta.
+- **`AccountDetailPage`** (`/accounts/:id`): saldo en vivo (sigue correcto después de una transferencia) y movimientos
+  con **scroll infinito** de 20 en 20.
+- **Los 5 estados en ambas pantallas:**
+
+  | Estado | Qué ve el usuario |
+  |--------|-------------------|
+  | carga | `AppLoading` |
+  | éxito | datos |
+  | vacío | "Estamos preparando tus cuentas" o "Aún no tienes movimientos" |
+  | error | `AppErrorView` con reintento; si falla al cargar más, aviso inline sin perder lo ya cargado |
+  | offline | datos de la caché con `AppOfflineBanner` |
+- **Montos:** `formatUsd` / `formatSignedUsd` de `core`, con cifras tabulares. El verde y el rojo vienen de
+  `AppSemanticColors` (AA).
+- **Lector de pantalla:** cada tarjeta y cada movimiento se leen como una frase ("Supermaxi, gasto de $64.30, Hoy ·
+  11:30").
+- **Textos propios del feature:** `AccountsLocalizations` (es/en).
+
 ## Tests
 
 ```bash
 cd packages/features/accounts && flutter test
 ```
 
-Usan `fake_cloud_firestore`, un Firestore en memoria que soporta consultas, paginación y transacciones. Ojo: en el
+Los de datos usan `fake_cloud_firestore`, un Firestore en memoria que soporta consultas, paginación y transacciones. Ojo: en el
 fake **importa el orden de los modificadores** (`orderBy → startAfter → limit`); Firestore real es declarativo.

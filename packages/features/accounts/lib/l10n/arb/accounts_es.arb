@@ -1,0 +1,44 @@
+{
+  "@@locale": "es",
+  "accountsTitle": "Cuentas",
+  "totalBalanceLabel": "Saldo total disponible",
+  "accountsCount": "{count, plural, =1{1 cuenta} other{{count} cuentas}}",
+  "@accountsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "savingsType": "Ahorros",
+  "checkingType": "Corriente",
+  "availableBalance": "Saldo disponible",
+  "accountCardSemantics": "{alias}, {number}, saldo disponible {amount}",
+  "@accountCardSemantics": {
+    "description": "Screen reader summary of an account card.",
+    "placeholders": {
+      "alias": { "type": "String" },
+      "number": { "type": "String" },
+      "amount": { "type": "String" }
+    }
+  },
+  "accountsLoading": "Cargando tus cuentas",
+  "accountsEmptyTitle": "Estamos preparando tus cuentas",
+  "accountsEmptyMessage": "En unos segundos verás tus cuentas aquí.",
+  "accountsErrorTitle": "No pudimos cargar tus cuentas",
+  "movementsTitle": "Movimientos",
+  "movementsLoading": "Cargando movimientos",
+  "movementsEmptyTitle": "Aún no tienes movimientos",
+  "movementsErrorTitle": "No pudimos cargar tus movimientos",
+  "loadMoreError": "No pudimos cargar más movimientos.",
+  "errorNetworkMessage": "Revisa tu conexión e inténtalo de nuevo.",
+  "errorGenericMessage": "Ocurrió un problema. Inténtalo de nuevo.",
+  "retry": "Reintentar",
+  "offlineNotice": "Sin conexión · mostrando tus últimos datos guardados",
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  "creditSemantics": "ingreso de {amount}",
+  "@creditSemantics": {
+    "placeholders": { "amount": { "type": "String" } }
+  },
+  "debitSemantics": "gasto de {amount}",
+  "@debitSemantics": {
+    "placeholders": { "amount": { "type": "String" } }
+  }
+}

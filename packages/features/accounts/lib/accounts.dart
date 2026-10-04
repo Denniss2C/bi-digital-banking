@@ -4,8 +4,11 @@
 /// it (routes and dependencies).
 library;
 
+export 'l10n/gen/accounts_localizations.dart';
 export 'src/data/firestore_accounts_repository.dart';
 export 'src/domain/entities/account.dart';
 export 'src/domain/entities/account_transaction.dart';
 export 'src/domain/entities/paging.dart';
 export 'src/domain/repositories/accounts_repository.dart';
+export 'src/presentation/pages/account_detail_page.dart';
+export 'src/presentation/pages/accounts_page.dart';
