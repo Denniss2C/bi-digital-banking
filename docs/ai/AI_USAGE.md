@@ -28,6 +28,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-014](#ia-014--cuentas-ui-y-estados) | 2026-10-03 | Fase 2 · accounts (UI) | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-015](#ia-015--transferencias-entre-cuentas-propias) | 2026-10-03 | Fase 2 · transfers | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-016](#ia-016--motor-sdui) | 2026-10-04 | Fase 3 · sdui-engine | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-017](#ia-017--errores-del-ide-en-build-de-la-raíz) | 2026-10-04 | Errores del IDE en `build/` | Claude Code (Claude Opus 5.5) | 1 |
 
 ---
 
@@ -640,6 +641,9 @@ Revisión de la IA sobre `DESIGN.md`:
   Se verificó que la exclusión funciona con la carpeta presente (regenerada con `pub get`) y que el chequeo de formato
   sigue fallando con un archivo mal formateado de prueba.
 
+  _Nota del 2026-10-04:_ la corrección quedó incompleta. Faltaba la raíz del workspace, que no tenía
+  `analysis_options.yaml`, y VS Code mostraba 654 errores de `build/` en la raíz. Ver IA-017.
+
 ### Errores de la IA
 
 - No hubo errores en lo entregado. Antes de corregir el problema de `build/` se diagnosticó su causa: se revisaron
@@ -996,6 +1000,47 @@ Revisión de la IA sobre `DESIGN.md`:
   que lo comprueban.
 - **Documentación:** contrato y catálogo en el README de `sdui`, ADR-004 y CHANGELOG.
 - **Pruebas:** `sdui` 42.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-017 · Errores del IDE en build/ de la raíz
+
+- **Rama:** `chore/ignore-root-build`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue y mira los errores que me salen en el build".
+
+### Qué produjo la IA
+
+- **Diagnóstico con los datos del IDE.** Leyó los diagnósticos del panel Problems de VS Code: 654 errores, todos en
+  `build/ios/SourcePackages` y `build/macos/SourcePackages` de la raíz. Son copias de `firebase_auth` y
+  `cloud_firestore` (con sus tests y ejemplos) que deja Swift Package Manager. Ninguno estaba en código del proyecto.
+- **Causa comprobada, no supuesta:** se borró la carpeta y `make bootstrap` la volvió a crear. Resolver dependencias en
+  la raíz la regenera siempre; los paquetes ya excluían `build/**`, pero la raíz no tenía `analysis_options.yaml`.
+- **Corrección:** `analysis_options.yaml` en la raíz que excluye `build/**`. Después del cambio, VS Code no reporta
+  errores; solo queda un aviso informativo de la extensión de Java para recargar Gradle.
+- **Builds reales** de Android (APK de dev) e iOS (dispositivo, sin firma) para descartar errores de compilación.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Corrección incompleta en IA-011.** Al excluir `build/**` en los 8 paquetes, la IA no revisó la raíz del
+   workspace, que el IDE analiza como otro contexto. Además, la última regeneración de la carpeta (a las 00:44) vino de
+   un `flutter pub get` que la IA corrió en la raíz durante IA-016.
+
+### Verificación
+
+- Diagnósticos de VS Code antes (654 errores) y después (0 errores) del cambio.
+- `make analyze` con código de salida 0. Los builds de Android e iOS se detallan en el PR.
+
+### Impacto
+
+- **Productividad:** unos 15 minutos.
+- **Calidad:** el panel Problems vuelve a mostrar solo problemas reales del proyecto.
 
 ### Revisión del autor
 

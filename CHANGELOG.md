@@ -87,4 +87,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - `flutter run` sin argumentos arranca el flavor dev (`default-flavor: dev`).
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
+### Fixed
+- VS Code ya no muestra cientos de errores en `build/ios` y `build/macos` de la raíz. Son copias del código de los
+  plugins que deja Swift Package Manager al resolver dependencias (`make bootstrap`); la raíz ahora tiene su propio
+  `analysis_options.yaml`, que las excluye.
+
 [Unreleased]: https://github.com/Denniss2C/bi-digital-banking/commits/main
