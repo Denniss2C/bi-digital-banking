@@ -7,6 +7,7 @@ import 'package:banking_app/app/home/home_registry.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/router/app_routes.dart';
 import 'package:banking_app/l10n/l10n.dart';
+import 'package:core/core.dart';
 import 'package:design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,12 +25,17 @@ class HomePage extends StatefulWidget {
     required this.accountsRepository,
     required this.fxRatesRepository,
     required this.userId,
+    this.telemetry = const NoopTelemetry(),
     super.key,
   });
 
   final AccountsRepository accountsRepository;
   final FxRatesRepository fxRatesRepository;
   final String userId;
+
+  /// `home_layout` (source and issues), failing components and blocked
+  /// actions: how the server-driven home behaves in production.
+  final Telemetry telemetry;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -70,7 +76,10 @@ class _HomePageState extends State<HomePage> {
         fallback: defaultHomeLayout,
         registry: _registry,
       );
-      // Observability (feat/observability) will turn these into events.
+      widget.telemetry.event('home_layout', {
+        'source': _resolved.source.name,
+        'issues': _resolved.issues.length,
+      });
       for (final issue in _resolved.issues) {
         developer.log(issue, name: 'sdui.${_resolved.source.name}');
       }
@@ -88,12 +97,13 @@ class _HomePageState extends State<HomePage> {
       case SduiNavigateAction(:final route):
         // The server may only open screens that exist in this app version...
         if (!AppRoutes.isAppLocation(route)) {
-          developer.log('Ignored unknown route "$route"', name: 'sdui');
+          widget.telemetry.event('sdui_route_ignored', {'route': route});
           return;
         }
         // ...and only features that are enabled right now.
         final flags = context.read<PersonalizationCubit>().state.flags;
         if (!AppRoutes.isEnabled(route, flags)) {
+          widget.telemetry.event('feature_unavailable', {'route': route});
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(context.l10n.featureUnavailable)),
           );
@@ -131,10 +141,15 @@ class _HomePageState extends State<HomePage> {
                   registry: _registry,
                   onAction: _onAction,
                   spacing: AppSpacing.lg,
-                  onComponentError: (node, error, _) => developer.log(
-                    'Component "${node.type}" failed: $error',
-                    name: 'sdui',
-                  ),
+                  onComponentError: (node, error, stackTrace) {
+                    widget.telemetry
+                      ..recordError(
+                        error,
+                        stackTrace,
+                        reason: 'SDUI component "${node.type}"',
+                      )
+                      ..event('sdui_component_failed', {'type': node.type});
+                  },
                 ),
               ],
             ),

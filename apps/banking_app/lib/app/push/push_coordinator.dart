@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/router/app_routes.dart';
+import 'package:core/core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:notifications/notifications.dart';
 
@@ -24,6 +25,7 @@ class PushCoordinator {
     required this.push,
     required this.tokens,
     required this.navigate,
+    this.telemetry = const NoopTelemetry(),
   });
 
   final SessionCubit session;
@@ -32,6 +34,9 @@ class PushCoordinator {
 
   /// Opens an in-app location (the router's `go`).
   final void Function(String location) navigate;
+
+  /// `push_opened` with the route, to measure which notifications work.
+  final Telemetry telemetry;
 
   /// This device's current token (the debug panel shows it).
   final token = ValueNotifier<String?>(null);
@@ -60,6 +65,7 @@ class PushCoordinator {
     final route = message.route;
     // Same rule as server-driven actions: only screens of the app.
     if (route == null || !AppRoutes.isAppLocation(route)) return;
+    telemetry.event('push_opened', {'route': route});
     if (_userId == null) {
       _pendingRoute = route;
     } else {

@@ -289,6 +289,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Token copiado'**
   String get debugCopied;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Observabilidad'**
+  String get debugObservabilityTitle;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Los errores llegan a Crashlytics del proyecto dev en unos minutos. El cierre forzado aparece al volver a abrir la app.'**
+  String get debugObservabilityHint;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar error de prueba'**
+  String get debugSendError;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Error enviado a Crashlytics'**
+  String get debugErrorSent;
+
+  /// Debug panel (dev flavor only).
+  ///
+  /// In es, this message translates to:
+  /// **'Forzar cierre de la app (crash)'**
+  String get debugCrash;
 }
 
 class _AppLocalizationsDelegate

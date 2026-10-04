@@ -86,6 +86,8 @@ void main() {
         chaos: ChaosController(),
         firestoreNetwork: FirestoreNetworkSwitch(({required enabled}) async {}),
         push: FakePushService(currentToken: 'device-token-123'),
+        telemetry: const NoopTelemetry(),
+        crash: () {},
       ),
     );
     await tester.tap(_tab('Perfil'));

@@ -13,6 +13,7 @@ import 'package:banking_app/app/router/auth_redirect.dart';
 import 'package:banking_app/app/router/stream_listenable.dart';
 import 'package:banking_app/app/shell/home_shell.dart';
 import 'package:banking_app/l10n/l10n.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fx_rates/fx_rates.dart';
@@ -29,6 +30,7 @@ GoRouter createRouter({
   required AuthRepository authRepository,
   required AccountsRepository accountsRepository,
   required FxRatesRepository fxRatesRepository,
+  required Telemetry telemetry,
   DebugTools? debugTools,
   String initialLocation = AppRoutes.splash,
 }) {
@@ -82,6 +84,7 @@ GoRouter createRouter({
                   accountsRepository: accountsRepository,
                   fxRatesRepository: fxRatesRepository,
                   userId: userId(),
+                  telemetry: telemetry,
                 ),
               ),
             ],
@@ -121,6 +124,7 @@ GoRouter createRouter({
                       repository: accountsRepository,
                       userId: userId(),
                       onDone: () => context.go(AppRoutes.accounts),
+                      telemetry: telemetry,
                     ),
                   ),
                   GoRoute(

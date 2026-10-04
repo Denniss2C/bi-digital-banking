@@ -116,4 +116,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get debugCopied => 'Token copiado';
+
+  @override
+  String get debugObservabilityTitle => 'Observabilidad';
+
+  @override
+  String get debugObservabilityHint =>
+      'Los errores llegan a Crashlytics del proyecto dev en unos minutos. El cierre forzado aparece al volver a abrir la app.';
+
+  @override
+  String get debugSendError => 'Enviar error de prueba';
+
+  @override
+  String get debugErrorSent => 'Error enviado a Crashlytics';
+
+  @override
+  String get debugCrash => 'Forzar cierre de la app (crash)';
 }

@@ -28,6 +28,8 @@ void main() {
         ({required enabled}) async => firestoreCalls.add(enabled),
       ),
       push: FakePushService(currentToken: 'device-token-123'),
+      telemetry: const NoopTelemetry(),
+      crash: () {},
     );
     accounts = FakeAccountsRepository();
     source = FakePersonalizationSource();

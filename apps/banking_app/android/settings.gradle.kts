@@ -23,6 +23,8 @@ plugins {
     // START: FlutterFire Configuration
     id("com.google.gms.google-services") version("4.4.4") apply false
     // END: FlutterFire Configuration
+    // Crashlytics: build ID and symbol upload for crash reports.
+    id("com.google.firebase.crashlytics") version("3.0.8") apply false
     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
 }
 

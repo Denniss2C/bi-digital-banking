@@ -26,6 +26,8 @@ class DebugTools {
     required this.chaos,
     required this.firestoreNetwork,
     required this.push,
+    required this.telemetry,
+    required this.crash,
   });
 
   /// Failures injected into HTTP calls (ChaosInterceptor).
@@ -34,4 +36,10 @@ class DebugTools {
 
   /// To show this device's token, for test messages from the console.
   final PushService push;
+
+  /// To send a test error to Crashlytics.
+  final Telemetry telemetry;
+
+  /// Crashes the app on purpose (Crashlytics' test crash).
+  final VoidCallback crash;
 }

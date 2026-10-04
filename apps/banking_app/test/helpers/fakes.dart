@@ -5,12 +5,14 @@ import 'package:auth/auth.dart';
 import 'package:banking_app/app/app.dart';
 import 'package:banking_app/app/config/app_config.dart';
 import 'package:banking_app/app/debug/debug_tools.dart';
+import 'package:banking_app/app/observability/app_observability.dart';
 import 'package:banking_app/app/personalization/personalization_config.dart';
 import 'package:banking_app/app/personalization/personalization_cubit.dart';
 import 'package:banking_app/app/personalization/personalization_source.dart';
 import 'package:banking_app/app/push/push_coordinator.dart';
 import 'package:banking_app/app/router/app_router.dart';
 import 'package:core/core.dart';
+import 'package:core/testing.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fx_rates/fx_rates.dart';
 import 'package:notifications/notifications.dart';
@@ -332,7 +334,9 @@ Future<void> pumpApp(
   DebugTools? debugTools,
   FxRatesRepository? fxRatesRepository,
   FakePushService? push,
+  RecordingTelemetry? telemetry,
 }) async {
+  final recorder = telemetry ?? RecordingTelemetry();
   tester.platformDispatcher.localesTestValue = deviceLocales;
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
 
@@ -371,6 +375,7 @@ Future<void> pumpApp(
     authRepository: auth,
     accountsRepository: accounts,
     fxRatesRepository: fxRatesRepository ?? FakeFxRatesRepository(),
+    telemetry: recorder,
     debugTools: debugTools,
   );
   addTearDown(router.dispose);
@@ -379,9 +384,16 @@ Future<void> pumpApp(
     push: push ?? FakePushService(),
     tokens: FakePushTokenRegistry(),
     navigate: router.go,
+    telemetry: recorder,
   );
   await pushCoordinator.start();
   addTearDown(() => tester.runAsync(pushCoordinator.dispose));
+  final observability = AppObservability(
+    telemetry: recorder,
+    session: session,
+    router: router,
+  )..start();
+  addTearDown(() => tester.runAsync(observability.dispose));
 
   await tester.pumpWidget(
     App(
