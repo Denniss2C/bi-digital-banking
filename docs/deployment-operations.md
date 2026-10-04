@@ -99,6 +99,20 @@ Alternativas que sí funcionan, porque compilan una sola arquitectura:
 - `flutter run` sobre un simulador o dispositivo concreto (por ejemplo, `make run-dev`);
 - un build de dispositivo sin firmar: `flutter build ios --no-codesign --flavor <flavor> -t lib/main_<flavor>.dart`.
 
+### Aviso conocido: plugins con Kotlin Gradle Plugin en Android
+
+El build de Android termina bien, pero Flutter 3.44 avisa que `firebase_auth` y `firebase_core` aplican el Kotlin
+Gradle Plugin (KGP) y que **una versión futura de Flutter dejará de compilarlos** hasta que migren a "Built-in
+Kotlin". El aviso viene de los plugins: ya usamos sus últimas versiones (`flutter pub outdated`), así que no hay nada
+que corregir en el proyecto. Hay que revisarlo antes de actualizar Flutter.
+
+### Errores en `build/` de la raíz en el IDE
+
+Resolver dependencias en la raíz (`make bootstrap`) hace que Swift Package Manager copie el código de los plugins,
+con sus tests y ejemplos, en `build/ios` y `build/macos`. Esa carpeta está ignorada por git y el
+`analysis_options.yaml` de la raíz la excluye del análisis. Si un IDE igual muestra errores ahí, se puede borrar sin
+riesgo: se regenera sola.
+
 ## 2. Configuración y secretos
 
 - No hay secretos en el repositorio. Las opciones de cliente de Firebase (`firebase_options_*.dart`)
