@@ -80,6 +80,8 @@ class TransactionsCubit extends Cubit<TransactionsState> {
   Future<void> load() async {
     emit(const TransactionsState());
     final result = await _fetch(after: null);
+    // The user may leave the detail while the page is loading.
+    if (isClosed) return;
     emit(
       result.match(
         (failure) => TransactionsState(
@@ -108,6 +110,7 @@ class TransactionsCubit extends Cubit<TransactionsState> {
     }
     emit(state.copyWith(isLoadingMore: true, loadMoreFailed: false));
     final result = await _fetch(after: _next);
+    if (isClosed) return;
     emit(
       result.match(
         (_) => state.copyWith(isLoadingMore: false, loadMoreFailed: true),

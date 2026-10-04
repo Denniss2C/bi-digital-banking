@@ -102,6 +102,8 @@ class SignInCubit extends Cubit<SignInState> {
       email: state.email,
       password: state.password,
     );
+    // The screen may close while waiting (e.g. the redirect after sign-in).
+    if (isClosed) return;
     emit(
       result.match(
         (failure) =>
@@ -117,6 +119,7 @@ class SignInCubit extends Cubit<SignInState> {
       return emit(state.copyWith(showErrors: true));
     }
     final result = await _repository.sendPasswordReset(email: state.email);
+    if (isClosed) return;
     emit(
       result.match(
         (failure) =>
