@@ -13,6 +13,7 @@ MaterialApp(theme: AppTheme.light(), darkTheme: AppTheme.dark());
 AppButton(label: l10n.transfer, onPressed: onTransfer);
 AppCard(variant: AppCardVariant.hero, child: balance);
 AppLoading(semanticsLabel: l10n.loadingAccounts);
+AppOfflineBanner(message: l10n.offlineNotice); // sobre datos de la caché
 AppErrorView(title: l10n.errorTitle, retryLabel: l10n.retry, onRetry: cubit.load);
 AppEmptyView(title: l10n.noMovements);
 
@@ -47,6 +48,12 @@ Los componentes reciben sus textos por parámetro: la traducción la hace la app
 - **Semántica:** el botón en carga conserva su etiqueta, `AppLoading` exige una etiqueta para lectores de pantalla y los
   errores se anuncian (`liveRegion`).
 - **Texto escalable:** hay tests con texto al 200% en pantallas de 320 px que verifican que nada se desborde.
+
+## Trampa conocida: textos en `AppCard.hero`
+
+Los estilos del tema (`textTheme.*`) traen el color `onSurface` (oscuro), que **pisa** el color claro que la tarjeta hero
+aplica por defecto. Dentro de una tarjeta hero, cada texto con estilo explícito debe usar
+`context.semanticColors.onHeroSurface`.
 
 ## Agregar un componente
 

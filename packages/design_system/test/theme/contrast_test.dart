@@ -44,6 +44,7 @@ void main() {
       'warning on card': (c.warning, c.card),
       'onHeroSurface on heroSurface': (c.onHeroSurface, c.heroSurface),
       'link on card': (c.link, c.card),
+      'offline banner text': (s.onInverseSurface, s.inverseSurface),
       'link on surface': (c.link, s.surface),
     };
 

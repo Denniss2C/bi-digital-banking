@@ -80,6 +80,23 @@ void main() {
     });
   });
 
+  group('AppOfflineBanner', () {
+    testWidgets('announces the offline message', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWithTheme(
+        const AppOfflineBanner(
+          message: 'Sin conexión · mostrando datos guardados',
+        ),
+      );
+
+      expect(
+        find.bySemanticsLabel('Sin conexión · mostrando datos guardados'),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+  });
+
   group('AppCard', () {
     testWidgets('is tappable and exposed as a button', (tester) async {
       final semantics = tester.ensureSemantics();
