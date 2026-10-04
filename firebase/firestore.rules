@@ -1,0 +1,60 @@
+rules_version = '2';
+
+// Nexo · Cloud Firestore security rules.
+// Each customer can only read and write their own tree under users/{uid}.
+// Anything not explicitly allowed is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validAccount(account) {
+      return account.keys().hasAll(['type', 'alias', 'maskedNumber', 'balanceCents', 'currency'])
+        && account.type in ['savings', 'checking']
+        && account.alias is string && account.alias.size() <= 60
+        && account.balanceCents is int && account.balanceCents >= 0
+        && account.currency == 'USD';
+    }
+
+    function validTransaction(movement) {
+      return movement.keys().hasAll(['type', 'amountCents', 'description', 'category', 'createdAt', 'balanceAfterCents', 'source'])
+        && movement.type in ['credit', 'debit']
+        && movement.amountCents is int && movement.amountCents > 0
+        && movement.balanceAfterCents is int && movement.balanceAfterCents >= 0
+        && movement.createdAt is timestamp
+        && movement.description is string && movement.description.size() <= 140
+        && movement.source in ['seed', 'transfer'];
+    }
+
+    match /users/{uid} {
+      allow read, create, update: if isOwner(uid);
+      allow delete: if false;
+
+      match /accounts/{accountId} {
+        allow read: if isOwner(uid);
+        allow create: if isOwner(uid) && validAccount(request.resource.data);
+        // After opening, only the balance (and its timestamp) may change.
+        allow update: if isOwner(uid)
+          && validAccount(request.resource.data)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['balanceCents', 'updatedAt']);
+        allow delete: if false;
+
+        // Ledger: movements are created once and never edited or deleted.
+        match /transactions/{transactionId} {
+          allow read: if isOwner(uid);
+          allow create: if isOwner(uid) && validTransaction(request.resource.data);
+          allow update, delete: if false;
+        }
+      }
+    }
+
+    // Server-Driven UI layouts: readable by signed-in users, written only
+    // from the console or admin tooling.
+    match /layouts/{screenId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}
