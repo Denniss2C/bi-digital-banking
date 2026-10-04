@@ -11,6 +11,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Guion de demo y escenarios de prueba (`docs/demo/guion-demo.md`): preparación, cómo fluye la app, 15 escenarios
+  con pasos y resultado esperado, guion del video, dónde tocar ante preguntas en vivo y qué revisar si algo no sale.
 - Observabilidad:
   - interfaz `Telemetry` en `core` (con `RecordingTelemetry` para tests en `core/testing.dart`), implementada con
     Firebase en el shell;
@@ -133,6 +135,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 ### Fixed
+- `resilience.md` §6 pedía publicar un `home_layout` con un JSON roto, pero la consola de Remote Config no lo
+  acepta. Ahora usa un layout válido que la app no puede usar (`schemaVersion: 2`).
 - Login, registro y movimientos ya no lanzan un `StateError` si la pantalla se cierra mientras una petición está en
   curso (en el login podía pasar con el redirect al iniciar sesión).
 - `promo_banner`: el botón ya no lleva un chevron antes del texto (el diseño lo pone después).

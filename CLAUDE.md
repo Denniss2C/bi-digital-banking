@@ -263,14 +263,14 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Interfaz `Telemetry` en `core` y `FirebaseTelemetry` en el shell; eventos sin datos personales. SLOs, alertas y detección de problemas de UX en `docs/deployment-operations.md` §6. Plugin de Gradle de Crashlytics 3.0.8 (AGP 9).
   - **Fase 3 completa** el 2026-10-04.
 
-### Fase 4 — Calidad y entrega (lunes)
+### Fase 4 — Calidad y entrega (adelantada al domingo; el lunes queda para grabar y corregir)
 - [ ] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
 - [ ] README final reproducible — _parcial: estructura (#2). Pendiente también: el README de `core` sigue siendo la plantilla de `flutter create`._
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-023_
-- [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-024_
+- [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx — _parcial: guion con 15 escenarios, video sugerido y preguntas en vivo en `docs/demo/guion-demo.md` (#25); falta grabar_
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
 ### Bonus (solo si hay tiempo)
@@ -297,3 +297,4 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · Sin freezed (decisión del autor).** freezed estable no es compatible con el toolchain: la 3.2.5 exige `analyzer <11`, `injectable_generator` exige `>=11` y freezed 4 exige Dart 3.13 (tenemos 3.12). Los estados y modelos usan clases `sealed` + equatable con `copyWith` escrito a mano, sin codegen ni prereleases. Revisar al subir a Dart 3.13.
 - **2026-10-03 · Transferencias idempotentes (fuera del plan).** Firestore reintenta una transacción si se pierde la respuesta del commit, aunque el servidor ya la haya aplicado, y el usuario puede reintentar tras un error de red: sin protección, una transferencia podía cobrarse dos veces. Se agregó una clave de idempotencia (`transferId`) que el formulario reutiliza en cada reintento. Costó unos 25 minutos más de lo estimado.
 - **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. La app adopta la marca: los nombres visibles pasan de "BI Banca" / "BI Dev" a "Nexo" / "Nexo Dev" (`docs/align-design`). Se corrigen tres contrastes del diseño que no cumplen AA (ver §4).
+- **2026-10-04 · Fase 4 adelantada al domingo (decisión del autor).** Toda la Fase 4 (guion, arquitectura, README, E2E, cobertura y release) se hace el domingo; el lunes queda para grabar los videos y corregir lo que aparezca en la prueba general.
