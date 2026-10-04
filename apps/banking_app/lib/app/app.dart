@@ -1,3 +1,4 @@
+import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/config/app_config.dart';
 import 'package:banking_app/l10n/l10n.dart';
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
         localizationsDelegates: const [
           ...AppLocalizations.localizationsDelegates,
           AuthLocalizations.delegate,
+          AccountsLocalizations.delegate,
         ],
         supportedLocales: AppLocalizations.supportedLocales,
         localeListResolutionCallback: resolveAppLocale,

@@ -10,6 +10,7 @@ abstract final class AppRoutes {
   // Bottom navigation tabs (one StatefulShellRoute branch each).
   static const home = '/home';
   static const accounts = '/accounts';
+  static String accountDetail(String accountId) => '$accounts/$accountId';
   static const fx = '/fx';
   static const profile = '/profile';
 }

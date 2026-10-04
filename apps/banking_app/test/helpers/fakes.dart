@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/app.dart';
 import 'package:banking_app/app/config/app_config.dart';
@@ -74,6 +75,46 @@ class FakeAuthRepository implements AuthRepository {
   }
 }
 
+/// Static accounts and movements for shell tests.
+class FakeAccountsRepository implements AccountsRepository {
+  FakeAccountsRepository({List<Account>? accounts, this.movements = const []})
+    : accounts =
+          accounts ??
+          const [
+            Account(
+              id: 'savings',
+              type: AccountType.savings,
+              alias: 'Cuenta de Ahorros',
+              maskedNumber: '•••• 4892',
+              balanceCents: 384550,
+            ),
+          ];
+
+  final List<Account> accounts;
+  final List<AccountTransaction> movements;
+
+  @override
+  Stream<Either<Failure, AccountsSnapshot>> watchAccounts(String userId) =>
+      Stream.value(
+        Right(AccountsSnapshot(accounts: accounts, isFromCache: false)),
+      );
+
+  @override
+  Future<Either<Failure, TransactionPage>> fetchTransactions({
+    required String userId,
+    required String accountId,
+    TransactionCursor? after,
+    int pageSize = 20,
+  }) async => Right(TransactionPage(items: movements));
+
+  @override
+  Future<Either<Failure, Unit>> ensureOpeningData({
+    required String userId,
+    required String name,
+    required String email,
+  }) async => const Right(unit);
+}
+
 class InMemoryKeyValueStore implements KeyValueStore {
   final _values = <String, Object?>{};
 
@@ -109,6 +150,19 @@ Future<void> pumpApp(
     session: session,
     onboardingRepository: onboarding,
     authRepository: auth,
+    accountsRepository: FakeAccountsRepository(
+      movements: [
+        AccountTransaction(
+          id: 't1',
+          type: TransactionType.debit,
+          amountCents: 6430,
+          description: 'Supermaxi Mall del Sol',
+          category: 'groceries',
+          createdAt: DateTime(2026, 9, 20, 11, 30),
+          balanceAfterCents: 384550,
+        ),
+      ],
+    ),
   );
   addTearDown(router.dispose);
 

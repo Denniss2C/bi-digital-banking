@@ -1,3 +1,4 @@
+import 'package:accounts/accounts.dart';
 import 'package:auth/auth.dart';
 import 'package:banking_app/app/pages/coming_soon_page.dart';
 import 'package:banking_app/app/pages/profile_page.dart';
@@ -18,8 +19,15 @@ GoRouter createRouter({
   required SessionCubit session,
   required OnboardingRepository onboardingRepository,
   required AuthRepository authRepository,
+  required AccountsRepository accountsRepository,
   String initialLocation = AppRoutes.splash,
 }) {
+  // Tabs are only reachable when signed in (see authRedirect).
+  String userId() => switch (session.state) {
+    SessionAuthenticated(:final user) => user.id,
+    _ => '',
+  };
+
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: StreamListenable(session.stream),
@@ -61,10 +69,28 @@ GoRouter createRouter({
             Icons.home_outlined,
             (l10n) => l10n.tabHome,
           ),
-          _comingSoonTab(
-            AppRoutes.accounts,
-            Icons.account_balance_wallet_outlined,
-            (l10n) => l10n.tabAccounts,
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.accounts,
+                builder: (context, state) => AccountsPage(
+                  repository: accountsRepository,
+                  userId: userId(),
+                  onOpenAccount: (account) =>
+                      context.go(AppRoutes.accountDetail(account.id)),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':accountId',
+                    builder: (context, state) => AccountDetailPage(
+                      repository: accountsRepository,
+                      userId: userId(),
+                      accountId: state.pathParameters['accountId']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           _comingSoonTab(
             AppRoutes.fx,
