@@ -11,6 +11,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Auth (UI): onboarding de 3 pasos, login y registro según el diseño, recuperar contraseña, sesión persistente,
+  redirect del router por sesión (splash → onboarding / login → home) y logout en Perfil. Textos propios del
+  feature (`AuthLocalizations`, es/en).
+- Script de Melos `gen-l10n`, también incluido en `make gen` y en la verificación de código generado de CI.
 - `auth` (datos): `AuthRepository` sobre Firebase Auth (registro, login, recuperar contraseña, logout y sesión
   persistente) con errores tipados, y `OnboardingRepository` local.
 - `core`: `AuthErrorCode` en `AuthFailure` y `KeyValueStore` sobre hive_ce.
@@ -47,6 +51,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- Design system: color semántico `link` (AA) y temas de `TextButton` y `SegmentedButton`.
 - El análisis y el formato ignoran `build/`, donde Swift Package Manager deja código fuente de terceros de los
   plugins (antes rompía `make analyze` y `make format-check` en local).
 - Tema de la barra de navegación inferior: acento naranja en la píldora indicadora, íconos y textos con contraste AA.
