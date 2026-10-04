@@ -11,6 +11,12 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- `sdui`: motor de Server-Driven UI. Contrato JSON versionado (`schemaVersion`), parser tolerante (un componente
+  mal formado se omite sin afectar al resto), registry de componentes por tipo (los tipos desconocidos se ignoran),
+  renderer con frontera de error por componente, resolución con layout por defecto embebido y acciones declarativas
+  (`navigate`, solo rutas internas). Componentes estándar `promo_banner` y `quick_actions`, con textos en es/en,
+  tonos semánticos AA y atajos que no se cortan con texto grande.
+- ADR-004: Server-Driven UI con un catálogo de componentes de negocio.
 - Transferencias entre cuentas propias ("A cuentas Nexo"), según la pantalla Transferir del diseño: cuentas de
   origen y destino, montos rápidos, saldo disponible, concepto, costo $0.00 y comprobante. Se abren desde el botón
   "Transferir" de la pestaña Cuentas.

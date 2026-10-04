@@ -27,6 +27,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-013](#ia-013--cuentas-datos-en-firestore-y-reglas) | 2026-10-03 | Fase 2 · accounts (datos) | Claude Code (Claude Opus 5.5) | 2 |
 | [IA-014](#ia-014--cuentas-ui-y-estados) | 2026-10-03 | Fase 2 · accounts (UI) | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-015](#ia-015--transferencias-entre-cuentas-propias) | 2026-10-03 | Fase 2 · transfers | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-016](#ia-016--motor-sdui) | 2026-10-04 | Fase 3 · sdui-engine | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -928,6 +929,73 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Documentación:** README de `accounts`, `resilience.md` (reintentos sin cobros dobles y transferencias sin
   conexión) y CHANGELOG.
 - **Pruebas:** `accounts` 68, app 28.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-016 · Motor SDUI
+
+- **Rama:** `feat/sdui-engine`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/sdui-engine`: parser, registry, render, fallback y tests, según §4
+  "Personalización + SDUI" de `CLAUDE.md` y la pantalla `inicio_*`.
+
+### Qué produjo la IA
+
+- **Contrato JSON** versionado (`schemaVersion`) con `id` opcional por componente, documentado en el README de `sdui`.
+- **Motor:**
+  - `parseSduiLayout`: tolerante por componente; rechaza el documento solo si no es JSON, tiene la forma incorrecta o
+    es de un esquema más nuevo;
+  - `SduiProps`: lecturas tipadas que nunca lanzan, más `require*`; textos traducibles;
+  - `SduiAction`: `navigate`, solo a rutas internas;
+  - `SduiRegistry`: un tipo registrado dos veces falla;
+  - `SduiView`: frontera de error por componente, claves por `id` y tolerancia a ids repetidos;
+  - `resolveSduiLayout`: elige entre el layout remoto y el embebido, y devuelve el motivo.
+- **Componentes estándar:** `promo_banner` (tonos semánticos AA) y `quick_actions` (columnas que se adaptan al tamaño
+  del texto).
+- **ADR-004** (alternativas: rfw, JSON de widgets y WebView) y el README del paquete con el contrato y el catálogo.
+- **42 tests nuevos.** Reemplazan al test de ejemplo de `flutter create`.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Atajos que se cortaban con texto grande.** La primera versión de `quick_actions` usaba 4 columnas fijas y
+   etiquetas con elipsis: al 200% de texto, "Transferir" quedaba cortado, contra la regla de `CLAUDE.md` ("texto
+   escalado sin cortes"). La IA lo detectó al revisar el componente, antes de los tests. Ahora usa dos columnas con
+   texto grande, con un test que lo verifica.
+2. **Un test que no probaba lo que decía.** El test del idioma de respaldo esperaba español para `fr`, pero pasaba
+   solo porque `es` era la primera clave del mapa: sin el respaldo a español también pasaba. Se detectó al planear las
+   mutaciones. Se cambió el orden de las claves y ahora la mutación se detecta.
+3. **API deprecada y un archivo sin formatear.** Un test usaba `containsSemantics`, deprecado en esta versión de
+   Flutter; el análisis lo marcó y se cambió por `isSemantics`. El cambio se hizo con un reemplazo de texto que dejó
+   el archivo sin formatear, y `make format-check` lo detectó.
+4. **Conflicto al verificar un commit intermedio con `git stash`.** Para probar el primer commit por separado, la IA
+   guardó el resto de los cambios con `git stash`. Al restaurarlos, dos archivos nuevos que tenían una versión
+   intermedia en el índice entraron en conflicto. No se perdió nada: el stash quedó guardado, se comparó archivo por
+   archivo con el árbol de trabajo antes de rehacer el commit, y el resultado final es idéntico. Desde ahora, los
+   commits intermedios se verifican haciendo checkout del commit, sin stash.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones: 11 de 11 detectadas.** Sin frontera de error, sin protección de ids repetidos, claves solo por
+  posición, aceptar esquemas más nuevos, aceptar un remoto sin nada que mostrar, permitir rutas `//host`, sin respaldo
+  a español, botón sin acción soportada, colores de texto del tema en el banner (habría fallado AA sobre navy),
+  columnas fijas y registro duplicado que reemplaza.
+- **El motor todavía no se ve en la app:** la home renderizada por SDUI llega en `feat/personalization`.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora para el motor, dos componentes, la documentación y los tests.
+- **Calidad:** el JSON remoto no puede romper la pantalla, y cada componente cumple AA por construcción, con tests
+  que lo comprueban.
+- **Documentación:** contrato y catálogo en el README de `sdui`, ADR-004 y CHANGELOG.
+- **Pruebas:** `sdui` 42.
 
 ### Revisión del autor
 
