@@ -99,8 +99,13 @@ etiquetas no se corten.
 `atm`, `gift`, `travel`, `shield`, `notifications`, `profile`, `info` y `star`. Un nombre desconocido muestra un
 ícono neutro.
 
-Los componentes con datos los registra el feature dueño de esos datos: `balance_card` y `tx_list` (accounts) y
-`fx_widget` (fx_rates).
+Los componentes con datos los registra el feature dueño de esos datos:
+
+| Tipo | Feature | Props |
+|------|---------|-------|
+| `balance_card` | accounts | `action`: al tocar la tarjeta (por ejemplo, abrir Cuentas) |
+| `tx_list` | accounts | `title`, `limit` (1 a 10; por defecto 5) y `action` (enlace "Ver todos") |
+| `fx_widget` | fx_rates | _Pendiente_ (`feat/fx-rates`); hasta entonces se omite |
 
 ## Uso
 

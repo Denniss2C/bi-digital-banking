@@ -11,6 +11,11 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Home (Inicio) renderizada por SDUI con el layout embebido en la app, según la pantalla `inicio_*`: saludo, saldo
+  total en vivo, atajos, promoción y movimientos recientes de todas las cuentas. Las acciones del servidor solo abren
+  pantallas de la app (rutas validadas en el shell) y deslizar hacia abajo recarga cada componente.
+- `accounts`: componentes SDUI `balance_card` y `tx_list`. Los movimientos recientes se actualizan solos cuando cambia
+  un saldo.
 - `sdui`: motor de Server-Driven UI. Contrato JSON versionado (`schemaVersion`), parser tolerante (un componente
   mal formado se omite sin afectar al resto), registry de componentes por tipo (los tipos desconocidos se ignoran),
   renderer con frontera de error por componente, resolución con layout por defecto embebido y acciones declarativas
@@ -88,6 +93,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 ### Fixed
+- `promo_banner`: el botón ya no lleva un chevron antes del texto (el diseño lo pone después).
 - VS Code ya no muestra cientos de errores en `build/ios` y `build/macos` de la raíz. Son copias del código de los
   plugins que deja Swift Package Manager al resolver dependencias (`make bootstrap`); la raíz ahora tiene su propio
   `analysis_options.yaml`, que las excluye.

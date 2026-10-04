@@ -29,6 +29,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-015](#ia-015--transferencias-entre-cuentas-propias) | 2026-10-03 | Fase 2 · transfers | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-016](#ia-016--motor-sdui) | 2026-10-04 | Fase 3 · sdui-engine | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-017](#ia-017--errores-del-ide-en-build-de-la-raíz) | 2026-10-04 | Errores del IDE en `build/` | Claude Code (Claude Opus 5.5) | 1 |
+| [IA-018](#ia-018--home-por-sdui) | 2026-10-04 | Fase 3 · personalization (home) | Claude Code (Claude Opus 5.5) | 5 |
 
 ---
 
@@ -1045,6 +1046,75 @@ Revisión de la IA sobre `DESIGN.md`:
 
 - **Productividad:** unos 15 minutos.
 - **Calidad:** el panel Problems vuelve a mostrar solo problemas reales del proyecto.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-018 · Home por SDUI
+
+- **Rama:** `feat/home-sdui`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Primera de las dos partes de `feat/personalization`; el autor eligió dos PRs con el
+  alcance completo después de que la IA avisó que el ítem costaría más de lo planeado.
+
+### Qué produjo la IA
+
+- **Home (Inicio) en el shell:**
+  - saludo con el nombre de la sesión y `SduiView` con el layout embebido, que replica `inicio_*`;
+  - deslizar hacia abajo recrea los componentes y cada uno recarga;
+  - las acciones `navigate` solo abren pantallas de la app (`AppRoutes.isAppLocation`).
+- **`createHomeRegistry`:** junta los componentes estándar de `sdui` con los de accounts. Los features siguen sin
+  conocerse entre sí.
+- **accounts:**
+  - `balance_card`: reutiliza `BalanceHeroCard` y `AccountsCubit`;
+  - `tx_list`: `RecentMovementsCubit` junta todas las cuentas, vuelve a pedir datos solo si cambia un saldo y descarta
+    las respuestas que llegan fuera de orden.
+- **21 tests nuevos:** 13 en `accounts` y 8 en la app, incluido el contrato del layout embebido (sin issues, todos sus
+  tipos registrados salvo `fx_widget`, y todas sus rutas válidas).
+- **Verificación visual:** la home renderizada con fuentes reales (Inter e íconos) en un test temporal, en tema claro y
+  oscuro, comparada con `inicio_*`.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Guardia de rutas incompleta.** `isAppLocation` miraba solo el path, así que aceptaba
+   `https://evil.example/accounts`. Lo detectó un test que la IA escribió en el mismo paso; ahora rechaza esquema y
+   host. El motor SDUI ya bloqueaba esas rutas, pero la guardia del shell debe sostenerse sola.
+2. **Chevron antes del texto en el botón de la promo** (venía del PR #17). `AppButton` solo admite un ícono inicial y
+   ningún test lo veía. Se detectó en la verificación visual y se quitó el ícono.
+3. **Un test colgado 30 segundos.** El `tearDown` cerraba un `StreamController` de una sola suscripción que ningún
+   test escuchó, y su `close()` nunca completa. Se cambió a uno broadcast.
+4. **Errores menores** que marcaron el IDE y el análisis: un tipo inexistente (`AccountTransactionLike`) y un `if`
+   sin llaves.
+5. **PRs en paralelo que agregaban texto al mismo archivo.** Este PR y #18 agregaban una entrada al final de este
+   archivo. La IA avisó el orden de merge, pero al usar "Update branch" en GitHub se creó un commit de merge, y como
+   `main` solo acepta merges por rebase, el PR quedó bloqueado (y el #20, apilado encima, también). Se resolvió
+   rebasando en local, dejando las entradas en orden, y reemplazando la rama. Lección: no abrir en paralelo PRs que
+   agregan texto al mismo lugar de un archivo; si hace falta, apilarlos y rebasar después de cada merge.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones: 10 de 10 detectadas.** Pedir datos en cada snapshot, orden invertido, sin límite, sin descartar
+  respuestas viejas, error que oculta los movimientos ya cargados, perder la marca de caché, `balance_card` sin
+  acción, límite sin acotar, sin aviso offline en el saldo y aceptar ubicaciones externas.
+- **Pendiente:** ningún test detecta si `HomePage` deja de usar la guardia de rutas. Se cubrirá en
+  `feat/remote-personalization`, cuando el layout pueda venir del servidor con una ruta inválida.
+- **Sin prueba en un dispositivo con sesión.** La app del emulador no tenía sesión y crear un usuario en Firebase no
+  estaba autorizado, así que la verificación visual fue con el test temporal.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora.
+- **Calidad:** la home ya es server-driven; un componente desconocido o roto no afecta al resto, y los movimientos
+  se actualizan solos después de una transferencia.
+- **Documentación:** READMEs de `sdui` y `accounts`, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** `accounts` 81, app 36.
 
 ### Revisión del autor
 

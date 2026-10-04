@@ -54,6 +54,19 @@ lib/src/
   trade-offs de [ADR-003](../../../docs/adr/ADR-003-accounts-firestore.md); en producción, la transferencia la haría
   el servidor.
 
+## Componentes SDUI (home)
+
+`accountsSduiComponents(repository:, userId:)` entrega los componentes de este feature para que el shell los registre
+en la home. El contrato está en el [README de `sdui`](../../sdui/README.md).
+
+- **`balance_card`:** saldo total en vivo en la tarjeta hero navy (reutiliza `BalanceHeroCard` y `AccountsCubit`).
+  Con datos de la caché lo indica en el texto, y si falla ofrece reintentar.
+- **`tx_list`:** últimos movimientos de **todas** las cuentas, del más nuevo al más viejo (`RecentMovementsCubit`).
+  - Vuelve a pedirlos solo cuando cambia algún saldo (por ejemplo, después de una transferencia), sin polling.
+  - Si una respuesta vieja llega después de una nueva, se descarta.
+  - Los ids son únicos solo por cuenta (el débito y el crédito de una transferencia comparten id), así que la lista
+    se ordena por fecha y nunca se indexa por id.
+
 ## Presentación
 
 - **`AccountsPage`** (pestaña Cuentas): tarjeta hero navy con el saldo total y una tarjeta por cuenta.
