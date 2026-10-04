@@ -2,7 +2,7 @@
 
 > Estado: implementados la red resiliente de `core` (reintentos, modo caos y errores tipados), los 5 estados en
 > Cuentas, Transferir e Inicio, la caché offline de Firestore, el fallback de la home (Remote Config y SDUI) y el
-> panel de depuración (solo dev). La caché de la API externa llega con Divisas (`feat/fx-rates`).
+> panel de depuración (solo dev) y la caché stale-while-revalidate de la API externa (Divisas).
 
 ## 1. Estados de pantalla
 
@@ -94,7 +94,10 @@ Solo disponible en el flavor `dev`, configurable en runtime desde el panel de de
   activar el modo avión.
 - **Las transferencias necesitan el servidor.** Las transacciones de Firestore no se encolan sin conexión: fallan
   (`unavailable`), se traducen a `NetworkFailure` y la pantalla lo explica. Nunca queda nada escrito a medias.
-- APIs externas: estrategia _network first, cache fallback_ con `hive_ce` y marca de tiempo de la última actualización.
+- **API externa (Divisas): stale-while-revalidate** con `hive_ce`. Las tasas guardadas se muestran al instante y la
+  red se consulta solo si el proveedor ya publicó tasas nuevas y pasó al menos 1 h (lo que pide para no responder 429).
+  Si falla, siguen las guardadas con aviso y "Actualizado hace X"; si no hay nada guardado, error con reintento.
+  Detalle en [ADR-006](adr/ADR-006-fx-rates-provider.md).
 - **El aviso offline sale de los datos**, no de un detector de conectividad. Firestore informa si lo que muestra viene
   de la caché (`isFromCache`), y eso es lo que se le dice al usuario. Se descartó `connectivity_plus`: la conectividad
   es una pista (hay wifi sin internet), mientras que la respuesta real de cada petición es la verdad.
@@ -129,7 +132,7 @@ Con `make run-dev`, en **Perfil → Panel de depuración** (solo existe en el fl
 | 3 | Cambiar el **segmento** a `traveler` y después a `saver` | La home cambia de orden, promoción y atajos en segundos, sin reiniciar (Remote Config con el custom signal). |
 | 4 | En la consola de Remote Config, publicar un `home_layout` con un JSON roto | La home sigue con el layout embebido. Un componente con props inválidas se omite solo. |
 | 5 | Poner `feature_transfers_enabled` en `false` y publicar | Desaparece el botón Transferir. El atajo de la home explica que no está disponible y la ruta redirige a Cuentas. |
-| 6 | **Modo caos HTTP**: latencia de 3 s, 50% de fallos o sin red | Afecta las llamadas con dio (Divisas, desde `feat/fx-rates`). Los fallos inyectados pasan por los reintentos, como un error real. |
+| 6 | **Modo caos HTTP**: latencia de 3 s, 50% de fallos o sin red; después, en **Divisas**, deslizar hacia abajo | Con latencia, la pantalla sigue mostrando las tasas guardadas mientras espera. Con fallos, los reintentos los absorben (se ven en los logs). Sin red, aparece el aviso offline con las tasas guardadas. Al apagar el caos y deslizar de nuevo, se recupera. |
 | 7 | Modo avión con la app abierta | Lo mismo que el escenario 1, más Remote Config con los últimos valores activos. |
 
 El panel no se compila en prod: el router de prod no tiene la ruta y la inyección de dependencias no registra sus

@@ -11,6 +11,13 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Divisas (`fx_rates`): cotizador con tasas reales de ExchangeRate-API (sin clave, con atribución) según la pantalla
+  `divisas_y_remesas_*`: moneda, monto, invertir la conversión y tasas de referencia. Se muestra la tasa media de
+  mercado, sin compra/venta inventada. Usa caché stale-while-revalidate en `hive_ce`, con aviso offline,
+  "actualizado hace X" y pull to refresh.
+- `fx_widget` en la home ("Mercado de divisas"), que abre el cotizador. El flag `feature_fx_enabled` apaga la
+  pestaña y el widget.
+- ADR-006: proveedor de tasas y estrategia de caché.
 - Panel de depuración (solo flavor dev, desde Perfil) para demostrar el comportamiento degradado:
   - modo caos HTTP (latencia, % de fallos y sin red);
   - apagar la red de Firestore, para ver la caché offline y la recuperación;
@@ -96,6 +103,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- La pestaña Divisas deja de ser un placeholder; `ComingSoonPage` pasa a ser `FeatureUnavailablePage`, para cuando
+  un flag apaga una función.
 - `equatable` baja de 3.x a 2.x en todo el monorepo, por compatibilidad con `fake_cloud_firestore`.
 - Design system: color semántico `link` (AA) y temas de `TextButton` y `SegmentedButton`.
 - El análisis y el formato ignoran `build/`, donde Swift Package Manager deja código fuente de terceros de los

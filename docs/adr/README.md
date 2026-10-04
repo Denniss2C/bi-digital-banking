@@ -11,3 +11,4 @@ reemplaza al anterior.
 | [ADR-003](ADR-003-accounts-firestore.md) | Datos bancarios en Firestore con escrituras desde el cliente (plan Spark) | Aceptado |
 | [ADR-004](ADR-004-sdui-engine.md) | Server-Driven UI con un catálogo de componentes de negocio | Aceptado |
 | [ADR-005](ADR-005-remote-config-personalization.md) | Personalización con Remote Config y el segmento como custom signal | Aceptado |
+| [ADR-006](ADR-006-fx-rates-provider.md) | Divisas con una API pública sin clave y caché stale-while-revalidate | Aceptado |

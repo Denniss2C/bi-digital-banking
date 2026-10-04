@@ -1,39 +1,48 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# fx_rates
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+Divisas de Nexo: un cotizador con tasas reales de una API pública, caché en el dispositivo y el componente `fx_widget`
+para la home. Dueño: `@team-fx`. Depende de `core`, `design_system` y `sdui`; el shell lo compone.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+Decisión y alternativas: [ADR-006](../../../docs/adr/ADR-006-fx-rates-provider.md).
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+## Datos
 
-## Features
+- **Proveedor:** [ExchangeRate-API](https://www.exchangerate-api.com), acceso abierto (`https://open.er-api.com/v6/latest/USD`).
+  No necesita clave; pide atribución ("Rates By Exchange Rate API", visible en la pantalla) y como mucho una consulta
+  por hora.
+- **Tasa media de mercado** (unidades de cada moneda por 1 USD). No hay compra/venta y no se inventa ningún margen.
+- **Caché stale-while-revalidate** (`ExchangeRateApiRepository.watchRates`):
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+  | Situación | Qué emite |
+  |-----------|-----------|
+  | Hay caché y el proveedor todavía no publicó tasas nuevas | La caché, sin llamar a la red |
+  | Hay caché, el proveedor publicó tasas nuevas y pasó 1 h desde la última consulta | La caché (`isRefreshing`) y después las tasas nuevas |
+  | La consulta falla | La caché con `refreshFailure` (aviso offline) |
+  | No hay caché y la consulta falla | `Left(failure)` → error con reintento |
+  | `forceRefresh` (pull to refresh) | Consulta siempre |
 
-## Getting started
+  La caché guarda la respuesta cruda y la hora de la consulta en el `KeyValueStore` de `core` (hive_ce). Si está
+  corrupta, se ignora y la próxima consulta la reescribe.
+- **HTTP:** el shell crea el cliente con `createDioClient`, que trae reintentos y, en dev, el modo caos.
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+## Presentación
 
-## Usage
+- **`FxPage`** (pestaña Divisas), según la pantalla `divisas_y_remesas_*`:
+  - estado de las tasas;
+  - cotizador: moneda, monto, invertir la conversión y "1 USD = X";
+  - tasas de referencia;
+  - cuándo se publicaron, la aclaración de tasa media y la atribución;
+  - estados de carga, error con reintento y offline con las tasas guardadas;
+  - pull to refresh.
+- **`fx_widget`** (`fxSduiComponents`): "Mercado de divisas" en la home. Props: `currencies` (códigos ISO, hasta 4;
+  por defecto EUR, COP y PEN) y `action` (por ejemplo, abrir Divisas).
+- Fuera de alcance, como dice el diseño: operar, monederos, remesas y canales.
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+## Tests
 
-```dart
-const like = 'sample';
+```bash
+cd packages/features/fx_rates && flutter test
 ```
 
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Cubren el parser, la caché (al día, vencida, el mínimo de 1 h, forzada, fallo con y sin caché, y caché corrupta), la
+conversión y el formato, el cubit, la pantalla y el widget.

@@ -105,7 +105,7 @@ Los componentes con datos los registra el feature dueño de esos datos:
 |------|---------|-------|
 | `balance_card` | accounts | `action`: al tocar la tarjeta (por ejemplo, abrir Cuentas) |
 | `tx_list` | accounts | `title`, `limit` (1 a 10; por defecto 5) y `action` (enlace "Ver todos") |
-| `fx_widget` | fx_rates | _Pendiente_ (`feat/fx-rates`); hasta entonces se omite |
+| `fx_widget` | fx_rates | `currencies` (códigos ISO, hasta 4; por defecto EUR, COP y PEN) y `action` (abrir Divisas) |
 
 ## Uso
 

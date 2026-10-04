@@ -254,8 +254,9 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Corregido el pendiente de `feat/transfers`: `SignInCubit`, `SignUpCubit` y `TransactionsCubit` descartan la respuesta si la pantalla ya se cerró.
   - Panel de depuración (solo dev): caos HTTP, Firestore sin red, segmento del cliente y Remote Config. Guion de demo en `docs/resilience.md` §6.
   - El aviso offline sale de `isFromCache` de Firestore; se descartó `connectivity_plus` (ver `docs/resilience.md` §5). El caos HTTP se ve desde `feat/fx-rates`, que es la primera llamada con dio.
-- [ ] `feat/fx-rates`: micro app con API real + caché + degradación
+- [x] `feat/fx-rates`: micro app con API real + caché + degradación
   - Pantalla `divisas_y_remesas_*`: cotizador; tasa media real, sin spreads inventados.
+  - ExchangeRate-API (acceso abierto, sin clave, con atribución) y caché stale-while-revalidate en `hive_ce`; decisión en ADR-006. `fx_widget` en la home y `feature_fx_enabled` aplicado. Plantilla de Remote Config republicada (el widget abre Divisas).
 - [ ] `feat/push`: FCM + deep links
 - [ ] `feat/observability`: Crashlytics, Performance, Analytics
 
@@ -265,7 +266,7 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
 - [ ] README final reproducible — _parcial: estructura (#2)_
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-020_
+- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-021_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
