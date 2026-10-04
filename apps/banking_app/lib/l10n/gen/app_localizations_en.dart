@@ -28,12 +28,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'This section arrives in the next phases of the project.';
 
   @override
-  String get loginTitle => 'Sign in';
+  String get signOutAction => 'Sign out';
 
   @override
-  String get loginPlaceholderMessage =>
-      'Firebase sign-in arrives in the authentication step. For now you can continue to the app.';
-
-  @override
-  String get continueAction => 'Continue';
+  String profileSignedInAs(String email) {
+    return 'Signed in as $email';
+  }
 }

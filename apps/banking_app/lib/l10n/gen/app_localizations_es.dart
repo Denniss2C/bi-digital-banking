@@ -28,12 +28,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esta sección llega en las siguientes fases del proyecto.';
 
   @override
-  String get loginTitle => 'Iniciar sesión';
+  String get signOutAction => 'Cerrar sesión';
 
   @override
-  String get loginPlaceholderMessage =>
-      'El inicio de sesión con Firebase llega en el paso de autenticación. Por ahora puedes continuar a la app.';
-
-  @override
-  String get continueAction => 'Continuar';
+  String profileSignedInAs(String email) {
+    return 'Sesión iniciada como $email';
+  }
 }

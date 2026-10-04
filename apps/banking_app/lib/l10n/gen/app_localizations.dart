@@ -134,23 +134,17 @@ abstract class AppLocalizations {
   /// **'Esta sección llega en las siguientes fases del proyecto.'**
   String get comingSoonMessage;
 
-  /// Title of the login screen.
+  /// Profile: sign out button.
   ///
   /// In es, this message translates to:
-  /// **'Iniciar sesión'**
-  String get loginTitle;
+  /// **'Cerrar sesión'**
+  String get signOutAction;
 
-  /// Explains that the login screen is a temporary placeholder.
+  /// Profile: current account.
   ///
   /// In es, this message translates to:
-  /// **'El inicio de sesión con Firebase llega en el paso de autenticación. Por ahora puedes continuar a la app.'**
-  String get loginPlaceholderMessage;
-
-  /// Generic continue button.
-  ///
-  /// In es, this message translates to:
-  /// **'Continuar'**
-  String get continueAction;
+  /// **'Sesión iniciada como {email}'**
+  String profileSignedInAs(String email);
 }
 
 class _AppLocalizationsDelegate

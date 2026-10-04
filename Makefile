@@ -22,8 +22,9 @@ setup: ## First-time setup: check toolchain, resolve deps and run codegen
 bootstrap: ## Resolve dependencies for every workspace package
 	$(MELOS) bootstrap
 
-gen: ## Run build_runner on packages that depend on it
+gen: ## Run code generation: build_runner and gen-l10n
 	$(MELOS) run build_runner
+	$(MELOS) run gen-l10n
 
 analyze: ## Static analysis on every package (infos are fatal)
 	$(MELOS) run analyze
