@@ -35,6 +35,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-021](#ia-021--divisas-con-api-real-y-caché) | 2026-10-04 | Fase 3 · fx-rates | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-022](#ia-022--notificaciones-push) | 2026-10-04 | Fase 3 · push | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-023](#ia-023--observabilidad) | 2026-10-04 | Fase 3 · observability | Claude Code (Claude Opus 5.5) | 2 |
+| [IA-024](#ia-024--guion-de-demo-y-escenarios) | 2026-10-04 | Fase 4 · guion de demo | Claude Code (Claude Opus 5.5) | 6 |
 
 ---
 
@@ -1451,6 +1452,64 @@ Revisión de la IA sobre `DESIGN.md`:
   propuestos para operar.
 - **Documentación:** `deployment-operations.md` §6, CHANGELOG y `CLAUDE.md` (Fase 3 completa).
 - **Pruebas:** `core` 29, `accounts` 90, app 102.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-024 · Guion de demo y escenarios
+
+- **Rama:** `docs/demo-guide`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue. lo del lunes puede hacer hoy y mañana solo hacemos videos y correcciones [...] pero
+  hoy ya saber entender el flujo, hacer todos los escenarios". Primer ítem de la Fase 4: un guion para entender la
+  app y recorrer todos sus escenarios.
+
+### Qué produjo la IA
+
+- **`docs/demo/guion-demo.md`:**
+  - preparación del emulador y las consolas;
+  - cómo fluye la app, con un diagrama;
+  - 15 escenarios con pasos, resultado esperado y criterio que demuestra, con los textos reales de la UI y los datos
+    de apertura ($5,455.29 en dos cuentas);
+  - el guion del video (10–12 min);
+  - una tabla de "dónde tocar" para cambios en vivo, diagnóstico de fallas y ajuste de tests;
+  - qué revisar si algo no sale.
+- **Plan:** la Fase 4 se adelanta al domingo (log de desvíos de `CLAUDE.md`).
+
+### Errores de la IA y cómo se corrigieron
+
+La primera versión se escribió de memoria, con el resumen de la sesión. Antes de hacer el commit, la IA contrastó cada
+paso y cada texto con el código (ARB, router, layouts, cubits y panel de depuración) y encontró seis errores:
+
+1. **Un JSON roto en la consola.** El escenario de fallback pedía publicar un `home_layout` mal escrito, pero la consola
+   valida los parámetros de tipo JSON y no lo publica (confirmado en la documentación de Firebase). El mismo error
+   estaba en `resilience.md` §6 desde IA-020. Ahora se usa un layout válido que la app no puede usar
+   (`schemaVersion: 2`), más un componente desconocido para mostrar la forward compatibility.
+2. **Citó el E2E como si existiera.** El test `integration_test` todavía no está escrito; se quitó hasta su PR.
+3. **"Movimientos agrupados por fecha".** No hay grupos: cada movimiento lleva su fecha ("Ayer · 11:41").
+4. **El aviso offline de Inicio.** Decía que el saldo muestra "Sin conexión"; en realidad agrega el aviso completo.
+5. **Restablecer la contraseña.** Faltaba decir que primero hay que escribir el correo, porque el botón usa ese campo.
+6. **El modo caos, incompleto.** Con 50 % de fallos, 1 de cada 8 consultas falla en los 3 intentos y muestra el aviso;
+   con 100 %, el mensaje es otro ("No pudimos actualizar…").
+
+### Verificación
+
+- Cada escenario, contrastado con el código. Los saldos de apertura salen de `opening_data.dart`.
+- `make format-check` con código de salida 0. Solo cambia documentación.
+- **Pendiente:** recorrer los 15 escenarios en el emulador con el autor (la prueba general).
+
+### Impacto
+
+- **Productividad:** unos 40 minutos, incluida la verificación contra el código.
+- **Calidad:** contrastar el guion con el código evitó seis pasos que habrían fallado en la demo, y corrigió un error de
+  `resilience.md`.
+- **Documentación:** guion de demo, `resilience.md`, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** los escenarios manuales quedan listos para la prueba general; no hay tests automáticos nuevos.
 
 ### Revisión del autor
 
