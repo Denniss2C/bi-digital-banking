@@ -30,6 +30,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-016](#ia-016--motor-sdui) | 2026-10-04 | Fase 3 · sdui-engine | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-017](#ia-017--errores-del-ide-en-build-de-la-raíz) | 2026-10-04 | Errores del IDE en `build/` | Claude Code (Claude Opus 5.5) | 1 |
 | [IA-018](#ia-018--home-por-sdui) | 2026-10-04 | Fase 3 · personalization (home) | Claude Code (Claude Opus 5.5) | 5 |
+| [IA-019](#ia-019--personalización-con-remote-config) | 2026-10-04 | Fase 3 · personalization (Remote Config) | Claude Code (Claude Opus 5.5) | 3 |
 
 ---
 
@@ -1115,6 +1116,77 @@ Revisión de la IA sobre `DESIGN.md`:
   se actualizan solos después de una transferencia.
 - **Documentación:** READMEs de `sdui` y `accounts`, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** `accounts` 81, app 36.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-019 · Personalización con Remote Config
+
+- **Rama:** `feat/remote-personalization`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Segunda parte de `feat/personalization`; el autor aprobó que la IA despliegue la
+  plantilla de Remote Config con la CLI.
+
+### Qué produjo la IA
+
+- **Investigación previa:**
+  - la versión de `firebase_remote_config` (6.7.0) es compatible con el `firebase_core` del proyecto y trae
+    `setCustomSignals` y tiempo real;
+  - la sintaxis de la condición (`app.customSignal['segment'].exactlyMatches([...])`) no aparece en la referencia
+    oficial: se tomó de un ejemplo, se probó con un dry run y se confirmó publicando y descargando la plantilla.
+- **Shell:**
+  - `PersonalizationSource`, con Remote Config detrás de una interfaz para los tests: valores por defecto embebidos, el
+    segmento como custom signal pedido en el momento, `fetch` que nunca rompe la app y tiempo real con `activate`;
+  - `PersonalizationCubit`: sigue la sesión y el segmento (sin repetir el mismo segmento) y aplica las publicaciones
+    en vivo;
+  - la home resuelve el layout remoto con fallback y pull to refresh pide valores nuevos;
+  - el flag de transferencias oculta el botón, bloquea la ruta (incluso por deep link) y explica en los atajos que no
+    está disponible.
+- **accounts:** `watchSegment`.
+- **Plantilla versionada:**
+  - `firebase/remote-config/*.json`, con layouts para `new_user`, `saver` y `traveler`;
+  - el generador `tool/remote_config_template.dart`;
+  - `make rc-template` y `make deploy-rc`;
+  - tests que fallan si la plantilla, los layouts o el layout embebido dejan de coincidir.
+- **ADR-005** y la sección de operación de contenido en `deployment-operations.md`.
+- **28 tests nuevos:** 25 en la app y 3 en `accounts`.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Lints ya vistos en pasos anteriores.** `prefer_initializing_formals` apareció dos veces más, y faltaba
+   `equatable` como dependencia directa de la app. Los marcó el IDE al escribir los archivos y se corrigieron antes del
+   análisis.
+2. **Uso incorrecto de mocktail.** Un test usaba `verifyInOrder` y después `verify` sobre las mismas llamadas, pero
+   las ya verificadas no vuelven a contar. Ahora los intervalos se registran en el propio stub.
+3. **Un script de edición que no encontró el texto**, porque `dart format` había reacomodado el archivo. El script
+   falló sin escribir nada y la edición se rehízo sobre el texto real.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones: 12 de 12 detectadas.** Repetir el mismo segmento, resetear el segmento ante un error, no quitarlo al
+  cerrar sesión, esperar el intervalo al cambiar de segmento, pedir valores sin segmento, no activar el tiempo real,
+  ignorar la guardia de rutas, ignorar el flag en la home, pull to refresh sin Remote Config, ruta de transferencia sin
+  guardia, botón que ignora el flag y flag de la plantilla desalineado. Con esto se cerró la brecha que quedó abierta
+  en IA-018.
+- **Plantilla publicada y comprobada:** `firebase deploy --only remoteconfig` (antes, un dry run) y
+  `firebase remoteconfig:get`; las condiciones y los 4 parámetros publicados son idénticos a los del repo.
+- **Pendiente de verificar con la app real:** cambiar `segment` en Firestore y publicar un cambio en la consola con
+  `make run-dev`. Los tests lo cubren con una fuente falsa.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y media, dentro de lo estimado al partir el ítem.
+- **Calidad:** la home ya es personalizable sin publicar la app. Un JSON roto o sin conexión no la rompe, y la
+  plantilla del repo y la publicada están verificadas como idénticas.
+- **Documentación:** ADR-005, operación de contenido (cómo cambiar la home, revertir y cuotas), READMEs y CHANGELOG.
+- **Pruebas:** app 61, `accounts` 84.
 
 ### Revisión del autor
 

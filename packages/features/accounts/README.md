@@ -54,6 +54,13 @@ lib/src/
   trade-offs de [ADR-003](../../../docs/adr/ADR-003-accounts-firestore.md); en producción, la transferencia la haría
   el servidor.
 
+## Segmento del cliente
+
+`watchSegment(userId)` emite el segmento de personalización de `users/{uid}.segment`: `new_user` al abrir la cuenta, o
+`saver`, `traveler`, etc. El shell lo envía a Remote Config para elegir la home (ver
+[ADR-005](../../../docs/adr/ADR-005-remote-config-personalization.md)). Los errores llegan como `Left` sin cortar el
+stream.
+
 ## Componentes SDUI (home)
 
 `accountsSduiComponents(repository:, userId:)` entrega los componentes de este feature para que el shell los registre

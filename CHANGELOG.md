@@ -11,6 +11,16 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Personalización con Remote Config: la home llega por segmento de cliente (`users/{uid}.segment`, enviado como
+  *custom signal*) y cambia en vivo al publicar en la consola, sin reiniciar la app. Si Remote Config falla o manda un
+  JSON inválido, se usa el layout embebido. Pull to refresh pide los valores más recientes.
+- Feature flags remotos: `feature_transfers_enabled` (oculta el botón, bloquea la ruta y los atajos explican que no
+  está disponible), `feature_fx_enabled` y `feature_ai_assistant_enabled`.
+- Plantilla de Remote Config versionada en `firebase/remoteconfig.template.json`, generada desde
+  `firebase/remote-config/*.json` con layouts para `new_user`, `saver` y `traveler`. Targets `make rc-template` y
+  `make deploy-rc`. Plantilla publicada el 2026-10-04.
+- `accounts`: `watchSegment` para leer el segmento del cliente.
+- ADR-005: personalización con Remote Config y el segmento como custom signal.
 - Home (Inicio) renderizada por SDUI con el layout embebido en la app, según la pantalla `inicio_*`: saludo, saldo
   total en vivo, atajos, promoción y movimientos recientes de todas las cuentas. Las acciones del servidor solo abren
   pantallas de la app (rutas validadas en el shell) y deslizar hacia abajo recarga cada componente.

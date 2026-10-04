@@ -179,7 +179,40 @@ _Pendiente:_ Crashlytics (errores no capturados de Flutter y de la plataforma), 
 
 ## 7. Operación de contenido (sin publicar versión)
 
-_Pendiente:_ cómo editar las pantallas SDUI y los feature flags en Remote Config, cómo probarlos en dev y cómo revertirlos.
+La home y los feature flags vienen de **Remote Config**. La decisión está en
+[ADR-005](adr/ADR-005-remote-config-personalization.md) y el formato de los layouts, en el
+[README de `sdui`](../packages/sdui/README.md).
+
+| Parámetro | Tipo | Para qué |
+|-----------|------|----------|
+| `home_layout` | JSON | Layout SDUI de la home. Valor por defecto, más uno por segmento (`segment_saver`, `segment_traveler`). |
+| `feature_transfers_enabled` | Booleano | Apaga las transferencias: oculta el botón, bloquea la ruta y los atajos explican que no está disponible. |
+| `feature_fx_enabled` | Booleano | Divisas (se aplica en `feat/fx-rates`). |
+| `feature_ai_assistant_enabled` | Booleano | Asistente con IA (bonus). |
+
+**Segmentos.** La app envía el segmento del cliente (`users/{uid}.segment`, `new_user` al abrir la cuenta) como
+*custom signal* `segment`. Las condiciones de la plantilla eligen el layout en el servidor; un segmento sin condición
+recibe el valor por defecto. Para probar otro segmento, cambia `segment` del usuario en la consola de Firestore: la app
+pide el layout nuevo en el momento.
+
+### Cambiar la home
+
+- **En vivo, desde la consola** (demo): Remote Config → `home_layout` → editar el JSON → Publicar. Las apps abiertas
+  reciben el cambio en segundos (actualizaciones en tiempo real), sin reiniciar. Después, trae el cambio al repo:
+  `firebase remoteconfig:get --project bi-digital-banking -o firebase/remoteconfig.template.json` (y actualiza los
+  archivos de `firebase/remote-config/`).
+- **Desde el repo** (lo normal): edita `firebase/remote-config/home_layout.<segmento>.json`, corre `make rc-template`
+  y abre un PR. Los tests verifican que la plantilla esté al día, que cada layout sea válido y que sus rutas existan en
+  la app. Al mergear, `make deploy-rc` la publica.
+
+### Si algo sale mal
+
+- **Un JSON roto o de una versión de esquema más nueva** no rompe la app: se usa el layout embebido, y un componente
+  inválido se omite sin afectar al resto.
+- **Revertir:** la consola de Remote Config guarda cada versión publicada (Historial de cambios → Revertir).
+- **Sin conexión**, la app usa los últimos valores que activó, o los embebidos si nunca descargó ninguno.
+- **Cuotas.** En prod, la app pide valores como mucho una vez por hora; en dev, en cada pull to refresh. Las
+  actualizaciones en tiempo real llegan en ambos casos. Cambiar de segmento pide los valores en el momento.
 
 ## 8. Runbook de incidentes
 
