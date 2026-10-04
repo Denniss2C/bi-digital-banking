@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "components": [
+    {
+      "type": "balance_card",
+      "id": "balance",
+      "props": {
+        "action": {
+          "type": "navigate",
+          "route": "/accounts"
+        }
+      }
+    },
+    {
+      "type": "promo_banner",
+      "id": "promo-saver",
+      "props": {
+        "eyebrow": {
+          "es": "Para tu ahorro",
+          "en": "For your savings"
+        },
+        "title": {
+          "es": "Tu ahorro, siempre a la vista",
+          "en": "Your savings, always in sight"
+        },
+        "body": {
+          "es": "Revisa tus movimientos y mueve dinero a tu cuenta de ahorros cuando quieras.",
+          "en": "Check your activity and move money to your savings account whenever you want."
+        },
+        "icon": "savings",
+        "tone": "secondary",
+        "cta": {
+          "label": {
+            "es": "Mover a ahorros",
+            "en": "Move to savings"
+          },
+          "action": {
+            "type": "navigate",
+            "route": "/accounts/transfer"
+          }
+        }
+      }
+    },
+    {
+      "type": "tx_list",
+      "id": "recent-movements",
+      "props": {
+        "title": {
+          "es": "Tus últimos movimientos",
+          "en": "Your latest activity"
+        },
+        "limit": 8,
+        "action": {
+          "type": "navigate",
+          "route": "/accounts"
+        }
+      }
+    },
+    {
+      "type": "quick_actions",
+      "id": "shortcuts",
+      "props": {
+        "title": {
+          "es": "Operaciones frecuentes",
+          "en": "Frequent actions"
+        },
+        "items": [
+          {
+            "label": {
+              "es": "Transferir",
+              "en": "Transfer"
+            },
+            "icon": "send",
+            "highlighted": true,
+            "action": {
+              "type": "navigate",
+              "route": "/accounts/transfer"
+            }
+          },
+          {
+            "label": {
+              "es": "Mis cuentas",
+              "en": "My accounts"
+            },
+            "icon": "accounts",
+            "action": {
+              "type": "navigate",
+              "route": "/accounts"
+            }
+          },
+          {
+            "label": {
+              "es": "Divisas",
+              "en": "Exchange"
+            },
+            "icon": "fx",
+            "action": {
+              "type": "navigate",
+              "route": "/fx"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
