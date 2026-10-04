@@ -3,6 +3,10 @@
 /// JSON contract.
 library;
 
+export 'src/components/promo_banner.dart';
+export 'src/components/quick_actions.dart';
+export 'src/components/sdui_icons.dart';
+export 'src/components/standard_components.dart';
 export 'src/model/sdui_action.dart';
 export 'src/model/sdui_layout.dart';
 export 'src/model/sdui_props.dart';
