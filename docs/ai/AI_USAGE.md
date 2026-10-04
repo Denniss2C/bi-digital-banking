@@ -32,6 +32,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-018](#ia-018--home-por-sdui) | 2026-10-04 | Fase 3 · personalization (home) | Claude Code (Claude Opus 5.5) | 5 |
 | [IA-019](#ia-019--personalización-con-remote-config) | 2026-10-04 | Fase 3 · personalization (Remote Config) | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-020](#ia-020--resiliencia-y-panel-de-depuración) | 2026-10-04 | Fase 3 · resilience | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-021](#ia-021--divisas-con-api-real-y-caché) | 2026-10-04 | Fase 3 · fx-rates | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -1253,6 +1254,76 @@ Revisión de la IA sobre `DESIGN.md`:
 - **Calidad:** el comportamiento degradado ya se puede mostrar en vivo, y el bug del `StateError` está cerrado.
 - **Documentación:** guion de demo en `resilience.md`, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** app 67, `accounts` 87 y `auth` 45.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-021 · Divisas con API real y caché
+
+- **Rama:** `feat/fx-rates`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítem `feat/fx-rates`: micro app con API real, caché y degradación, según la pantalla
+  `divisas_y_remesas_*`.
+
+### Qué produjo la IA
+
+- **Verificación previa del proveedor:**
+  - consultó en vivo `open.er-api.com` (HTTP 200, 166 monedas, base USD, actualización diaria);
+  - leyó sus términos: atribución obligatoria, 429 si se consulta más de una vez por hora, caché permitida;
+  - y los convirtió en reglas de la caché.
+- **`fx_rates`:**
+  - `parseLatestRates`;
+  - `ExchangeRateApiRepository`, con caché stale-while-revalidate: la consulta se hace solo si el proveedor ya publicó
+    y pasó una hora, o si se fuerza; si falla, sigue lo guardado;
+  - `FxCubit`;
+  - `FxPage`: cotizador en ambas direcciones, tasas de referencia y estados;
+  - `fx_widget` para la home;
+  - textos es/en, con los nombres de moneda en un `select` de ICU.
+- **Shell:**
+  - repositorio con dio por entorno (modo caos solo en dev);
+  - pestaña Divisas y widget de la home detrás de `feature_fx_enabled`;
+  - `FeatureUnavailablePage` en lugar del placeholder.
+- **Remote Config:** el `fx_widget` ahora abre Divisas. La plantilla se republicó y se verificó idéntica al repo.
+- **ADR-006**, README del paquete y `resilience.md`, con el escenario de caos ahora visible en Divisas.
+- **35 tests nuevos:** 30 en `fx_rates` y 5 en la app.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **El mismo lint por tercera vez.** `prefer_initializing_formals` volvió a aparecer en el repositorio; lo marcó el
+   IDE y se corrigió con campos públicos. Queda como patrón a evitar: con parámetros nombrados, usar `this.campo`.
+2. **Sobrescribió un README sin leerlo,** justo después de la lección de IA-020. Lo notó enseguida y comprobó en git
+   que el original era la plantilla de `flutter create` (solo TODOs), así que no se perdió nada. Igual es el mismo
+   error de proceso.
+3. **Un import faltante en un test,** que impidió compilarlo (y arrastró a otro archivo en la corrida completa). Se
+   corrigió antes de seguir.
+4. **Un renombre que se coló en otro commit.** El `git mv` de la página de placeholder quedó preparado en el índice
+   desde el principio y entró en el commit del paquete `fx_rates`, que así dejaba la app sin compilar. Lo detectó la
+   verificación por checkout de los commits intermedios, antes de subir nada. Se rehicieron los commits con rutas
+   explícitas, comprobando que el árbol final fuera idéntico.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0; `make gen` sin diferencias; APK de dev
+  compilado.
+- **Mutaciones: 11 de 11 detectadas.** Ignorar la próxima publicación del proveedor, ignorar el mínimo de una hora,
+  perder la caché ante un fallo, no guardar la respuesta, aceptar tasas no positivas, conversión sin dirección, sin
+  aviso offline, reintento sin forzar, y el flag ignorado por la navegación, la home o la pestaña.
+- **Verificación visual** de Divisas y de la home con la tarjeta de mercado, con fuentes reales.
+- **Pendiente en un dispositivo:** la consulta real desde la app y el escenario 6 de `resilience.md` (modo caos y pull
+  to refresh en Divisas).
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y tres cuartos, como se estimó.
+- **Calidad:** la integración externa usa datos reales, respeta los términos del proveedor y se degrada sin romper la
+  pantalla. El modo caos ya tiene dónde verse.
+- **Documentación:** ADR-006, README de `fx_rates`, `resilience.md`, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** `fx_rates` 30, app 72.
 
 ### Revisión del autor
 
