@@ -11,6 +11,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Cuentas (UI): pestaña Cuentas con el saldo total y tarjetas por cuenta, y detalle con saldo en vivo y
+  movimientos con scroll infinito. Estados de carga, vacío, error con reintento y offline con aviso. Textos
+  propios del feature (es/en).
+- `core`: `formatUsd` / `formatSignedUsd`. Design system: `AppOfflineBanner`.
 - Cuentas (datos): modelo en Firestore con dinero en centavos, cuentas en tiempo real con aviso de caché,
   movimientos paginados y apertura idempotente de cuentas en el primer inicio de sesión. Persistencia offline
   de Firestore habilitada.
