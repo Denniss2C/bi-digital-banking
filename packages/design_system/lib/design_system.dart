@@ -2,6 +2,7 @@
 /// components. Source of truth: `docs/design/DESIGN.md`.
 library;
 
+export 'src/brand/nexo_logo.dart';
 export 'src/components/app_button.dart';
 export 'src/components/app_card.dart';
 export 'src/components/app_empty_view.dart';
