@@ -11,6 +11,13 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Ícono de la app y splash con el logo del diseño (`logo_*`):
+  - `NexoLogo` en `design_system`: el logo dibujado como vector, con la geometría medida sobre el diseño;
+  - ícono adaptativo de Android (con la silueta para los íconos temáticos de Android 13), ícono de Android 7 e ícono
+    de iOS de 1024 px sin canal alfa;
+  - splash navy con la marca en Android (antes de Android 12 y desde Android 12) y en iOS; `SplashPage` lo continúa sin
+    saltos mientras se restaura la sesión;
+  - `make brand-assets` regenera todas las imágenes desde el mismo painter.
 - Guion de demo y escenarios de prueba (`docs/demo/guion-demo.md`): preparación, cómo fluye la app, 15 escenarios
   con pasos y resultado esperado, guion del video, dónde tocar ante preguntas en vivo y qué revisar si algo no sale.
 - Observabilidad:
@@ -120,6 +127,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- El encabezado del onboarding y la barra del login muestran el logo, como en el diseño.
+- iOS usa un solo ícono de 1024 px y Xcode genera los demás tamaños (antes había 15 PNG de Flutter).
 - La pestaña Divisas deja de ser un placeholder; `ComingSoonPage` pasa a ser `FeatureUnavailablePage`, para cuando
   un flag apaga una función.
 - `equatable` baja de 3.x a 2.x en todo el monorepo, por compatibilidad con `fake_cloud_firestore`.

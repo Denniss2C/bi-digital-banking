@@ -169,6 +169,30 @@ make build-apk-prod   # APK release con flavor prod
 
 _Pendiente:_ firma de release, distribución (Firebase App Distribution), versionado.
 
+### Ícono de la app y splash
+
+Salen del logo vectorial `NexoLogo` de `design_system`: `make brand-assets` dibuja con ese painter y escribe los PNG en
+los proyectos nativos (`apps/banking_app/tool/brand_assets_test.dart`; es un test solo para tener el motor de Flutter, y
+`make test` no lo corre). Hay que correrlo solo si cambia el logo; la salida es determinista y los PNG se versionan.
+
+| Plataforma | Ícono | Splash |
+|------------|-------|--------|
+| Android 8+ | Ícono adaptativo (`mipmap-anydpi-v26/ic_launcher.xml`): fondo navy (`values/colors.xml`), la marca como primer plano y una silueta para los íconos temáticos de Android 13 | Android 12+ dibuja su propio splash: el ícono sobre navy (`values-v31` y `values-night-v31`) |
+| Android 7 | `mipmap-*/ic_launcher.png` | `launch_background.xml` (iguales en `drawable/` y `drawable-v21/`): navy con la marca al centro |
+| iOS | Un solo PNG de 1024 px (Xcode genera los demás tamaños), opaco porque el App Store rechaza íconos con canal alfa | `LaunchScreen.storyboard`: navy con la marca al centro |
+
+- **Sin saltos al abrir:** la primera pantalla de Flutter (`SplashPage`) repite el splash nativo, con el mismo navy y la
+  marca a 88 dp en el centro, mientras se restaura la sesión.
+- **Mismo ícono en los dos flavors:** dev y prod se distinguen por el nombre ("Nexo Dev" / "Nexo") y la cinta DEV.
+- **Para verlos en un dispositivo,** desinstala la app y vuelve a instalarla: Android e iOS guardan el ícono y el
+  splash en caché.
+- **`drawable-v21/launch_background.xml` no se borró,** aunque con `minSdk` 24 basta un archivo: borrarlo rompe la
+  fusión incremental de recursos de Gradle en builds existentes (`resource drawable/launch_background not found`). Si
+  aparece ese error, `flutter clean` lo resuelve.
+- **Sin generadores de terceros:** `flutter_launcher_icons` 0.14 choca con Melos 8 (`cli_util`), y sus versiones viejas
+  bajaban `xml` y volvían a CocoaPods. Por eso el generador es propio y los XML de Android y el storyboard están escritos
+  a mano.
+
 ## 5. Versionado y releases
 
 - SemVer en `apps/banking_app/pubspec.yaml` (`version: X.Y.Z+build`).
