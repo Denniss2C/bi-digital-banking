@@ -8,7 +8,8 @@ FIREBASE_PROJECT := bi-digital-banking
 
 .DEFAULT_GOAL := help
 .PHONY: help setup bootstrap gen analyze format format-check test coverage \
-        run-dev run-prod build-apk-dev build-apk-prod rc-template deploy-rc clean
+        run-dev run-prod build-apk-dev build-apk-prod brand-assets rc-template \
+        deploy-rc clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -64,6 +65,9 @@ build-apk-dev: ## Build a release APK for the dev flavor
 
 build-apk-prod: ## Build a release APK for the prod flavor
 	cd $(APP_DIR) && flutter build apk --release --flavor prod -t lib/main_prod.dart
+
+brand-assets: ## Render the app icon and splash images from the NexoLogo painter
+	cd $(APP_DIR) && flutter test tool/brand_assets_test.dart
 
 rc-template: ## Build the Remote Config template from firebase/remote-config/*.json
 	cd $(APP_DIR) && dart run tool/remote_config_template.dart
