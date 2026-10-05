@@ -11,6 +11,11 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- E2E del flujo crítico (`integration_test`) contra el Firebase real del flavor dev:
+  - recorre login → Inicio → Cuentas → Cuenta de Ahorros → movimientos (dos páginas de Firestore) → logout;
+  - `make e2e` lo corre en un emulador o dispositivo con un usuario de prueba, cuyas credenciales van en
+    `apps/banking_app/e2e.env.json` (git lo ignora; ver `e2e.env.example.json`);
+  - instrucciones en la sección *Pruebas y cobertura* del README.
 - Ícono de la app y splash con el logo del diseño (`logo_*`):
   - `NexoLogo` en `design_system`: el logo dibujado como vector, con la geometría medida sobre el diseño;
   - ícono adaptativo de Android (con la silueta para los íconos temáticos de Android 13), ícono de Android 7 e ícono
@@ -144,6 +149,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 ### Fixed
+- `make help` lista también los objetivos con números en el nombre (como `e2e`).
 - `resilience.md` §6 pedía publicar un `home_layout` con un JSON roto, pero la consola de Remote Config no lo
   acepta. Ahora usa un layout válido que la app no puede usar (`schemaVersion: 2`).
 - Login, registro y movimientos ya no lanzan un `StateError` si la pantalla se cierra mientras una petición está en

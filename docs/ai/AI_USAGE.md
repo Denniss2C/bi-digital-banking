@@ -37,6 +37,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-023](#ia-023--observabilidad) | 2026-10-04 | Fase 3 · observability | Claude Code (Claude Opus 5.5) | 2 |
 | [IA-024](#ia-024--guion-de-demo-y-escenarios) | 2026-10-04 | Fase 4 · guion de demo | Claude Code (Claude Opus 5.5) | 6 |
 | [IA-025](#ia-025--ícono-de-la-app-y-splash) | 2026-10-04 | Fase 4 · ícono y splash | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-026](#ia-026--e2e-del-flujo-crítico) | 2026-10-04 | Fase 4 · E2E | Claude Code (Claude Opus 5.5) | 5 |
 
 ---
 
@@ -1580,6 +1581,97 @@ paso y cada texto con el código (ARB, router, layouts, cubits y panel de depura
 - **Calidad:** el logo es código con tests y una sola fuente para la app, el ícono y el splash.
 - **Documentación:** `deployment-operations.md` §4, README de `design_system`, CHANGELOG y `CLAUDE.md` (dos desvíos).
 - **Pruebas:** `design_system` 70 y app 103.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-026 · E2E del flujo crítico
+
+- **Rama:** `test/e2e`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** el autor preguntó cómo sería el E2E con el Emulator Suite de Firebase y, tras la comparación,
+  respondió "a ver hazlo". La IA lo leyó como la opción recomendada: un usuario de prueba en Firebase dev. Después:
+  "mira los errores", con logs de iOS y Android.
+
+### Qué produjo la IA
+
+- **Comparación de opciones** antes de escribir código: usuario de prueba en dev contra Emulator Suite (backend,
+  datos, qué se crea en Firebase, código nuevo en la app, costo y uso en la demo). Se eligió el usuario en dev por
+  tiempo y porque muestra interacción real con Firebase; el Emulator Suite queda como evolución para correrlo en CI.
+- **`integration_test/critical_flow_test.dart`:**
+  - recorre login → Inicio (las dos cuentas) → Cuentas → Cuenta de Ahorros → movimientos hasta el depósito de
+    apertura, que está en la segunda página de Firestore → logout;
+  - arranca desde cualquier estado: onboarding, login o una sesión que quedó abierta;
+  - espera condiciones, no tiempos fijos, porque la red es real y los spinners no dejan terminar a `pumpAndSettle`;
+  - restaura el manejador de errores del test después de `bootstrap`, para que un error de Flutter haga fallar el
+    test en vez de ir a Crashlytics;
+  - imprime cada paso (`E2E · …`), para diagnosticar una falla en vivo.
+- **`make e2e`:** lee las credenciales de `apps/banking_app/e2e.env.json`, que git ignora (hay un
+  `e2e.env.example.json`), y avisa si falta.
+- **Documentación:** sección *Pruebas y cobertura* del README y el guion de demo.
+- **Diagnóstico de los logs del autor:**
+  - Android: el emulador había perdido el DNS. Había IP (`ping 8.8.8.8`), pero ningún dominio resolvía ("unknown
+    host"), mientras la Mac sí resolvía. El "Recaptcha" del log solo es el envoltorio que Firebase usa para el login.
+    Se reinició el emulador con `-dns-server 8.8.8.8,1.1.1.1`;
+  - iOS: los dos logs eran comportamiento esperado. El error de prueba lo imprime Crashlytics en debug y llega como
+    no fatal; `apns-token-not-set` es la falta de clave APNs, ya documentada.
+
+  Los tres casos quedaron en la tabla "Si algo no sale" del guion.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Una espera con un finder que nunca encuentra nada**, usado como truco para esperar una condición. Se reemplazó por
+   un `_pumpUntil(condición)` genérico antes de correr el test.
+2. **Al refactorizar, llamó a `tester.drag` sin `await`** dentro de una condición síncrona. flutter_test lo rechaza
+   ("Guarded function conflict"). Se detectó al revisar el código y se volvió al bucle explícito.
+3. **`make help` no listaba `e2e`:** la expresión regular no aceptaba dígitos en los nombres. Se vio al verificar el
+   objetivo nuevo y se corrigió en un commit aparte.
+4. **Supuso el idioma del dispositivo.** El test buscaba los textos en español y el emulador estaba en inglés (por el
+   escenario E14 del guion). Falló la primera corrida. Ahora el test fija el idioma de la app.
+5. **Supuso el tipo de los campos del login.** Buscaba `TextFormField` sin revisar el formulario, que usa `TextField`.
+   Falló la segunda corrida.
+
+**Notas de proceso:**
+- **Crear el usuario:** la IA intentó crearlo con la API REST de Firebase Auth. El sistema de permisos de Claude Code lo
+  bloqueó por ser una escritura en un sistema externo. La IA no buscó otra vía: el autor registró el usuario desde la
+  app.
+- **Revisar la cuenta:** el login seguía fallando con "credencial incorrecta". Antes de culpar a la cuenta, la IA
+  verificó con un test temporal que la contraseña llegaba intacta al test. Después intentó revisar la cuenta exportando
+  los usuarios con la CLI, y el sistema de permisos lo bloqueó porque la exportación incluye hashes de contraseñas.
+- **Hipótesis, sin confirmar:** al crear la cuenta en iOS, el sistema llenó una "Contraseña segura", porque el campo
+  del registro está marcado como `newPassword`. El autor cambió la contraseña y el E2E pasó.
+- **Preguntas del autor:**
+  - "Se traban los campos": el formulario no los deshabilita. Coincidió con las corridas del E2E sobre el mismo
+    emulador.
+  - "Inicia sesión sin el botón": Enter o "Listo" en el teclado envía el formulario, como el botón.
+
+### Verificación
+
+Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
+
+| # | Resultado | Qué reveló |
+|---|-----------|------------|
+| 1 | Falla a los 33 s | El emulador estaba en inglés |
+| 2 | Falla a los 3 s | Los campos son `TextField` |
+| 3 y 4 | Falla a los 5 s, con "Login failed: Firebase rejected the E2E user" | La cuenta no aceptaba esa contraseña |
+| 5 | **Pasa en 6 s** | Partió de una sesión abierta y la cerró. Luego: login, Inicio con las 2 cuentas, Cuenta de Ahorros, movimientos hasta la segunda página y logout |
+
+- `make format-check` y `make analyze` con código de salida 0. Un test temporal confirmó que `--dart-define-from-file`
+  entrega las credenciales intactas.
+- **Decisión siguiente del autor:** que la plantilla de apertura viva en Firestore y no en el código, en otro PR.
+
+### Impacto
+
+- **Productividad:** unos 50 minutos, incluido el diagnóstico de los logs.
+- **Calidad:** el flujo crítico se prueba de punta a punta contra el backend real, con paginación de Firestore
+  incluida.
+- **Documentación:** README (*Pruebas y cobertura*), guion de demo, CHANGELOG y `CLAUDE.md`.
+- **Pruebas:** el primer E2E del proyecto.
 
 ### Revisión del autor
 

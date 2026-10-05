@@ -73,7 +73,8 @@ Ejecuta `make help` para ver todos los comandos disponibles.
 **E2E.** Recorre login → Inicio → Cuentas → Cuenta de Ahorros → movimientos (dos páginas de Firestore) → logout, contra
 el Firebase **real** del flavor dev. Necesita un usuario de prueba:
 
-1. Regístralo una vez desde la app (`make run-dev` → Crear cuenta), por ejemplo `e2e@nexo.test`.
+1. Regístralo una vez desde la app (`make run-dev` → Crear cuenta), por ejemplo `e2e@nexo.test`. En iOS, el sistema
+   puede llenar sola una "Contraseña segura" en el registro: verifica cuál quedó antes de copiarla.
 2. Copia `apps/banking_app/e2e.env.example.json` a `apps/banking_app/e2e.env.json` (git lo ignora) y completa su
    correo y su contraseña.
 3. Corre `make e2e`.
