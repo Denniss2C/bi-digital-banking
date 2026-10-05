@@ -9,7 +9,7 @@ FIREBASE_PROJECT := bi-digital-banking
 .DEFAULT_GOAL := help
 .PHONY: help setup bootstrap gen analyze format format-check test coverage \
         e2e run-dev run-prod build-apk-dev build-apk-prod brand-assets \
-        rc-template deploy-rc deploy-rules clean
+        rc-template deploy-rc deploy-rules deploy-opening clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -82,6 +82,9 @@ deploy-rc: rc-template ## Publish the Remote Config template (needs `firebase lo
 
 deploy-rules: ## Publish the Firestore security rules (needs `firebase login`)
 	firebase deploy --only firestore:rules --project $(FIREBASE_PROJECT)
+
+deploy-opening: ## Publish firebase/opening-template.json to Firestore (needs `gcloud auth login`)
+	cd $(APP_DIR) && dart run tool/opening_template.dart
 
 clean: ## Remove build outputs and coverage reports
 	$(MELOS) exec -- flutter clean
