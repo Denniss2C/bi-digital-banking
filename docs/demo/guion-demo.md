@@ -300,6 +300,9 @@ make coverage               # cobertura combinada en coverage/lcov.info
 | Síntoma | Causa probable |
 |---------|----------------|
 | No llega el push | Falta el permiso de notificaciones, el emulador no tiene Google Play, o el token cambió (vuelve a copiarlo) |
+| El login dice "Sin conexión" en el emulador de Android, pero la Mac tiene internet | El emulador perdió el DNS: `adb shell ping www.google.com` responde "unknown host". Pasa al cambiar de red o con DNS IPv6 en la Mac. Reinícialo con DNS explícitos: `emulator -avd <nombre> -dns-server 8.8.8.8,1.1.1.1` (el nombre sale de `emulator -list-avds`) |
+| En iOS, la consola muestra `apns-token-not-set` | Es lo esperado: sin clave APNs, iOS no recibe push (`deployment-operations.md` §7). La app sigue funcionando |
+| Al enviar el error de prueba, la consola imprime el error | Es Crashlytics confirmando el envío: en debug imprime cada error que registra. Llega como no fatal |
 | La home no cambia al publicar | Revisa que editaste el valor del segmento correcto (predeterminado para `new_user`) y que la app tiene conexión; desliza hacia abajo |
 | Divisas no consulta la red | La caché está al día (el proveedor publica una vez al día): desliza hacia abajo para forzar |
 | El panel de depuración no aparece | Estás en el flavor prod; usa `make run-dev` |
