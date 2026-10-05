@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand navy (AppColors.navy in design_system): background of the
+         adaptive icon and of the splash. -->
+    <color name="nexo_navy">#1B2A41</color>
+</resources>
