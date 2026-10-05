@@ -266,7 +266,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 ### Fase 4 — Calidad y entrega (adelantada al domingo; el lunes queda para grabar y corregir)
 - [x] `feat/app-icon`: ícono de la app y splash con el logo del diseño (`logo_*`), pedido por el autor el 2026-10-04
   - `NexoLogo` vectorial en `design_system`; `make brand-assets` genera los PNG de Android e iOS con el mismo painter. Detalle en `docs/deployment-operations.md` §4.
-- [ ] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
+- [x] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
+  - Contra el Firebase real de dev, con un usuario de prueba creado por el autor (credenciales en `apps/banking_app/e2e.env.json`, ignorado por git). `make e2e` en un emulador o dispositivo; no corre en CI. Siguiente paso posible: Emulator Suite. Pasó el 2026-10-04 en 6 s.
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
 - [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
