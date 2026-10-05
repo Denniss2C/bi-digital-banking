@@ -65,7 +65,21 @@ class _AuthViewState extends State<_AuthView> {
     final isSignIn = _mode == AuthMode.signIn;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isSignIn ? l10n.signInTab : l10n.signUpTab)),
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const NexoLogo(size: 28, semanticsLabel: null),
+            const SizedBox(width: AppSpacing.sm),
+            Flexible(
+              child: Text(
+                isSignIn ? l10n.signInTab : l10n.signUpTab,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.screenMargin),
