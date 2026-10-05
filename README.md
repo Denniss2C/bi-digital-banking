@@ -65,7 +65,25 @@ Ejecuta `make help` para ver todos los comandos disponibles.
 
 ## Pruebas y cobertura
 
-_Pendiente._
+| Tipo | Dónde | Cómo correrlas |
+|------|-------|----------------|
+| Unitarias y de widgets | `test/` de cada paquete: blocs, repositorios, casos de uso, componentes y pantallas | `make test`; cobertura combinada con `make coverage` |
+| E2E del flujo crítico | `apps/banking_app/integration_test/critical_flow_test.dart` | `make e2e` en un emulador o dispositivo (`DEVICE=<id>` si hay varios) |
+
+**E2E.** Recorre login → Inicio → Cuentas → Cuenta de Ahorros → movimientos (dos páginas de Firestore) → logout, contra
+el Firebase **real** del flavor dev. Necesita un usuario de prueba:
+
+1. Regístralo una vez desde la app (`make run-dev` → Crear cuenta), por ejemplo `e2e@nexo.test`.
+2. Copia `apps/banking_app/e2e.env.example.json` a `apps/banking_app/e2e.env.json` (git lo ignora) y completa su
+   correo y su contraseña.
+3. Corre `make e2e`.
+
+- **Qué escribe:** solo lee datos. Lo único que escribe es la apertura de cuentas en el primer login del usuario y el
+  token de push, que se borra al cerrar sesión.
+- **Qué verifica:** la estructura (dos cuentas y los movimientos hasta el depósito de apertura), no saldos exactos.
+- **Efecto en el dispositivo:** usa la app dev instalada y termina con la sesión cerrada.
+- **Fuera del CI:** necesita un dispositivo y credenciales. El paso siguiente sería correrlo contra el Emulator Suite de
+  Firebase, con datos efímeros.
 
 ## Resiliencia y modo caos
 

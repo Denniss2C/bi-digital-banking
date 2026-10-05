@@ -256,6 +256,7 @@ make analyze && make test   # análisis estricto y todos los tests
 make coverage               # cobertura combinada en coverage/lcov.info
 ```
 
+- E2E del flujo crítico contra Firebase dev: `make e2e`, con el emulador abierto (ver README, *Pruebas y cobertura*).
 - CI en cada PR con el check obligatorio "Analyze, format and test".
 - Historial: commits pequeños con Conventional Commits, un PR por paso y merge por rebase.
 
