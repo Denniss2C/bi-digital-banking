@@ -39,6 +39,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-025](#ia-025--ícono-de-la-app-y-splash) | 2026-10-04 | Fase 4 · ícono y splash | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-026](#ia-026--e2e-del-flujo-crítico) | 2026-10-04 | Fase 4 · E2E | Claude Code (Claude Opus 5.5) | 5 |
 | [IA-027](#ia-027--plantilla-de-apertura-en-firestore) | 2026-10-04 | Fase 4 · plantilla de apertura | Claude Code (Claude Opus 5.5) | 3 |
+| [IA-028](#ia-028--arquitectura-riesgos-y-readme-final) | 2026-10-04 | Fase 4 · arquitectura, riesgos y README | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -1746,6 +1747,78 @@ Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
   cambia sin publicar la app.
 - **Documentación:** ADR-007 y la guía de operación.
 - **Pruebas:** 21 tests nuevos, y los existentes corren sobre la plantilla real.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-028 · Arquitectura, riesgos y README final
+
+- **Rama:** `docs/architecture`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "sigue". Ítems de la Fase 4: `docs/architecture` con lo implementado; supuestos, riesgos y
+  escalamiento; README final reproducible.
+
+### Qué produjo la IA
+
+- **Inventario antes de escribir:**
+  - dependencias internas de cada `pubspec.yaml`;
+  - clases de cada paquete y versiones reales de las herramientas;
+  - archivos de Firebase versionados.
+
+  Los diagramas usan los nombres que existen en el código.
+- **`docs/architecture`:**
+  - `components.md`: componentes, responsabilidades y servicios externos, con qué pasa si fallan;
+  - `dependencies.md`: grafo, reglas y qué compone el shell;
+  - `flows.md`: 6 diagramas de secuencia (arranque, sesión y apertura, home personalizada, transferencia idempotente,
+    divisas y push);
+  - `risks-and-scaling.md`: supuestos, 10 riesgos con mitigación y siguiente paso, y cómo escalar.
+- **README final y README de `core`**, que seguía siendo la plantilla de `flutter create`.
+- **Dos hallazgos al documentar, convertidos en código:**
+  - `core` declaraba 5 dependencias que nunca usó, entre ellas `connectivity_plus`, un plugin nativo compilado en la
+    app para nada. Se quitaron (`chore(core)`);
+  - la regla "los features no dependen entre sí" solo se revisaba a mano. Ahora la verifica un test que lee los
+    `pubspec.yaml` de los miembros del workspace (`test(app)`).
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Una clase que no existe.** Escribió `DioClient` en `components.md`; la función real es `createDioClient`. Lo
+   detectó al cruzar el texto con el inventario de clases.
+2. **Cuatro afirmaciones imprecisas** en la documentación, que la IA verificó contra el código antes del commit:
+   - `design_system` "sin dependencias" (usa `equatable`);
+   - `validate` "lo usa el repositorio" (lo usan el formulario y el caso de uso);
+   - "reintenta los 5xx" (solo 500, 502, 503 y 504);
+   - "el build de prod no incluye el panel" (se compila; lo que no hay es registro ni ruta).
+3. **Un participante equivocado** en el diagrama de la transferencia: Firestore "devolvía" el recibo, cuando lo
+   devuelve el repositorio.
+4. **El test de reglas buscaba paquetes recorriendo carpetas** y encontró las copias de plugins que Swift Package
+   Manager deja en `packages/*/build`. En local fallaba y en CI (sin `build/`) habría pasado. Ahora usa la lista de
+   miembros del workspace del `pubspec.yaml` raíz.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0, también después de quitar las
+  dependencias de `core`.
+- **Test de reglas:** 8 de 8 en verde; con `auth` declarando `accounts`, falla con "auth may only use {core,
+  design_system, sdui}".
+- **APK de dev** compilado sin `connectivity_plus`.
+- **Afirmaciones verificadas contra el código:**
+  - el dominio no importa Flutter, Firebase ni dio;
+  - las versiones de las herramientas;
+  - la configuración de Firebase versionada;
+  - los nombres de clases y funciones de cada diagrama.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y cuarto.
+- **Calidad:** una regla de arquitectura pasó de convención a test, y la app dejó de compilar un plugin nativo sin
+  uso.
+- **Documentación:** arquitectura completa, riesgos y escalamiento, README reproducible y README de `core`.
+- **Pruebas:** 8 tests de arquitectura.
 
 ### Revisión del autor
 

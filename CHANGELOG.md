@@ -11,6 +11,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Documentación de arquitectura de lo implementado (`docs/architecture`): componentes, grafo de dependencias, qué
+  compone el shell y 6 flujos de secuencia; además, supuestos, riesgos y escalamiento (`risks-and-scaling.md`).
+- Test de reglas de arquitectura: falla si un paquete declara un paquete interno que su regla no permite (por ejemplo,
+  un feature que depende de otro), o si aparece un paquete sin regla.
 - `make deploy-opening` publica la plantilla de apertura (`firebase/opening-template.json`) en Firestore con `gcloud`,
   y `make deploy-rules` publica las reglas.
 - E2E del flujo crítico (`integration_test`) contra el Firebase real del flavor dev:
@@ -134,6 +138,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- README final: requisitos con versiones, puesta en marcha reproducible, flavors, comandos, pruebas, resiliencia,
+  personalización, flujo de trabajo, ADRs e IA. El README de `core` reemplaza la plantilla de `flutter create`.
 - La apertura de cuentas de un cliente nuevo sale de la plantilla `templates/opening` de Firestore, ya no del código
   de la app ([ADR-007](docs/adr/ADR-007-opening-template.md)). Se cambia desde la consola o el repo sin publicar la app,
   y una plantilla inválida o ausente no abre nada a medias. Las reglas permiten leerla a los usuarios autenticados.
@@ -152,6 +158,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - El deployment target de iOS sube a 15.0, que es lo que exige `firebase_core` 4.x.
 - `flutter run` sin argumentos arranca el flavor dev (`default-flavor: dev`).
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
+
+### Removed
+- `core` deja de declarar `connectivity_plus`, `fpdart`, `get_it`, `injectable` y `logger`, que nunca usó.
+  `connectivity_plus` era un plugin nativo que se compilaba en la app sin uso.
 
 ### Fixed
 - `make help` lista también los objetivos con números en el nombre (como `e2e`).
