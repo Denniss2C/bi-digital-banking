@@ -38,6 +38,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-024](#ia-024--guion-de-demo-y-escenarios) | 2026-10-04 | Fase 4 · guion de demo | Claude Code (Claude Opus 5.5) | 6 |
 | [IA-025](#ia-025--ícono-de-la-app-y-splash) | 2026-10-04 | Fase 4 · ícono y splash | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-026](#ia-026--e2e-del-flujo-crítico) | 2026-10-04 | Fase 4 · E2E | Claude Code (Claude Opus 5.5) | 5 |
+| [IA-027](#ia-027--plantilla-de-apertura-en-firestore) | 2026-10-04 | Fase 4 · plantilla de apertura | Claude Code (Claude Opus 5.5) | 3 |
 
 ---
 
@@ -1672,6 +1673,79 @@ Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
   incluida.
 - **Documentación:** README (*Pruebas y cobertura*), guion de demo, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** el primer E2E del proyecto.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-027 · Plantilla de apertura en Firestore
+
+- **Rama:** `feat/opening-template`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "todos los valores quiero que estén en Firestore, no quemados, porque eso lo van a
+  calificar". La IA preguntó a qué se refería (al E2E o a la plantilla de apertura) y el autor eligió la plantilla.
+  Antes de implementar, la IA avisó que su estimado no contemplaba cómo publicar el documento (la CLI de Firebase no
+  escribe documentos y no había `gcloud`) y ofreció tres caminos; el autor eligió `gcloud`.
+
+### Qué produjo la IA
+
+- **`firebase/opening-template.json`:** generado con un script desde los datos que estaban en el código, para no
+  transcribir a mano. Son 24 y 5 movimientos, con los mismos saldos ($4,900.29 y $555.00).
+- **`OpeningTemplate` en `accounts`:**
+  - en Dart puro, con su propio punto de entrada (`package:accounts/opening_template.dart`), para que la herramienta lo
+    use con `dart run`;
+  - valida con los mismos límites que las reglas, así una plantilla mala falla con un mensaje claro en vez de un
+    "permiso denegado".
+- **Apertura:** dentro de la misma transacción idempotente, lee la plantilla solo si el cliente aún no tiene cuentas.
+  Sin plantilla válida no escribe nada y lo reintenta en el próximo inicio de sesión.
+- **Herramienta y reglas:**
+  - `tool/opening_template.dart` (`make deploy-opening`) convierte el JSON al formato REST de Firestore y lo publica
+    con el token de `gcloud`, con un `--dry-run`;
+  - en las reglas, `templates/*` es de solo lectura para usuarios autenticados. Se desplegaron con la nueva
+    `make deploy-rules`.
+- **21 tests nuevos:**
+  - 15 del formato: válido, números de la consola y 12 rechazos;
+  - 4 del repositorio: plantilla propia, ausente, inválida y cliente ya abierto;
+  - 2 de la herramienta: tipos y el viaje completo del archivo real.
+
+  Los tests existentes de apertura ahora corren sobre la plantilla publicada.
+- **Documentación:** ADR-007, `deployment-operations.md` §7 y §2.1, CHANGELOG y `CLAUDE.md` (modelo de datos,
+  roadmap y desvío).
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Estimó sin considerar la publicación del documento.** Dijo 45 min, sin revisar que la CLI de Firebase no escribe
+   documentos ni que `gcloud` estuviera instalado. Lo detectó antes de implementar, avisó y propuso tres caminos con
+   su costo.
+2. **Pisó un archivo al hacer las mutaciones.** Guardó los respaldos por nombre de archivo, y dos se llamaban
+   `opening_template.dart` (el modelo y la herramienta). Al restaurar, el modelo quedó con el código de la herramienta,
+   y tres de las cinco mutaciones dieron "detectada" por un archivo roto: falsos positivos. Se notó porque una mutación
+   no encontró su patrón y aun así salió "detectada". El modelo se reescribió, los respaldos ahora usan la ruta
+   completa y las mutaciones se repitieron, verificando antes cada patrón.
+3. **Un patrón de mutación desactualizado.** Después de `make format`, una línea quedó partida distinto y el patrón no
+   coincidía. Desde entonces, el script aborta si no encuentra el patrón exacto.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0: `accounts` 109 (+19) y app 105 (+2).
+- **Mutaciones: 5 de 5 detectadas, después de repetirlas.** Saldo bajo cero aceptado, movimientos desordenados
+  aceptados, plantilla ausente ignorada en silencio, alias que no sale de la plantilla y enteros enviados como número.
+- **`--dry-run`:** la herramienta corre con `dart run` y produce el documento con los tipos de Firestore.
+- **Reglas desplegadas:** compilaron y se publicaron.
+- **Pendiente, del autor:** instalar `gcloud` y correr `make deploy-opening`. Sin eso, un cliente nuevo no recibe
+  cuentas. Los existentes, como el autor y el usuario del E2E, no cambian.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora, incluida la corrección del archivo pisado.
+- **Calidad:** la app ya no trae datos de negocio. La plantilla se valida contra los mismos límites que las reglas y se
+  cambia sin publicar la app.
+- **Documentación:** ADR-007 y la guía de operación.
+- **Pruebas:** 21 tests nuevos, y los existentes corren sobre la plantilla real.
 
 ### Revisión del autor
 

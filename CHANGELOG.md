@@ -11,6 +11,8 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- `make deploy-opening` publica la plantilla de apertura (`firebase/opening-template.json`) en Firestore con `gcloud`,
+  y `make deploy-rules` publica las reglas.
 - E2E del flujo crítico (`integration_test`) contra el Firebase real del flavor dev:
   - recorre login → Inicio → Cuentas → Cuenta de Ahorros → movimientos (dos páginas de Firestore) → logout;
   - `make e2e` lo corre en un emulador o dispositivo con un usuario de prueba, cuyas credenciales van en
@@ -132,6 +134,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- La apertura de cuentas de un cliente nuevo sale de la plantilla `templates/opening` de Firestore, ya no del código
+  de la app ([ADR-007](docs/adr/ADR-007-opening-template.md)). Se cambia desde la consola o el repo sin publicar la app,
+  y una plantilla inválida o ausente no abre nada a medias. Las reglas permiten leerla a los usuarios autenticados.
 - El encabezado del onboarding y la barra del login muestran el logo, como en el diseño.
 - iOS usa un solo ícono de 1024 px y Xcode genera los demás tamaños (antes había 15 PNG de Flutter).
 - La pestaña Divisas deja de ser un placeholder; `ComingSoonPage` pasa a ser `FeatureUnavailablePage`, para cuando

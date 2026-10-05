@@ -143,8 +143,9 @@ users/{uid}/accounts/{accountId}    type (savings|checking), maskedNumber, balan
 users/{uid}/accounts/{id}/transactions/{txId}
                                     amount, type (credit|debit), description, category, createdAt, balanceAfter
 layouts/{screenId}                  JSON SDUI por pantalla/segmento (alternativa o complemento a Remote Config)
+templates/opening                   plantilla de apertura: cuentas y movimientos iniciales de cada cliente nuevo (ADR-007)
 ```
-- Script de seed para crear datos iniciales al registrarse (o Cloud Function `onUserCreate` si se habilita Blaze).
+- Apertura al registrarse desde la plantilla `templates/opening`, publicada con `make deploy-opening` (o Cloud Function `onUserCreate` si se habilita Blaze).
 - Transferencia entre cuentas propias con `runTransaction` (procesamiento real, no estático).
 - **Reglas de seguridad** de Firestore: cada usuario solo lee/escribe su propio árbol. Versionar en `firebase/firestore.rules`.
 
@@ -266,6 +267,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 ### Fase 4 — Calidad y entrega (adelantada al domingo; el lunes queda para grabar y corregir)
 - [x] `feat/app-icon`: ícono de la app y splash con el logo del diseño (`logo_*`), pedido por el autor el 2026-10-04
   - `NexoLogo` vectorial en `design_system`; `make brand-assets` genera los PNG de Android e iOS con el mismo painter. Detalle en `docs/deployment-operations.md` §4.
+- [x] `feat/opening-template`: la plantilla de apertura pasa del código a Firestore (`templates/opening`), pedido por el autor el 2026-10-04
+  - Fuente en `firebase/opening-template.json`; `make deploy-opening` la publica con `gcloud`. Reglas: solo lectura para usuarios autenticados (desplegadas el 2026-10-04). Decisión en ADR-007.
 - [x] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
   - Contra el Firebase real de dev, con un usuario de prueba creado por el autor (credenciales en `apps/banking_app/e2e.env.json`, ignorado por git). `make e2e` en un emulador o dispositivo; no corre en CI. Siguiente paso posible: Emulator Suite. Pasó el 2026-10-04 en 6 s.
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
@@ -303,3 +306,4 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-04 · Fase 4 adelantada al domingo (decisión del autor).** Toda la Fase 4 (guion, arquitectura, README, E2E, cobertura y release) se hace el domingo; el lunes queda para grabar los videos y corregir lo que aparezca en la prueba general.
 - **2026-10-04 · Ícono y splash con un generador propio.** `flutter_launcher_icons` 0.14 choca con Melos 8 por `cli_util`, y sus versiones viejas bajaban `xml` en todo el workspace y volvían a CocoaPods. El generador es un script propio que dibuja con `NexoLogo`; los XML de Android y el storyboard de iOS se escribieron a mano.
 - **2026-10-04 · Marca centrada en el ícono (desvío del diseño).** En la imagen de Stitch la marca está corrida a la derecha (cerca del 5 %); en el ícono y en la app va centrada, porque descentrada se nota en las máscaras redondas de Android.
+- **2026-10-04 · Plantilla de apertura en Firestore (decisión del autor).** La plantilla con la que se abren las cuentas estaba en el código y parecía data quemada, que la prueba penaliza. Pasa a `templates/opening`, publicada desde el repo con `gcloud`, porque la CLI de Firebase no escribe documentos. El estimado inicial de 45 min no contemplaba cómo publicar el documento; se avisó y el autor eligió `gcloud`. Ver ADR-007.
