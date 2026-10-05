@@ -75,6 +75,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
             children: [
               Row(
                 children: [
+                  // Decorative: the brand name is written next to it.
+                  const NexoLogo(size: 32, semanticsLabel: null),
+                  const SizedBox(width: AppSpacing.sm),
                   Text(
                     'nexo',
                     style: theme.textTheme.headlineMedium?.copyWith(
