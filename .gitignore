@@ -12,3 +12,6 @@ pubspec_overrides.yaml
 
 # Local tooling
 .remember/
+
+# Credentials of the E2E test user (see apps/banking_app/e2e.env.example.json)
+e2e.env.json

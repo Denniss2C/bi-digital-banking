@@ -8,8 +8,8 @@ FIREBASE_PROJECT := bi-digital-banking
 
 .DEFAULT_GOAL := help
 .PHONY: help setup bootstrap gen analyze format format-check test coverage \
-        run-dev run-prod build-apk-dev build-apk-prod brand-assets rc-template \
-        deploy-rc clean
+        e2e run-dev run-prod build-apk-dev build-apk-prod brand-assets \
+        rc-template deploy-rc clean
 
 help: ## List available targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -53,6 +53,11 @@ coverage: ## Run tests with coverage and merge them into coverage/lcov.info
 	else \
 		echo "Install lcov (brew install lcov) to get an HTML report"; \
 	fi
+
+e2e: ## Run the critical E2E flow on a device against Firebase dev (DEVICE=<id> optional)
+	@test -f $(APP_DIR)/e2e.env.json || { echo "Missing $(APP_DIR)/e2e.env.json: copy e2e.env.example.json and fill in the E2E user"; exit 1; }
+	cd $(APP_DIR) && flutter test integration_test --flavor dev \
+		--dart-define-from-file=e2e.env.json $(if $(DEVICE),-d $(DEVICE),)
 
 run-dev: ## Run the app with the dev flavor
 	cd $(APP_DIR) && flutter run --flavor dev -t lib/main_dev.dart
