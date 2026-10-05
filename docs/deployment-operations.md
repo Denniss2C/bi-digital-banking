@@ -129,7 +129,7 @@ Versionadas en `firebase/firestore.rules` (configuración en `firebase.json` y `
 con el CLI de Firebase:
 
 ```bash
-firebase deploy --only firestore:rules --project bi-digital-banking
+make deploy-rules   # firebase deploy --only firestore:rules --project bi-digital-banking
 ```
 
 El CLI compila las reglas antes de publicarlas: si tienen un error de sintaxis, no se cambia nada. La consola guarda el
@@ -306,6 +306,26 @@ pide el layout nuevo en el momento.
 - **Sin conexión**, la app usa los últimos valores que activó, o los embebidos si nunca descargó ninguno.
 - **Cuotas.** En prod, la app pide valores como mucho una vez por hora; en dev, en cada pull to refresh. Las
   actualizaciones en tiempo real llegan en ambos casos. Cambiar de segmento pide los valores en el momento.
+
+### Plantilla de apertura de cuentas
+
+Las cuentas y los primeros movimientos de cada cliente nuevo salen de `templates/opening` en Firestore, no del código
+de la app ([ADR-007](adr/ADR-007-opening-template.md)). La fuente es `firebase/opening-template.json`.
+
+- **Requisito, una vez por máquina:** `gcloud`, con una cuenta del proyecto.
+  ```bash
+  brew install --cask google-cloud-sdk
+  gcloud auth login
+  ```
+- **Publicarla:** `make deploy-opening`. Valida el archivo con el mismo código que usa la app y lo escribe en
+  Firestore. `dart run tool/opening_template.dart --dry-run` (desde `apps/banking_app`) muestra la petición sin
+  enviarla.
+- **Proyecto nuevo:** hay que publicarla antes del primer cliente. Sin plantilla, la apertura no escribe nada,
+  Crashlytics registra el error (`opening data`) y el próximo inicio de sesión lo reintenta. Mientras tanto, el
+  cliente ve "Estamos preparando tus cuentas".
+- **Cambiarla:** edita el JSON y abre un PR (los tests verifican que sea válido y que sobreviva el viaje a Firestore);
+  al mergear, `make deploy-opening`. También se puede editar en la consola, pero entonces el repo queda desactualizado.
+- **Solo afecta a los clientes nuevos:** quien ya abrió sus cuentas conserva su historial.
 
 ### Enviar notificaciones push
 
