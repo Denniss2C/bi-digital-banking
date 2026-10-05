@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "accounts": [
+    {
+      "id": "savings",
+      "type": "savings",
+      "alias": "Cuenta de Ahorros",
+      "maskedNumber": "•••• 4892",
+      "movements": [
+        {
+          "daysAgo": 45,
+          "amountCents": 150000,
+          "description": "Depósito de apertura",
+          "category": "deposit"
+        },
+        {
+          "daysAgo": 42,
+          "amountCents": -6430,
+          "description": "Supermaxi Mall del Sol",
+          "category": "groceries"
+        },
+        {
+          "daysAgo": 40,
+          "amountCents": -1099,
+          "description": "Netflix",
+          "category": "subscriptions"
+        },
+        {
+          "daysAgo": 38,
+          "amountCents": 185000,
+          "description": "Abono nómina",
+          "category": "salary"
+        },
+        {
+          "daysAgo": 36,
+          "amountCents": -4215,
+          "description": "CNEL Electricidad",
+          "category": "utilities"
+        },
+        {
+          "daysAgo": 34,
+          "amountCents": -2350,
+          "description": "Claro Ecuador",
+          "category": "utilities"
+        },
+        {
+          "daysAgo": 32,
+          "amountCents": -1875,
+          "description": "Farmacias Fybeca",
+          "category": "health"
+        },
+        {
+          "daysAgo": 30,
+          "amountCents": -640,
+          "description": "Uber",
+          "category": "transport"
+        },
+        {
+          "daysAgo": 28,
+          "amountCents": 35000,
+          "description": "Transferencia recibida · Carlos Mendoza",
+          "category": "transfer"
+        },
+        {
+          "daysAgo": 26,
+          "amountCents": -8920,
+          "description": "Megamaxi",
+          "category": "groceries"
+        },
+        {
+          "daysAgo": 24,
+          "amountCents": -1250,
+          "description": "Sweet & Coffee",
+          "category": "dining"
+        },
+        {
+          "daysAgo": 22,
+          "amountCents": -1499,
+          "description": "Spotify",
+          "category": "subscriptions"
+        },
+        {
+          "daysAgo": 20,
+          "amountCents": -4500,
+          "description": "Gasolinera Primax",
+          "category": "transport"
+        },
+        {
+          "daysAgo": 18,
+          "amountCents": -3260,
+          "description": "KFC",
+          "category": "dining"
+        },
+        {
+          "daysAgo": 16,
+          "amountCents": -9999,
+          "description": "De Prati",
+          "category": "shopping"
+        },
+        {
+          "daysAgo": 14,
+          "amountCents": -2100,
+          "description": "Interagua",
+          "category": "utilities"
+        },
+        {
+          "daysAgo": 12,
+          "amountCents": -5640,
+          "description": "Supermaxi",
+          "category": "groceries"
+        },
+        {
+          "daysAgo": 10,
+          "amountCents": 185000,
+          "description": "Abono nómina",
+          "category": "salary"
+        },
+        {
+          "daysAgo": 8,
+          "amountCents": -1590,
+          "description": "Cinemark",
+          "category": "entertainment"
+        },
+        {
+          "daysAgo": 6,
+          "amountCents": -780,
+          "description": "Uber",
+          "category": "transport"
+        },
+        {
+          "daysAgo": 4,
+          "amountCents": -4320,
+          "description": "Farmacias Cruz Azul",
+          "category": "health"
+        },
+        {
+          "daysAgo": 3,
+          "amountCents": -2715,
+          "description": "Tía",
+          "category": "groceries"
+        },
+        {
+          "daysAgo": 2,
+          "amountCents": -1099,
+          "description": "Netflix",
+          "category": "subscriptions"
+        },
+        {
+          "daysAgo": 1,
+          "amountCents": -690,
+          "description": "Juan Valdez Café",
+          "category": "dining"
+        }
+      ]
+    },
+    {
+      "id": "checking",
+      "type": "checking",
+      "alias": "Cuenta Corriente",
+      "maskedNumber": "•••• 1203",
+      "movements": [
+        {
+          "daysAgo": 30,
+          "amountCents": 50000,
+          "description": "Depósito de apertura",
+          "category": "deposit"
+        },
+        {
+          "daysAgo": 25,
+          "amountCents": -12000,
+          "description": "Pago tarjeta de crédito",
+          "category": "cards"
+        },
+        {
+          "daysAgo": 15,
+          "amountCents": 25000,
+          "description": "Transferencia recibida · Andrea Paredes",
+          "category": "transfer"
+        },
+        {
+          "daysAgo": 7,
+          "amountCents": -4500,
+          "description": "Pago de servicios · Agua",
+          "category": "utilities"
+        },
+        {
+          "daysAgo": 2,
+          "amountCents": -3000,
+          "description": "Retiro en cajero automático",
+          "category": "cash"
+        }
+      ]
+    }
+  ]
+}

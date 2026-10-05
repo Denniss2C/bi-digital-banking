@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:accounts/src/data/firestore_failure_mapper.dart';
 import 'package:accounts/src/data/firestore_mappers.dart';
 import 'package:accounts/src/data/opening_data.dart';
+import 'package:accounts/src/data/opening_template.dart';
 import 'package:accounts/src/domain/entities/account_transaction.dart';
 import 'package:accounts/src/domain/entities/paging.dart';
 import 'package:accounts/src/domain/entities/transfer.dart';
@@ -152,6 +153,22 @@ class FirestoreAccountsRepository implements AccountsRepository {
           }
           return;
         }
+        // What every new customer gets comes from Firestore, not from the
+        // app. Without a valid template nothing is written: the failure is
+        // reported and the next sign-in tries again.
+        final template = await transaction.get(
+          _firestore.doc(OpeningTemplate.path),
+        );
+        final templateData = template.data();
+        if (templateData == null) {
+          throw const FormatException(
+            '${OpeningTemplate.path} is missing (make deploy-opening)',
+          );
+        }
+        final opening = buildOpeningData(
+          _clock(),
+          OpeningTemplate.fromJson(templateData),
+        );
 
         transaction.set(userRef, {
           'name': name,
@@ -163,10 +180,10 @@ class FirestoreAccountsRepository implements AccountsRepository {
           'openingDataAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
-        for (final opening in buildOpeningData(_clock())) {
-          final accountRef = _accounts(userId).doc(opening.account.id);
-          transaction.set(accountRef, accountToFirestore(opening.account));
-          for (final movement in opening.transactions) {
+        for (final OpeningAccount(:account, :transactions) in opening) {
+          final accountRef = _accounts(userId).doc(account.id);
+          transaction.set(accountRef, accountToFirestore(account));
+          for (final movement in transactions) {
             transaction.set(
               accountRef.collection('transactions').doc(movement.id),
               transactionToFirestore(movement, source: 'seed'),

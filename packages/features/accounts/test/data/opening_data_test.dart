@@ -2,9 +2,13 @@ import 'package:accounts/accounts.dart';
 import 'package:accounts/src/data/opening_data.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/opening_template.dart';
+
 void main() {
   final now = DateTime(2026, 10, 3, 18);
-  final opening = buildOpeningData(now);
+  // The published template (firebase/opening-template.json).
+  final template = OpeningTemplate.fromJson(openingTemplateJson());
+  final opening = buildOpeningData(now, template);
 
   test('opens a savings and a checking account', () {
     expect(opening.map((o) => o.account.type), [
@@ -34,7 +38,10 @@ void main() {
       expect(dates, [...dates]..sort());
     }
     expect(all.map((t) => t.id).toSet(), hasLength(all.length));
-    expect(buildOpeningData(now).first.transactions.first.id, all.first.id);
+    expect(
+      buildOpeningData(now, template).first.transactions.first.id,
+      all.first.id,
+    );
   });
 
   test('savings has more than one page of movements (pagination demo)', () {

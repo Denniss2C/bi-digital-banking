@@ -6,6 +6,7 @@ library;
 
 export 'l10n/gen/accounts_localizations.dart';
 export 'src/data/firestore_accounts_repository.dart';
+export 'src/data/opening_template.dart';
 export 'src/domain/entities/account.dart';
 export 'src/domain/entities/account_transaction.dart';
 export 'src/domain/entities/paging.dart';

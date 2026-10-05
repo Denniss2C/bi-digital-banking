@@ -4,13 +4,17 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 
+import '../helpers/opening_template.dart';
+
 void main() {
   const uid = 'uid-1';
   late FakeFirebaseFirestore firestore;
   late FirestoreAccountsRepository repository;
 
-  setUp(() {
+  setUp(() async {
     firestore = FakeFirebaseFirestore();
+    // Published with `make deploy-opening`.
+    await firestore.doc(OpeningTemplate.path).set(openingTemplateJson());
     repository = FirestoreAccountsRepository(
       firestore,
       clock: () => DateTime(2026, 10, 3, 18),
@@ -45,6 +49,73 @@ void main() {
           .get();
       expect(movements.docs, hasLength(24));
       expect(movements.docs.first.data()['source'], 'seed');
+    });
+
+    test('takes the accounts from the template in Firestore', () async {
+      await firestore.doc(OpeningTemplate.path).set({
+        'schemaVersion': 1,
+        'accounts': [
+          {
+            'id': 'savings',
+            'type': 'savings',
+            'alias': 'Ahorro Meta',
+            'maskedNumber': '•••• 0001',
+            'movements': [
+              {
+                'daysAgo': 2,
+                'amountCents': 10000,
+                'description': 'Depósito de apertura',
+                'category': 'deposit',
+              },
+            ],
+          },
+        ],
+      });
+
+      await open();
+
+      final accounts = await firestore.collection('users/$uid/accounts').get();
+      expect(accounts.docs.single.data()['alias'], 'Ahorro Meta');
+      expect(accounts.docs.single.data()['balanceCents'], 10000);
+    });
+
+    test('without a template it writes nothing and fails', () async {
+      await firestore.doc(OpeningTemplate.path).delete();
+
+      final result = await repository.ensureOpeningData(
+        userId: uid,
+        name: 'Mateo Moreno',
+        email: 'mateo@nexo.ec',
+      );
+
+      expect(result.getLeft().toNullable(), isA<ServerFailure>());
+      expect((await firestore.doc('users/$uid').get()).exists, isFalse);
+    });
+
+    test('with an invalid template it writes nothing and fails', () async {
+      await firestore.doc(OpeningTemplate.path).set({'accounts': <Object>[]});
+
+      final result = await repository.ensureOpeningData(
+        userId: uid,
+        name: 'Mateo Moreno',
+        email: 'mateo@nexo.ec',
+      );
+
+      expect(result.getLeft().toNullable(), isA<ServerFailure>());
+      expect((await firestore.doc('users/$uid').get()).exists, isFalse);
+    });
+
+    test('an opened customer does not need the template', () async {
+      await open();
+      await firestore.doc(OpeningTemplate.path).delete();
+
+      final result = await repository.ensureOpeningData(
+        userId: uid,
+        name: 'Mateo Moreno',
+        email: 'mateo@nexo.ec',
+      );
+
+      expect(result.isRight(), isTrue);
     });
 
     test('is idempotent: a second sign-in changes nothing', () async {
