@@ -28,6 +28,11 @@ void main() {
         );
       }
 
+      // The steps look for the Spanish texts: run the app in Spanish
+      // whatever the device language is.
+      tester.platformDispatcher.localesTestValue = const [Locale('es', 'EC')];
+      addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+
       final testErrorHandler = FlutterError.onError;
       await app.main();
       // bootstrap sends Flutter errors to Crashlytics; here they must fail
@@ -38,18 +43,33 @@ void main() {
 
       _step('Login');
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Correo electrónico'),
+        find.widgetWithText(TextField, 'Correo electrónico'),
         _email,
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Contraseña'),
+        find.widgetWithText(TextField, 'Contraseña'),
         _password,
       );
       await _tap(tester, find.widgetWithText(AppButton, 'Iniciar sesión'));
 
       _step('Inicio: the balance of the two accounts');
-      // A new user's first login also opens its accounts.
-      await _waitFor(tester, find.textContaining('2 cuentas'));
+      // A new user's first login also opens its accounts. If the login
+      // fails, say why instead of waiting for a home that never comes.
+      final home = find.textContaining('2 cuentas');
+      await _pumpUntil(
+        tester,
+        () =>
+            home.evaluate().isNotEmpty ||
+            _loginErrors.keys.any(
+              (text) => find.text(text).evaluate().isNotEmpty,
+            ),
+        what: 'Inicio after the login',
+      );
+      for (final MapEntry(key: text, value: reason) in _loginErrors.entries) {
+        if (find.text(text).evaluate().isNotEmpty) {
+          fail('Login failed: $reason');
+        }
+      }
       expect(find.textContaining('¡Hola'), findsOneWidget);
 
       _step('Cuentas → Cuenta de Ahorros');
@@ -91,6 +111,16 @@ Future<void> _startSignedOut(WidgetTester tester) async {
   }
   await _waitFor(tester, login);
 }
+
+/// Login errors the app shows, and what they mean for this test.
+const _loginErrors = {
+  'Correo o contraseña incorrectos':
+      'Firebase rejected the E2E user. Check its email and password in '
+      'apps/banking_app/e2e.env.json.',
+  'Sin conexión. Revisa tu internet e inténtalo de nuevo.':
+      'the device has no connection (on an Android emulator, check its DNS: '
+      'see "Si algo no sale" in docs/demo/guion-demo.md).',
+};
 
 Finder _tab(String label) =>
     find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
