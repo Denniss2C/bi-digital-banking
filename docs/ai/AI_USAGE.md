@@ -36,6 +36,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-022](#ia-022--notificaciones-push) | 2026-10-04 | Fase 3 · push | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-023](#ia-023--observabilidad) | 2026-10-04 | Fase 3 · observability | Claude Code (Claude Opus 5.5) | 2 |
 | [IA-024](#ia-024--guion-de-demo-y-escenarios) | 2026-10-04 | Fase 4 · guion de demo | Claude Code (Claude Opus 5.5) | 6 |
+| [IA-025](#ia-025--ícono-de-la-app-y-splash) | 2026-10-04 | Fase 4 · ícono y splash | Claude Code (Claude Opus 5.5) | 4 |
 
 ---
 
@@ -1510,6 +1511,75 @@ paso y cada texto con el código (ARB, router, layouts, cubits y panel de depura
   `resilience.md`.
 - **Documentación:** guion de demo, `resilience.md`, CHANGELOG y `CLAUDE.md`.
 - **Pruebas:** los escenarios manuales quedan listos para la prueba general; no hay tests automáticos nuevos.
+
+### Revisión del autor
+
+- Qué acepté:
+- Qué corregí o rechacé:
+- Valoración del impacto:
+
+---
+
+## IA-025 · Ícono de la app y splash
+
+- **Rama:** `feat/app-icon`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "hasta yo leer todo y entrar en contexto, puedes ya crear los logos con la imagen que tienes en
+  el diseño".
+
+### Qué produjo la IA
+
+- **Medición del logo:** en la imagen del diseño el ícono mide 272 px, poco para los 1024 px que pide iOS. La IA midió
+  con un script, píxel a píxel, el ancho de cada trazo, sus extremos, el punto y el radio de las esquinas, y dibujó el
+  logo como vector.
+- **`NexoLogo` en `design_system`:** un `CustomPainter` con esa geometría, en dos variantes (completo y solo la marca) y
+  con semántica de imagen.
+- **Generador (`make brand-assets`):** dibuja con el mismo painter todas las densidades de Android y el ícono de iOS.
+  Incluye un codificador PNG RGB mínimo, porque el App Store rechaza íconos con canal alfa y el de Flutter siempre lo
+  agrega. La salida es determinista.
+- **Recursos nativos:**
+  - Android: ícono adaptativo con silueta temática, ícono para Android 7 y splash navy antes y desde Android 12;
+  - iOS: un solo ícono de 1024 px y el launch screen en navy.
+- **App:**
+  - `SplashPage` continúa el splash nativo sin saltos;
+  - el onboarding y el login muestran el logo, como en el diseño.
+- **9 tests nuevos:** 8 del logo (tamaño, semántica, orden de pintado, variantes, silueta, repintado y zona segura de
+  Android) y 1 del splash.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Agregó los generadores sin revisar versiones.** `flutter pub add flutter_launcher_icons flutter_native_splash`
+   resolvió versiones de 2022 y bajó `xml` de 7.0.1 a 6.6.1 en todo el workspace. Además, al sumar un plugin sin
+   soporte de Swift Package Manager, creó un `Podfile` y tocó los xcconfig: el proyecto volvía a CocoaPods. Se detectó
+   en la salida del comando y se revirtió todo. La versión actual choca con Melos 8 por `cli_util`; por eso el
+   generador es propio.
+2. **Borró un recurso sin pensar en los builds existentes.** Eliminó `drawable-v21/launch_background.xml`, redundante
+   con `minSdk` 24, y el build de Android falló con `resource drawable/launch_background not found`. Se diagnosticó con
+   el log y el registro de fusión de Gradle: el archivo figuraba, pero faltaba su recurso compilado. Un build limpio lo
+   confirmó. Después se reprodujo el caso de un build existente (compilar con los recursos de `main` y luego, de forma
+   incremental, con los nuevos): conservar el archivo lo evita.
+3. **Una indirección innecesaria en el generador:** una extensión que solo devolvía `const NexoLogoPainter()`. Se quitó
+   en la revisión, antes de ejecutarlo.
+4. **El tamaño del splash (88) estaba duplicado** entre el generador y `SplashPage`. Ahora el generador lo lee de
+   `SplashPage.markSize`.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0.
+- **Mutaciones: 6 de 6 detectadas.** Colores u orden de los trazos, el cuadrado navy en la variante sin fondo, la
+  silueta que ignora el color, el repintado, la marca que sube en el splash y el splash sin navy.
+- **Builds:** APK de dev (limpio e incremental desde `main`) e iOS para dispositivo sin firma. Xcode generó los tamaños
+  del ícono desde el PNG de 1024 px.
+- **Comparación visual** con el diseño: ícono con la máscara de iOS, adaptativo con máscara redonda, silueta temática y
+  splash.
+- **Pendiente:** verlo en el teléfono (hay que desinstalar la app, porque el ícono y el splash quedan en caché).
+
+### Impacto
+
+- **Productividad:** unos 45 minutos, sin depender de herramientas de diseño.
+- **Calidad:** el logo es código con tests y una sola fuente para la app, el ícono y el splash.
+- **Documentación:** `deployment-operations.md` §4, README de `design_system`, CHANGELOG y `CLAUDE.md` (dos desvíos).
+- **Pruebas:** `design_system` 70 y app 103.
 
 ### Revisión del autor
 

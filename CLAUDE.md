@@ -264,6 +264,8 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - **Fase 3 completa** el 2026-10-04.
 
 ### Fase 4 — Calidad y entrega (adelantada al domingo; el lunes queda para grabar y corregir)
+- [x] `feat/app-icon`: ícono de la app y splash con el logo del diseño (`logo_*`), pedido por el autor el 2026-10-04
+  - `NexoLogo` vectorial en `design_system`; `make brand-assets` genera los PNG de Android e iOS con el mismo painter. Detalle en `docs/deployment-operations.md` §4.
 - [ ] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
 - [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
@@ -298,3 +300,5 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-03 · Transferencias idempotentes (fuera del plan).** Firestore reintenta una transacción si se pierde la respuesta del commit, aunque el servidor ya la haya aplicado, y el usuario puede reintentar tras un error de red: sin protección, una transferencia podía cobrarse dos veces. Se agregó una clave de idempotencia (`transferId`) que el formulario reutiliza en cada reintento. Costó unos 25 minutos más de lo estimado.
 - **2026-10-03 · Referencia de diseño "Nexo Digital".** Se sumó `docs/design/` (Stitch) como fuente del design system. La app adopta la marca: los nombres visibles pasan de "BI Banca" / "BI Dev" a "Nexo" / "Nexo Dev" (`docs/align-design`). Se corrigen tres contrastes del diseño que no cumplen AA (ver §4).
 - **2026-10-04 · Fase 4 adelantada al domingo (decisión del autor).** Toda la Fase 4 (guion, arquitectura, README, E2E, cobertura y release) se hace el domingo; el lunes queda para grabar los videos y corregir lo que aparezca en la prueba general.
+- **2026-10-04 · Ícono y splash con un generador propio.** `flutter_launcher_icons` 0.14 choca con Melos 8 por `cli_util`, y sus versiones viejas bajaban `xml` en todo el workspace y volvían a CocoaPods. El generador es un script propio que dibuja con `NexoLogo`; los XML de Android y el storyboard de iOS se escribieron a mano.
+- **2026-10-04 · Marca centrada en el ícono (desvío del diseño).** En la imagen de Stitch la marca está corrida a la derecha (cerca del 5 %); en el ícono y en la app va centrada, porque descentrada se nota en las máscaras redondas de Android.
