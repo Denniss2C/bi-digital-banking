@@ -87,7 +87,7 @@ Construir una **plataforma financiera digital de nueva generación**, sin atenci
 
 ```
 apps/banking_app                 -> shell: composición, routing, DI global, flavors
-packages/core                    -> network (dio + RetryInterceptor + ChaosInterceptor), errores, logger, connectivity
+packages/core                    -> network (dio + RetryInterceptor + ChaosInterceptor), errores, montos, almacenamiento local, Telemetry
 packages/design_system           -> tokens, tema claro/oscuro, componentes accesibles
 packages/sdui                    -> motor Server-Driven UI: JSON -> registry de widgets -> render
 packages/features/auth           -> onboarding, registro, login
@@ -272,9 +272,12 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
 - [x] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
   - Contra el Firebase real de dev, con un usuario de prueba creado por el autor (credenciales en `apps/banking_app/e2e.env.json`, ignorado por git). `make e2e` en un emulador o dispositivo; no corre en CI. Siguiente paso posible: Emulator Suite. Pasó el 2026-10-04 en 6 s.
 - [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
-- [ ] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias) — _parcial: versión inicial con el diseño planificado (#2); falta reflejar lo implementado_
-- [ ] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento — _parcial: plantilla ADR-000 y estructura de ambos documentos (#2)_
-- [ ] README final reproducible — _parcial: estructura (#2). Pendiente también: el README de `core` sigue siendo la plantilla de `flutter create`._
+- [x] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias)
+  - Reflejan lo implementado: 6 flujos de secuencia y qué compone el shell. Las reglas de dependencias ahora las verifica un test (`apps/banking_app/test/architecture/`). Además, `core` dejó de declarar 5 dependencias que nunca usó (`connectivity_plus`, `fpdart`, `get_it`, `injectable`, `logger`).
+- [x] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento
+  - ADR-001 a ADR-007; supuestos, riesgos y escalamiento en `docs/architecture/risks-and-scaling.md`.
+- [x] README final reproducible
+  - Requisitos con versiones, puesta en marcha (con un proyecto Firebase propio también), flavors, comandos, pruebas, resiliencia, SDUI, flujo de trabajo, ADRs e IA. También el README de `core`.
 - [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-024_
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx — _parcial: guion con 15 escenarios, video sugerido y preguntas en vivo en `docs/demo/guion-demo.md` (#25); falta grabar_
 - [ ] Release `v1.0.0` + tag + CHANGELOG
