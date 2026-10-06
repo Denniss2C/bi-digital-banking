@@ -42,22 +42,23 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-027](#ia-027--plantilla-de-apertura-en-firestore) | 2026-10-04 | Fase 4 · plantilla de apertura | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-028](#ia-028--arquitectura-riesgos-y-readme-final) | 2026-10-04 | Fase 4 · arquitectura, riesgos y README | Claude Code (Claude Opus 5.5) | 4 |
 | [IA-029](#ia-029--cierre-de-calidad-cobertura-plantilla-y-métricas) | 2026-10-05 | Fase 4 · cobertura, restos de plantilla y métricas | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-030](#ia-030--cierre-readme-replicable-crashlytics-y-release-100) | 2026-10-05 | Fase 4 · README replicable, Crashlytics y release | Claude Code (Claude Opus 5.5) | 4 |
 
 ## Métricas de impacto
 
-Consolidado el 2026-10-05, al cerrar la Fase 4, con los datos de IA-001 a IA-029. Las duraciones son las anotadas en
+Consolidado el 2026-10-05, al cerrar la Fase 4, con los datos de IA-001 a IA-030. Las duraciones son las anotadas en
 cada entrada: aproximadas y de sesión de trabajo.
 
 | Métrica | Valor |
 |---------|-------|
-| Pasos registrados | 29, uno por PR o paso relevante |
-| PRs | 30, cada uno con CI obligatorio y merge por rebase (29 mergeados al abrir el de IA-029) |
-| Commits en `main` | 99 antes de IA-029, con Conventional Commits |
-| Tiempo | Del sábado 3 al lunes 5 de octubre; unas 23 h de sesión, sumando los 26 pasos con tiempo anotado |
-| Tests automáticos | De 1 (el de ejemplo del scaffold) a 459, más un E2E contra el Firebase real |
+| Pasos registrados | 30, uno por PR o paso relevante |
+| PRs | 31, cada uno con CI obligatorio y merge por rebase (30 mergeados al abrir el de IA-030) |
+| Commits en `main` | 111 antes de IA-030, con Conventional Commits |
+| Tiempo | Del sábado 3 al lunes 5 de octubre; unas 24 h de sesión, sumando los 27 pasos con tiempo anotado |
+| Tests automáticos | De 1 (el de ejemplo del scaffold) a 460, más un E2E contra el Firebase real |
 | Cobertura | 95 % de las líneas; cubits y blocs 98.8 %, repositorios 96 % |
-| Mutaciones | Desde IA-015, 105 cambios a propósito en la lógica: algún test detectó 104, y el que sobrevive está justificado en IA-015 |
-| Errores de la IA registrados | 81: 77 hasta IA-028 y 4 en IA-029 |
+| Mutaciones | Desde IA-015, 106 cambios a propósito en la lógica: algún test detectó 105, y el que sobrevive está justificado en IA-015 |
+| Errores de la IA registrados | 85: 77 hasta IA-028, 4 en IA-029 y 4 en IA-030 |
 | Documentación | 7 ADRs, arquitectura con diagramas, resiliencia, operación con runbook, guion de demo y un README por paquete |
 
 ### Errores de la IA, por tipo
@@ -67,14 +68,14 @@ cada entrada: aproximadas y de sesión de trabajo.
 | APIs y herramientas escritas de memoria | Sintaxis de Melos 7, un flag eliminado de build_runner, CocoaPods en un proyecto con Swift Package Manager, una API deprecada, mocktail mal usado (IA-001, IA-003, IA-016, IA-019) | La propia herramienta, al ejecutar |
 | Tests que no probaban lo que decían o se colgaban | Un test que pasaba con el bug presente, taps que no llegaban al widget, una espera con un finder que nunca encuentra nada (IA-012, IA-016, IA-020, IA-026) | Mutaciones y logs |
 | Bugs de producto antes de la demo | Riesgo de cobro doble, `emit` después de cerrar un cubit, contraste roto en la tarjeta hero, atajos cortados con texto grande, una guardia de rutas incompleta (IA-014, IA-015, IA-016, IA-018) | Revisión del diseño y tests de contraste y de texto escalado |
-| Documentación imprecisa o inventada | Una release inventada, el E2E citado antes de existir, seis afirmaciones del guion de demo, una clase que no existe (IA-002, IA-024, IA-028) | Cada afirmación verificada contra el código |
+| Documentación imprecisa o inventada | Una release inventada, el E2E citado antes de existir, seis afirmaciones del guion de demo, una clase que no existe, tiempos de Crashlytics nunca comprobados (IA-002, IA-024, IA-028, IA-030) | Cada afirmación verificada contra el código o contra los logs del dispositivo |
 | Proceso y git | Archivos pisados sin leerlos, cambios en el commit equivocado, dos sesiones en la misma carpeta (IA-003, IA-020, IA-021, IA-022, IA-027) | Revisión del diff antes de cada commit |
-| Lo heredado sin revisar | Dependencias declaradas sin uso y restos de `flutter create` desde el scaffold (IA-001), dibujados como reales en el grafo de arquitectura (IA-028) | El autor vio los TODO de los CHANGELOG; la IA revisó el resto del repo (IA-029) |
+| Lo heredado sin revisar | Dependencias declaradas sin uso y restos de `flutter create` desde el scaffold (IA-001), dibujados como reales en el grafo de arquitectura (IA-028); un paso del README que nunca se ejecutó (IA-030) | El autor vio los TODO de los CHANGELOG; la IA revisó el resto del repo (IA-029) y siguió el README desde un clon limpio (IA-030) |
 | Lints y errores menores repetidos | El mismo lint en tres pasos, YAML inválido, archivos sin formato (IA-001, IA-016, IA-019, IA-021) | `make analyze` con *infos* fatales y CI |
 
 **Cuándo se detectaron.** La mayoría, antes del commit. Algunos llegaron a `main` y se corrigieron después: la
-corrección incompleta de IA-011 (IA-017), un paso de `resilience.md` que no funcionaba (IA-024) y lo heredado del
-scaffold (IA-029).
+corrección incompleta de IA-011 (IA-017), un paso de `resilience.md` que no funcionaba (IA-024), lo heredado del
+scaffold (IA-029) y lo que el README y el guion prometían sin haberlo probado (IA-030).
 
 ### Productividad
 
@@ -104,6 +105,8 @@ scaffold (IA-029).
 3. **Un test que no falla con el bug no prueba nada.** Por eso las mutaciones.
 4. **Revisar lo heredado.** El scaffold dejó dependencias sin uso y textos de plantilla que vivieron tres días en
    `main`.
+5. **Ejecutar lo que se documenta.** Seguir el README desde un clon limpio y mirar los logs del dispositivo encontró lo
+   que ninguna revisión de texto había visto.
 
 ### Revisión global del autor
 
@@ -1904,6 +1907,67 @@ Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 - **Documentación:** runbook, firma, distribución y versionado; un CHANGELOG por paquete, el README del shell y las
   métricas de esta bitácora.
 - **Pruebas:** 459 tests (14 nuevos) y 95 % de cobertura.
+
+### Revisión del autor
+
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
+
+---
+
+## IA-030 · Cierre: README replicable, Crashlytics y release 1.0.0
+
+- **Rama:** `chore/release-v1.0.0`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal y al emulador (`adb`).
+- **Prompt (resumen):** primero, un diagnóstico: "al dar click en 'Enviar error de prueba' me sale un mensaje de error
+  enviado, pero no llegan; los únicos 2 que llegaron, los de forzar cierre". Después, el cierre: el link del video y
+  "¿está en el README principal todo lo necesario y detallado para que puedan emular y replicar mi código?".
+
+### Qué produjo la IA
+
+- **Diagnóstico de Crashlytics con los logs del emulador**, sin cambiar código:
+  - las subidas a `crashlyticsreports-pa` respondieron 200. La primera salió 2 s después del crash, desde un proceso
+    que Android arrancó solo para subirla;
+  - con los logs detallados (`log.tag.FirebaseCrashlytics VERBOSE`), el no fatal quedó guardado en el teléfono
+    (`event0000000000`, de tipo `error`) y se subió al volver a abrir la app (20:43, respuesta 200);
+  - conclusión: el código funciona, y lo que estaba mal era la documentación de la demo.
+- **El README seguido desde un clon limpio** del repo público, en una carpeta temporal: `make setup`, `make analyze`,
+  `make test` y `make build-apk-dev`.
+- **Correcciones:**
+  - `make deploy-opening` toma el proyecto de `FIREBASE_PROJECT`, con su test;
+  - README: versión mínima de Flutter, comandos sin `make`, cómo crear el emulador, primer uso, qué necesita la consola
+    de Firebase, pasos completos con un proyecto propio, el JDK real y el crash del JIT;
+  - el guion y `deployment-operations.md`, con los tiempos reales de Crashlytics;
+  - ADR-001 con sus actualizaciones, el CHANGELOG 1.0.0 y el link al video.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Un paso del README que nunca se ejecutó.** IA-028 escribió "con un proyecto Firebase propio" sin probarlo:
+   `make deploy-opening` (IA-027) tenía el proyecto fijo, y faltaban activar Authentication y Firestore y pasar el
+   proyecto a cada deploy. Se detectó al leer la herramienta durante la revisión del README.
+2. **El JDK equivocado.** IA-028 anotó "probado con 21" a partir del `java -version` de la terminal, pero Flutter compila
+   con el JDK de Android Studio (17.0.6). Se detectó con `flutter doctor -v` al investigar el crash del build.
+3. **Tiempos de Crashlytics sin comprobar.** IA-023 dejó pendiente ver el error de prueba en la consola, e IA-024
+   escribió en el guion "aparece en minutos" y "al volver a abrirla". Los logs del emulador mostraron lo contrario.
+4. **Una inferencia presentada como hecho.** Durante el diagnóstico, la IA afirmó que el no fatal se había ido "en la
+   misma subida del crash", pero el autor solo veía los crashes en la consola. Los docs dicen solo lo comprobado: el
+   no fatal se sube al volver a abrir la app.
+
+### Verificación
+
+- **Clon limpio desde GitHub:** `make setup`, `make analyze` y `make test` (459 tests) en verde. `make build-apk-dev`
+  falló una vez por un crash del JIT del JDK 17.0.6 ("Field too big for insn", en un daemon de Gradle con dos horas de
+  vida) y compiló al repetirlo con un daemon nuevo.
+- **En la rama:** `make format-check`, `make analyze` y `make test` con código de salida 0 (460 tests).
+- **Mutación:** sin la guarda del `--project=` vacío, el test nuevo falla.
+- **Crashlytics:** respuestas 200 de `crashlyticsreports-pa` en logcat y el evento no fatal guardado en el disco del
+  emulador.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora y diez: unos 25 minutos de diagnóstico y 45 de cierre.
+- **Calidad:** el paso del proyecto propio funciona, y la demo de Crashlytics dice lo que pasa de verdad.
+- **Documentación:** README replicable desde cero, guion corregido, ADR-001 al día y CHANGELOG 1.0.0.
+- **Pruebas:** 460 tests (1 nuevo).
 
 ### Revisión del autor
 
