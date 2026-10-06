@@ -172,7 +172,7 @@ Detalle de entornos, Firebase por flavor, CI, observabilidad y operación de con
 | Reglas de arquitectura | `apps/banking_app/test/architecture/` | `make test` |
 | E2E del flujo crítico | `apps/banking_app/integration_test/critical_flow_test.dart` | `make e2e` en un emulador o dispositivo (`DEVICE=<id>` si hay varios) |
 
-**Cobertura** (`make coverage`, 2026-10-05): 459 tests y **95 %** de las líneas, sin contar el código generado. Por
+**Cobertura** (`make coverage`, 2026-10-05): 460 tests y **95 %** de las líneas, sin contar el código generado. Por
 capa, los cubits y blocs llegan al 98.8 % y los repositorios al 96 %.
 
 | Paquete | Líneas cubiertas |
