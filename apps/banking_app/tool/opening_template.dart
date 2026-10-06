@@ -1,8 +1,8 @@
 // Publishes firebase/opening-template.json to Firestore (templates/opening):
 // the accounts and first movements every new customer gets. Run it with
 // `make deploy-opening` (or from apps/banking_app:
-// `dart run tool/opening_template.dart`). `--dry-run` prints the request
-// without sending it.
+// `dart run tool/opening_template.dart`). `--project=<id>` picks another
+// Firebase project, and `--dry-run` prints the request without sending it.
 //
 // It needs gcloud signed in with an account of the Firebase project
 // (`gcloud auth login`): that IAM access is what may write the template,
@@ -12,10 +12,11 @@ import 'dart:io';
 
 import 'package:accounts/opening_template.dart';
 
-const _project = 'bi-digital-banking';
+const _defaultProject = 'bi-digital-banking';
 const _templateFile = '../../firebase/opening-template.json';
 
 Future<void> main(List<String> args) async {
+  final project = projectFrom(args);
   final json =
       jsonDecode(File(_templateFile).readAsStringSync())
           as Map<String, Object?>;
@@ -31,13 +32,16 @@ Future<void> main(List<String> args) async {
   try {
     final request = await client.patchUrl(
       Uri.parse(
-        'https://firestore.googleapis.com/v1/projects/$_project'
+        'https://firestore.googleapis.com/v1/projects/$project'
         '/databases/(default)/documents/${OpeningTemplate.path}',
       ),
     );
     request.headers
-      ..set(HttpHeaders.authorizationHeader, 'Bearer ${await _accessToken()}')
-      ..set('X-Goog-User-Project', _project)
+      ..set(
+        HttpHeaders.authorizationHeader,
+        'Bearer ${await _accessToken(project)}',
+      )
+      ..set('X-Goog-User-Project', project)
       ..contentType = ContentType.json;
     request.write(body);
     final response = await request.close();
@@ -52,7 +56,8 @@ Future<void> main(List<String> args) async {
       (total, account) => total + account.movements.length,
     );
     stdout.writeln(
-      'Published ${OpeningTemplate.path}: ${template.accounts.length} '
+      'Published ${OpeningTemplate.path} in $project: '
+      '${template.accounts.length} '
       'accounts, $movements movements. New customers get it on their first '
       'sign-in; existing ones keep their data.',
     );
@@ -61,12 +66,23 @@ Future<void> main(List<String> args) async {
   }
 }
 
-Future<String> _accessToken() async {
+/// The Firebase project to publish to: `--project=<id>`, or this repo's.
+String projectFrom(List<String> args) {
+  const flag = '--project=';
+  for (final arg in args) {
+    if (arg.startsWith(flag) && arg.length > flag.length) {
+      return arg.substring(flag.length);
+    }
+  }
+  return _defaultProject;
+}
+
+Future<String> _accessToken(String project) async {
   final result = await Process.run('gcloud', ['auth', 'print-access-token']);
   if (result.exitCode != 0) {
     throw StateError(
       'gcloud could not give an access token. Install gcloud and run '
-      '`gcloud auth login` with an account of $_project.\n${result.stderr}',
+      '`gcloud auth login` with an account of $project.\n${result.stderr}',
     );
   }
   return (result.stdout as String).trim();

@@ -25,6 +25,13 @@ Map<String, Object?> _fromFields(Map<dynamic, dynamic> fields) => {
 };
 
 void main() {
+  test('publishes to this repo\'s project unless --project names another', () {
+    expect(projectFrom([]), 'bi-digital-banking');
+    expect(projectFrom(['--dry-run']), 'bi-digital-banking');
+    expect(projectFrom(['--project=my-bank']), 'my-bank');
+    expect(projectFrom(['--project=']), 'bi-digital-banking');
+  });
+
   test('every value says its type; integers travel as text', () {
     expect(firestoreValue(45), {'integerValue': '45'});
     expect(firestoreValue('Netflix'), {'stringValue': 'Netflix'});
