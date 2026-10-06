@@ -171,6 +171,58 @@ void main() {
       expect(find.text('Aún no tienes movimientos'), findsOneWidget);
     });
 
+    testWidgets('one failing account shows an error with a working retry', (
+      tester,
+    ) async {
+      void checkingAnswers(Either<Failure, TransactionPage> page) => when(
+        () => repository.fetchTransactions(
+          userId: 'u',
+          accountId: 'checking',
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer((_) async => page);
+
+      checkingAnswers(const Left(ServerFailure()));
+      await pump(tester, [
+        {'type': 'tx_list'},
+      ]);
+
+      expect(find.text('No pudimos cargar tus movimientos'), findsOneWidget);
+      expect(
+        find.text('Ocurrió un problema. Inténtalo de nuevo.'),
+        findsOneWidget,
+      );
+      expect(find.text('Movimiento 1'), findsNothing);
+
+      checkingAnswers(const Right(TransactionPage(items: [])));
+      await tester.tap(find.text('Reintentar'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('No pudimos cargar tus movimientos'), findsNothing);
+      expect(find.text('Movimiento 1'), findsOneWidget);
+    });
+
+    testWidgets('movements from the offline cache say so', (tester) async {
+      when(
+        () => repository.fetchTransactions(
+          userId: 'u',
+          accountId: any(named: 'accountId'),
+          pageSize: any(named: 'pageSize'),
+        ),
+      ).thenAnswer(
+        (_) async =>
+            Right(TransactionPage(items: [movement(1)], isFromCache: true)),
+      );
+      await pump(tester, [
+        {'type': 'tx_list'},
+      ]);
+
+      expect(
+        find.text('Sin conexión · mostrando tus últimos datos guardados'),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('the limit stays between 1 and 10', (tester) async {
       await pump(tester, [
         {
