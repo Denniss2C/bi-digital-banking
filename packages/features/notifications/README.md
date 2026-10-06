@@ -35,5 +35,5 @@ Cómo enviar una notificación de prueba: [`deployment-operations.md`](../../../
 cd packages/features/notifications && flutter test
 ```
 
-FCM mockeado (permisos, token, mensajes) y el registro de tokens con `fake_cloud_firestore` (sin duplicados, borrado
-y el resto del perfil intacto).
+FCM mockeado (permisos, token, mensajes) y el registro de tokens con `fake_cloud_firestore`: sin duplicados, borrado,
+el resto del perfil intacto y cada error de Firestore como una `Failure` tipada.

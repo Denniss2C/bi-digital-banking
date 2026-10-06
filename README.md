@@ -20,6 +20,7 @@ para Banco Internacional (Ecuador). La identidad visual está en [`docs/design/`
 11. [Flujo de trabajo (Trunk Based Development)](#flujo-de-trabajo-trunk-based-development)
 12. [Decisiones de arquitectura (ADR)](#decisiones-de-arquitectura-adr)
 13. [Uso de IA](#uso-de-ia)
+14. [Licencia](#licencia)
 
 ## Visión general
 
@@ -130,6 +131,25 @@ Detalle de entornos, Firebase por flavor, CI, observabilidad y operación de con
 | Reglas de arquitectura | `apps/banking_app/test/architecture/` | `make test` |
 | E2E del flujo crítico | `apps/banking_app/integration_test/critical_flow_test.dart` | `make e2e` en un emulador o dispositivo (`DEVICE=<id>` si hay varios) |
 
+**Cobertura** (`make coverage`, 2026-10-05): 459 tests y **95 %** de las líneas, sin contar el código generado. Por
+capa, los cubits y blocs llegan al 98.8 % y los repositorios al 96 %.
+
+| Paquete | Líneas cubiertas |
+|---------|------------------|
+| `fx_rates` | 98.4 % |
+| `sdui` | 97.8 % |
+| `auth` | 96.3 % |
+| `notifications` | 96.1 % |
+| `accounts` | 95.8 % |
+| `design_system` | 93.8 % |
+| shell (`banking_app`) | 91.6 % |
+| `core` | 90.9 % |
+
+- **Sin cubrir a propósito:** `app_module.dart`, que registra las instancias de Firebase en get_it y necesita el SDK
+  nativo (lo recorre el E2E), y el registro de la licencia de Inter.
+- **Los tests se prueban con mutaciones:** se rompe la lógica a propósito y se confirma que algún test falla. El
+  detalle de cada paso está en la [bitácora de IA](docs/ai/AI_USAGE.md).
+
 **E2E.** Recorre login → Inicio → Cuentas → Cuenta de Ahorros → movimientos (dos páginas de Firestore) → logout, contra
 el Firebase **real** del flavor dev. Necesita un usuario de prueba:
 
@@ -201,4 +221,10 @@ Contrato y catálogo en el [README de `sdui`](packages/sdui/README.md); decision
 
 El proyecto se desarrolló con Claude Code. [`docs/ai/AI_USAGE.md`](docs/ai/AI_USAGE.md) registra, paso por paso, qué se
 pidió, qué se aceptó, **qué hizo mal la IA y cómo se corrigió**, y su impacto en productividad, calidad, documentación
-y pruebas. Los prompts están en [`docs/ai/prompts/`](docs/ai/prompts/).
+y pruebas, y empieza con las métricas de impacto consolidadas. Los prompts están en
+[`docs/ai/prompts/`](docs/ai/prompts/).
+
+## Licencia
+
+[MIT](LICENSE). La fuente Inter, empaquetada en `design_system`, tiene su propia licencia: SIL Open Font License 1.1
+([`OFL.txt`](packages/design_system/fonts/OFL.txt)).
