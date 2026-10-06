@@ -1,7 +1,8 @@
 # Dependencias entre paquetes
 
 Por qué un monorepo modular: [ADR-001](../adr/ADR-001-monorepo-modular.md). El grafo sale de los `pubspec.yaml`, y un
-test lo verifica en cada PR (ver [Reglas](#reglas)).
+test lo verifica en cada PR (ver [Reglas](#reglas)). Cada paquete declara solo lo que importa, así que el grafo muestra
+las dependencias reales.
 
 ```mermaid
 flowchart BT
@@ -14,11 +15,10 @@ flowchart BT
     fx["features/fx_rates"]
     app["apps/banking_app (shell)"]
 
-    sdui --> core
     sdui --> ds
-    auth --> core & ds & sdui
+    auth --> core & ds
     accounts --> core & ds & sdui
-    notif --> core & ds & sdui
+    notif --> core
     fx --> core & ds & sdui
     app --> auth & accounts & notif & fx
     app --> core & ds & sdui
@@ -27,10 +27,10 @@ flowchart BT
 | Paquete | Dependencias externas principales |
 |---------|-----------------------------------|
 | core | `dio`, `hive_ce`, `equatable`, `intl` |
-| design_system | `equatable` (Inter va empaquetada, sin descargas) |
-| sdui | `fpdart` |
-| auth | `firebase_auth`, `flutter_bloc`, `go_router` |
-| accounts | `cloud_firestore`, `flutter_bloc`, `go_router` |
+| design_system | Ninguna: solo Flutter (Inter va empaquetada, sin descargas) |
+| sdui | `fpdart`, `equatable` |
+| auth | `firebase_auth`, `flutter_bloc` |
+| accounts | `cloud_firestore`, `flutter_bloc` |
 | notifications | `firebase_messaging`, `cloud_firestore` |
 | fx_rates | `dio` (con el cliente resiliente de `core`), `flutter_bloc` |
 | shell | `firebase_core`, `firebase_remote_config`, Crashlytics, Performance y Analytics, `get_it` + `injectable`, `go_router` |
@@ -39,7 +39,8 @@ flowchart BT
 
 1. **Los features no dependen entre sí.** Lo que cruza features lo compone el shell (tabla de abajo).
 2. **`core` y `design_system` no dependen de ningún paquete interno.**
-3. **`sdui` solo conoce `core` y `design_system`.** Cada feature exporta sus componentes SDUI y el shell los registra.
+3. **`sdui` solo puede conocer `core` y `design_system`** (hoy usa solo `design_system`). Cada feature exporta sus
+   componentes SDUI y el shell los registra.
 4. **Solo el shell conoce todos los paquetes:** es el único lugar donde se arman las rutas, la inyección de
    dependencias y el registro SDUI.
 

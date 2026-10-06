@@ -1,7 +1,7 @@
 # auth
 
 Feature de autenticación de Nexo: onboarding, registro, inicio de sesión y sesión. Dueño: `@team-auth`.
-Depende solo de `core`, `design_system` y `sdui`; el shell (`apps/banking_app`) lo compone.
+Depende solo de `core` y `design_system`; el shell (`apps/banking_app`) lo compone.
 
 ## Capas
 

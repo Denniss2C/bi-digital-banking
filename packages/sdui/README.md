@@ -2,7 +2,7 @@
 
 Motor de **Server-Driven UI** de Nexo: el servidor describe una pantalla en JSON y la app la arma con componentes
 propios, diseñados, accesibles y testeados. Así se cambian el orden, el contenido y las campañas **sin publicar una
-versión nueva**. Dueño: `@team-sdui`. Depende de `core` y `design_system`.
+versión nueva**. Dueño: `@team-sdui`. Depende solo de `design_system`.
 
 La decisión y sus alternativas están en [ADR-004](../../docs/adr/ADR-004-sdui-engine.md).
 
