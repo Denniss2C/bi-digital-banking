@@ -11,6 +11,16 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 ## [Unreleased]
 
 ### Added
+- Runbook de incidentes en `docs/deployment-operations.md` §8: la API de divisas caída, Firestore con errores o sin
+  cuota, reglas que rompen permisos, problemas de login, layouts o plantilla de apertura rotos, picos de crashes y push.
+  Cada caso con sus señales, qué hace la app sola y qué hacer.
+- Firma de release para Google Play e iOS, propuesta de distribución y flujo de versiones y releases en
+  `deployment-operations.md` §4 y §5.
+- Licencia MIT en la raíz.
+- Tests para los huecos de cobertura: error, reintento y caché de `tx_list`; errores de Firestore del registro de
+  tokens push; igualdad de las `Failure`; el refresco del router con la sesión; `lerp` y `copyWith` de los colores
+  semánticos. La cobertura (95 % de las líneas) está en el README.
+- Métricas de impacto del uso de IA al inicio de `docs/ai/AI_USAGE.md`, y una revisión global del autor.
 - Documentación de arquitectura de lo implementado (`docs/architecture`): componentes, grafo de dependencias, qué
   compone el shell y 6 flujos de secuencia; además, supuestos, riesgos y escalamiento (`risks-and-scaling.md`).
 - Test de reglas de arquitectura: falla si un paquete declara un paquete interno que su regla no permite (por ejemplo,
@@ -138,6 +148,10 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- Cada paquete declara solo las dependencias que importa. Los features no declaran `get_it`, `injectable` ni
+  `go_router` (la DI y las rutas son del shell), y el grafo de `docs/architecture/dependencies.md` muestra las
+  dependencias reales. build_runner corre solo en el shell, el único paquete con anotaciones de injectable.
+- Cada paquete tiene un CHANGELOG real y el shell, su README, en lugar de los de `flutter create`.
 - README final: requisitos con versiones, puesta en marcha reproducible, flavors, comandos, pruebas, resiliencia,
   personalización, flujo de trabajo, ADRs e IA. El README de `core` reemplaza la plantilla de `flutter create`.
 - La apertura de cuentas de un cliente nuevo sale de la plantilla `templates/opening` de Firestore, ya no del código
@@ -160,6 +174,9 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - La app de ejemplo (contador) se reemplaza por una pantalla mínima que muestra el flavor.
 
 ### Removed
+- Plataformas web, Linux, Windows y macOS que dejó `flutter create`: la app solo soporta Android e iOS, y esas
+  carpetas no tenían flavors ni Firebase de dev.
+- Los LICENSE de cada paquete, que decían "TODO: Add your license here.", y `cupertino_icons`, que la app no usa.
 - `core` deja de declarar `connectivity_plus`, `fpdart`, `get_it`, `injectable` y `logger`, que nunca usó.
   `connectivity_plus` era un plugin nativo que se compilaba en la app sin uso.
 
