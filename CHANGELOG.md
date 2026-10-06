@@ -10,7 +10,17 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-05
+
+Primera versión entregada: banca digital con Firebase real (Auth, Firestore, Remote Config, FCM, Crashlytics,
+Performance y Analytics), home por Server-Driven UI personalizada por segmento, divisas con una API pública y
+comportamiento degradado que se puede demostrar.
+
 ### Added
+- Link al video de la demo en el README.
+- README para replicar el proyecto desde un clon limpio: versión mínima de Flutter, comandos sin `make`, cómo crear el
+  emulador, primer uso, qué necesita acceso a la consola de Firebase, los pasos completos con un proyecto propio y qué
+  hacer si Gradle se cae por un error del JDK en Mac con Apple Silicon.
 - Runbook de incidentes en `docs/deployment-operations.md` §8: la API de divisas caída, Firestore con errores o sin
   cuota, reglas que rompen permisos, problemas de login, layouts o plantilla de apertura rotos, picos de crashes y push.
   Cada caso con sus señales, qué hace la app sola y qué hacer.
@@ -148,6 +158,7 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
 - Configuración de Firebase con FlutterFire CLI.
 
 ### Changed
+- ADR-001 registra con fecha el chequeo automático de dependencias y el cambio de build_runner.
 - Cada paquete declara solo las dependencias que importa. Los features no declaran `get_it`, `injectable` ni
   `go_router` (la DI y las rutas son del shell), y el grafo de `docs/architecture/dependencies.md` muestra las
   dependencias reales. build_runner corre solo en el shell, el único paquete con anotaciones de injectable.
@@ -181,6 +192,13 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
   `connectivity_plus` era un plugin nativo que se compilaba en la app sin uso.
 
 ### Fixed
+- El README decía que se probó con el JDK 21, que es el `java` de la terminal; Flutter compila Android con el JDK
+  de Android Studio (17.0.6).
+- `make deploy-opening` publica en el proyecto de `FIREBASE_PROJECT`, como `make deploy-rules` y `make deploy-rc`.
+  Antes publicaba siempre en `bi-digital-banking`, así que el paso del README para un proyecto propio no funcionaba.
+- El guion y `deployment-operations.md` decían que el error de prueba aparece en Crashlytics en minutos y el crash al
+  volver a abrir la app. Lo comprobado en el emulador: el no fatal se sube al volver a abrir la app, y el crash, en
+  segundos.
 - `make help` lista también los objetivos con números en el nombre (como `e2e`).
 - `resilience.md` §6 pedía publicar un `home_layout` con un JSON roto, pero la consola de Remote Config no lo
   acepta. Ahora usa un layout válido que la app no puede usar (`schemaVersion: 2`).
@@ -191,4 +209,5 @@ correspondiente: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security
   plugins que deja Swift Package Manager al resolver dependencias (`make bootstrap`); la raíz ahora tiene su propio
   `analysis_options.yaml`, que las excluye.
 
-[Unreleased]: https://github.com/Denniss2C/bi-digital-banking/commits/main
+[Unreleased]: https://github.com/Denniss2C/bi-digital-banking/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Denniss2C/bi-digital-banking/releases/tag/v1.0.0
