@@ -6,7 +6,8 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 - Los prompts completos están en [prompts/](prompts/).
 - Hay una entrada por paso o PR. Las entradas no se reescriben: si algo resulta incorrecto
   más adelante, se agrega una nota con fecha.
-- Las secciones **Revisión del autor** las completa la persona, no la IA.
+- Las secciones **Revisión del autor** las completa la persona, no la IA. La
+  [revisión global](#revisión-global-del-autor) reúne todas las entradas.
 
 ## Resumen
 
@@ -40,6 +41,78 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 | [IA-026](#ia-026--e2e-del-flujo-crítico) | 2026-10-04 | Fase 4 · E2E | Claude Code (Claude Opus 5.5) | 5 |
 | [IA-027](#ia-027--plantilla-de-apertura-en-firestore) | 2026-10-04 | Fase 4 · plantilla de apertura | Claude Code (Claude Opus 5.5) | 3 |
 | [IA-028](#ia-028--arquitectura-riesgos-y-readme-final) | 2026-10-04 | Fase 4 · arquitectura, riesgos y README | Claude Code (Claude Opus 5.5) | 4 |
+| [IA-029](#ia-029--cierre-de-calidad-cobertura-plantilla-y-métricas) | 2026-10-05 | Fase 4 · cobertura, restos de plantilla y métricas | Claude Code (Claude Opus 5.5) | 4 |
+
+## Métricas de impacto
+
+Consolidado el 2026-10-05, al cerrar la Fase 4, con los datos de IA-001 a IA-029. Las duraciones son las anotadas en
+cada entrada: aproximadas y de sesión de trabajo.
+
+| Métrica | Valor |
+|---------|-------|
+| Pasos registrados | 29, uno por PR o paso relevante |
+| PRs | 30, cada uno con CI obligatorio y merge por rebase (29 mergeados al abrir el de IA-029) |
+| Commits en `main` | 99 antes de IA-029, con Conventional Commits |
+| Tiempo | Del sábado 3 al lunes 5 de octubre; unas 23 h de sesión, sumando los 26 pasos con tiempo anotado |
+| Tests automáticos | De 1 (el de ejemplo del scaffold) a 459, más un E2E contra el Firebase real |
+| Cobertura | 95 % de las líneas; cubits y blocs 98.8 %, repositorios 96 % |
+| Mutaciones | Desde IA-015, 105 cambios a propósito en la lógica: algún test detectó 104, y el que sobrevive está justificado en IA-015 |
+| Errores de la IA registrados | 81: 77 hasta IA-028 y 4 en IA-029 |
+| Documentación | 7 ADRs, arquitectura con diagramas, resiliencia, operación con runbook, guion de demo y un README por paquete |
+
+### Errores de la IA, por tipo
+
+| Tipo | Ejemplos | Cómo se detectaron |
+|------|----------|--------------------|
+| APIs y herramientas escritas de memoria | Sintaxis de Melos 7, un flag eliminado de build_runner, CocoaPods en un proyecto con Swift Package Manager, una API deprecada, mocktail mal usado (IA-001, IA-003, IA-016, IA-019) | La propia herramienta, al ejecutar |
+| Tests que no probaban lo que decían o se colgaban | Un test que pasaba con el bug presente, taps que no llegaban al widget, una espera con un finder que nunca encuentra nada (IA-012, IA-016, IA-020, IA-026) | Mutaciones y logs |
+| Bugs de producto antes de la demo | Riesgo de cobro doble, `emit` después de cerrar un cubit, contraste roto en la tarjeta hero, atajos cortados con texto grande, una guardia de rutas incompleta (IA-014, IA-015, IA-016, IA-018) | Revisión del diseño y tests de contraste y de texto escalado |
+| Documentación imprecisa o inventada | Una release inventada, el E2E citado antes de existir, seis afirmaciones del guion de demo, una clase que no existe (IA-002, IA-024, IA-028) | Cada afirmación verificada contra el código |
+| Proceso y git | Archivos pisados sin leerlos, cambios en el commit equivocado, dos sesiones en la misma carpeta (IA-003, IA-020, IA-021, IA-022, IA-027) | Revisión del diff antes de cada commit |
+| Lo heredado sin revisar | Dependencias declaradas sin uso y restos de `flutter create` desde el scaffold (IA-001), dibujados como reales en el grafo de arquitectura (IA-028) | El autor vio los TODO de los CHANGELOG; la IA revisó el resto del repo (IA-029) |
+| Lints y errores menores repetidos | El mismo lint en tres pasos, YAML inválido, archivos sin formato (IA-001, IA-016, IA-019, IA-021) | `make analyze` con *infos* fatales y CI |
+
+**Cuándo se detectaron.** La mayoría, antes del commit. Algunos llegaron a `main` y se corrigieron después: la
+corrección incompleta de IA-011 (IA-017), un paso de `resilience.md` que no funcionaba (IA-024) y lo heredado del
+scaffold (IA-029).
+
+### Productividad
+
+- **Contra lo estimado:** la mayoría de los pasos terminó dentro del estimado. Los desvíos se avisaron antes de seguir
+  y vinieron de lo que el plan no contemplaba: los flavors (45 min contra 30, por las herramientas de iOS), la
+  idempotencia de las transferencias (25 min más) y la publicación de la plantilla de apertura (IA-027). En IA-029, la
+  limpieza se extendió a todo el repo, y el autor eligió qué incluir.
+- **Plazos:** la Fase 1 terminó a las 15:40 del sábado, con meta a las 17:00, y la Fase 4 se adelantó al domingo para
+  dejar el lunes a la grabación y las correcciones.
+- **Dónde más rindió:** el código con reglas claras (estados, mapeo de errores, tests de tabla) y la documentación.
+- **Dónde menos:** las herramientas nativas (Xcode, Gradle, flavors de iOS) y los tests colgados, donde una hipótesis
+  equivocada costó unos 20 minutos (IA-003, IA-012).
+
+### Documentación y pruebas
+
+- Cada PR trae su documentación: README del paquete, ADR si hubo una decisión, CHANGELOG y roadmap.
+- Verificar los textos contra el código evitó afirmaciones falsas en la entrega: seis en el guion de demo (IA-024) y
+  seis en la documentación de arquitectura (IA-028).
+- Cada lógica nueva llega con sus tests en el mismo PR, y desde IA-015 se validan con mutaciones.
+
+### Lecciones
+
+1. **Verificar contra la herramienta, no contra la memoria.** Casi todos los errores de APIs vinieron de escribir de
+   memoria.
+2. **Leer antes de escribir.** Los archivos pisados (IA-020, IA-021, IA-027) llevaron a leer siempre antes de
+   sobrescribir.
+3. **Un test que no falla con el bug no prueba nada.** Por eso las mutaciones.
+4. **Revisar lo heredado.** El scaffold dejó dependencias sin uso y textos de plantilla que vivieron tres días en
+   `main`.
+
+### Revisión global del autor
+
+La escribe el autor, no la IA. Reúne la revisión de todas las entradas: si una merece un comentario propio, va en esa
+entrada.
+
+- **Qué acepté:**
+- **Qué corregí o rechacé:**
+- **Valoración del impacto:**
 
 ---
 
@@ -100,9 +173,7 @@ Registro honesto de cómo se usó IA en el proyecto: qué se pidió, qué produj
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -166,9 +237,7 @@ La IA los detectó en una revisión propia antes de entregar el paso:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -248,9 +317,7 @@ La IA los detectó en una revisión propia antes de entregar el paso:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -291,9 +358,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -345,9 +410,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -405,9 +468,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -455,9 +516,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -515,9 +574,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -583,9 +640,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -616,9 +671,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -676,9 +729,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -749,9 +800,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -813,9 +862,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -869,9 +916,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -947,9 +992,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1014,9 +1057,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1059,9 +1100,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1128,9 +1167,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1199,9 +1236,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1264,9 +1299,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1334,9 +1367,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1398,9 +1429,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1459,9 +1488,7 @@ Revisión de la IA sobre `DESIGN.md`:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1517,9 +1544,7 @@ paso y cada texto con el código (ARB, router, layouts, cubits y panel de depura
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1586,9 +1611,7 @@ paso y cada texto con el código (ARB, router, layouts, cubits y panel de depura
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1677,9 +1700,7 @@ Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1750,9 +1771,7 @@ Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
 
 ---
 
@@ -1822,6 +1841,70 @@ Cinco corridas en el emulador de Android (API 34) contra Firebase dev:
 
 ### Revisión del autor
 
-- Qué acepté:
-- Qué corregí o rechacé:
-- Valoración del impacto:
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
+
+---
+
+## IA-029 · Cierre de calidad: cobertura, plantilla y métricas
+
+- **Rama:** `chore/quality-closeout`
+- **Herramienta:** Claude Code (Claude Opus 5.5) en VS Code, modo agente con acceso a la terminal.
+- **Prompt (resumen):** "revisa en qué estamos de la fase 4 para ir cerrando todo". Después: hacer en una sola rama
+  la revisión de cobertura y la consolidación de esta bitácora, y "vi que hay muchos TODO en los changelog de los
+  packages; todo debe quedar bien".
+
+### Qué produjo la IA
+
+- **Estado de la Fase 4 con datos:** PRs, ramas, tags, la bitácora y `make coverage` (445 tests, 93,3 %).
+- **Cobertura:** 14 tests nuevos en los huecos con lógica:
+  - error, reintento y caché de `tx_list`;
+  - los errores de Firestore del registro de tokens push;
+  - la igualdad de las `Failure`, de la que depende que un bloc emita un error nuevo;
+  - el refresco del router con la sesión;
+  - `lerp` y `copyWith` de los colores semánticos.
+
+  Quedan 459 tests y 95 % de cobertura.
+- **Inventario de restos de plantilla** en todo el repo, no solo en los CHANGELOG: LICENSE con TODO, el README de
+  `flutter create`, plataformas web y de escritorio que no funcionaban, el TODO de firma de Gradle y dos secciones
+  *Pendiente* en `deployment-operations.md`.
+- **Decisiones del autor**, preguntadas antes de seguir: licencia MIT, quitar web y escritorio, documentar la firma sin
+  implementarla y limpiar las dependencias sin uso.
+- **Dependencias:** cada paquete declara solo lo que importa, y build_runner corre solo en el shell.
+- **Operación:** firma, distribución, versionado y un runbook de incidentes verificado contra el código.
+- **Esta bitácora:** las métricas de impacto y la revisión global del autor.
+
+### Errores de la IA y cómo se corrigieron
+
+1. **Dependencias sin uso desde el scaffold.** En IA-001, la IA declaró en cada feature `get_it`, `injectable`,
+   `go_router` y build_runner sin que nada los usara, y paquetes internos de más. En IA-028 dibujó el grafo desde esos
+   pubspecs sin mirar los imports, y hasta "corrigió" que `design_system` usaba `equatable`, que nunca importó. Se
+   detectó comparando los imports de cada paquete con su pubspec.
+2. **Restos de `flutter create` durante 28 pasos.** Ningún paso revisó lo que generó la plantilla. Los TODO de los
+   CHANGELOG los vio el autor; la IA encontró el resto al revisar todo el repo.
+3. **Secciones *Pendiente* sin dueño.** IA-002 dejó secciones de `deployment-operations.md` para "el paso que las
+   implementa". La de firma y el runbook, que es parte del alcance obligatorio, nunca tuvieron ese paso.
+4. **Un test confuso en el primer intento.** El test de reintento de `tx_list` respondía lo mismo para las dos cuentas,
+   así que el movimiento aparecía dos veces y el test lo afirmaba con `findsNWidgets(2)`. Pasaba, pero describía un
+   caso irreal. Ahora falla una sola cuenta.
+
+### Verificación
+
+- `make format-check`, `make analyze` y `make test` con código de salida 0: 459 tests. `make gen` sin diferencias en
+  el código generado, también después de quitar las dependencias.
+- **Mutaciones:** 8 de 8 detectadas. Fueron: sin reintento y sin aviso de caché en `tx_list`, dos errores de Firestore
+  mal mapeados, el router sin cancelar su suscripción, `ServerFailure` sin `statusCode` en la igualdad, y `lerp` y
+  `copyWith` rotos.
+- **El runbook, contrastado con el código:** qué apaga cada flag, los reintentos, la caché de divisas, el mapeo de
+  errores de Firestore, los eventos de Analytics y las rutas de push.
+
+### Impacto
+
+- **Productividad:** alrededor de una hora, incluidas tres decisiones que el autor tomó con una pregunta cada una.
+- **Calidad:** el repo ya no tiene TODO de plantilla ni dependencias fantasma, y el grafo de arquitectura es el real.
+- **Documentación:** runbook, firma, distribución y versionado; un CHANGELOG por paquete, el README del shell y las
+  métricas de esta bitácora.
+- **Pruebas:** 459 tests (14 nuevos) y 95 % de cobertura.
+
+### Revisión del autor
+
+Consolidada en la [revisión global del autor](#revisión-global-del-autor).
