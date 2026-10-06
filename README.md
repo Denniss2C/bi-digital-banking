@@ -70,7 +70,7 @@ docs/                           -> arquitectura, ADRs, resiliencia, operación, 
 | Flutter (incluye Dart) | 3.44.7, la de CI. Mínimo 3.44, porque el `pubspec` exige Dart 3.12.2 | Todo |
 | GNU Make | La de macOS o Linux | Los atajos `make` (sin make, ver [más abajo](#sin-make)) |
 | Android Studio y un emulador **con Google Play** | API 34 | Correr la app y recibir push |
-| JDK | 17 o superior (probado con 21) | Gradle |
+| JDK | 17 o superior; Flutter usa el de Android Studio (probado con 17.0.6) | Gradle |
 | Xcode | 27 | iOS (deployment target 15.0), solo en macOS |
 | Firebase CLI | 15.32 | Solo para publicar reglas y Remote Config en un proyecto |
 | gcloud | Cualquiera reciente | Solo para publicar la plantilla de apertura |
@@ -81,6 +81,10 @@ docs/                           -> arquitectura, ADRs, resiliencia, operación, 
   que tenga el ícono de Google Play. Sin Google Play no llegan las notificaciones push.
 - **iOS** usa Swift Package Manager, sin CocoaPods. Es lo predeterminado en Flutter 3.44; si lo desactivaste,
   `flutter config --enable-swift-package-manager`.
+- **JDK:** `flutter doctor -v` muestra cuál usa Flutter para compilar Android. Si una compilación se corta con "Gradle
+  build daemon disappeared unexpectedly" y un `hs_err_pid*.log` que dice "Field too big for insn", es un error del
+  compilador JIT del JDK 17.0.6 en Mac con Apple Silicon, no del proyecto. Volver a compilar lo resuelve (arranca un
+  daemon nuevo), y `flutter config --jdk-dir <ruta>` permite usar un JDK más nuevo.
 
 ## Puesta en marcha
 
