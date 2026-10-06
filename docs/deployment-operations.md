@@ -45,7 +45,8 @@ El proyecto de Xcode se migró con [`tool/setup_ios_flavors.rb`](../apps/banking
 
 Se generan con FlutterFire CLI desde `apps/banking_app`, un comando por flavor. La primera vez, el
 comando de dev registra las apps `com.dennis.banking_app.dev` (Android) y `com.dennis.bankingApp.dev`
-(iOS) en el proyecto. El de prod reutiliza las apps que ya existen.
+(iOS) en el proyecto. El de prod reutiliza las apps que ya existen. Con un proyecto propio, cambia
+`--project` por su id.
 
 ```bash
 cd apps/banking_app
