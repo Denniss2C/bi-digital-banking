@@ -233,10 +233,24 @@ error real.
 
 ### E13 · Observabilidad
 
-1. Panel → **Observabilidad → Enviar error de prueba**: aparece en Crashlytics (proyecto dev) en minutos.
-2. **Forzar cierre de la app (crash):** la app se cierra; el crash aparece en Crashlytics al volver a abrirla.
-3. Con DebugView activo (paso 0.5), navega y transfiere: se ven `screen_view` (con patrones de ruta, sin ids),
+1. Panel → **Observabilidad → Enviar error de prueba**: queda guardado en el teléfono como error no fatal. Crashlytics
+   no lo sube en el momento, sino cuando la app se vuelve a abrir.
+2. **Forzar cierre de la app (crash):** Android sube el crash en segundos, aunque la app no se vuelva a abrir.
+3. **Vuelve a abrir la app** para que suba el error del paso 1. En la consola, Crashlytics de la app Android
+   `com.dennis.banking_app.dev`: los dos aparecen unos minutos después. El error de prueba está entre los no fatales
+   (filtro *Tipo de evento*).
+4. Con DebugView activo (paso 0.5), navega y transfiere: se ven `screen_view` (con patrones de ruta, sin ids),
    `transfer_completed`, `home_layout`, etc.
+
+Para seguir la subida en vivo:
+
+```bash
+adb shell setprop log.tag.FirebaseCrashlytics VERBOSE
+adb logcat -s FirebaseCrashlytics TRuntime.CctTransportBackend
+```
+
+Se ven el evento guardado (`Persisting non-fatal event`), el reporte encolado y la respuesta `Status Code: 200` de
+`crashlyticsreports-pa`.
 
 **Demuestra:** monitoreo en producción sin datos personales, con los SLOs y alertas propuestos en
 `deployment-operations.md` §6.
