@@ -1,6 +1,7 @@
 # Despliegue y operación
 
-> Estado: estructura inicial. Las secciones marcadas _Pendiente_ se completan en el paso que las implementa.
+Cómo se configura, compila, publica y opera la app: entornos, secretos, CI, firma y distribución, versiones,
+observabilidad, cambios sin publicar versión y qué hacer ante un incidente.
 
 ## 1. Entornos (flavors)
 
@@ -110,9 +111,9 @@ que corregir en el proyecto. Hay que revisarlo antes de actualizar Flutter.
 ### Errores en `build/` de la raíz en el IDE
 
 Resolver dependencias en la raíz (`make bootstrap`) hace que Swift Package Manager copie el código de los plugins,
-con sus tests y ejemplos, en `build/ios` y `build/macos`. Esa carpeta está ignorada por git y el
-`analysis_options.yaml` de la raíz la excluye del análisis. Si un IDE igual muestra errores ahí, se puede borrar sin
-riesgo: se regenera sola.
+con sus tests y ejemplos, en `build/` (por ejemplo, `build/ios/SourcePackages`). Esa carpeta está ignorada por git
+y el `analysis_options.yaml` de la raíz la excluye del análisis. Si un IDE igual muestra errores ahí, se puede borrar
+sin riesgo: se regenera sola.
 
 ## 2. Configuración y secretos
 
@@ -157,8 +158,9 @@ push a `main` y en cada PR hacia `main`.
   solo por rebase.
 - No requiere secretos: las opciones de cliente de Firebase no lo son (ver §2).
 - **Duración** de la primera ejecución, sin caché: 6 min 46 s. Por paso: instalar Flutter 68 s, analizar 36 s, tests
-  73 s y verificar el código generado 197 s. Este último es el más lento porque build_runner compila sus builders en
-  los 6 paquetes que dependen de él. _Optimización posible:_ limitarlo a los paquetes que tienen anotaciones.
+  73 s y verificar el código generado 197 s. Este último era el más lento porque build_runner compilaba sus builders
+  en los 6 paquetes que lo declaraban. Desde el 2026-10-05 solo lo declara el shell, el único paquete con anotaciones
+  de injectable, así que corre en uno solo (en local, `make gen` completo tarda 43 s).
 
 ## 4. Build y distribución
 
@@ -167,7 +169,79 @@ make build-apk-dev    # APK release con flavor dev
 make build-apk-prod   # APK release con flavor prod
 ```
 
-_Pendiente:_ firma de release, distribución (Firebase App Distribution), versionado.
+Solo Android e iOS: las carpetas de web y escritorio que crea `flutter create` se quitaron porque no tienen flavors ni
+Firebase configurado. Si alguna vez hacen falta, `flutter create --platforms=<plataforma> .` las vuelve a generar.
+
+### Firma
+
+Los builds de release se firman con la **clave de debug** (`android/app/build.gradle.kts`): los APK de la demo se
+instalan a mano y nunca se suben a una tienda. Para publicar en Google Play, según la
+[guía de Flutter](https://docs.flutter.dev/deployment/android):
+
+1. Crear una clave de subida, una sola vez y fuera del repo:
+   ```bash
+   keytool -genkey -v -keystore ~/nexo-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+   ```
+2. Crear `apps/banking_app/android/key.properties`. Git ya lo ignora, igual que los `*.jks` y `*.keystore`:
+   ```properties
+   storePassword=<contraseña del keystore>
+   keyPassword=<contraseña de la clave>
+   keyAlias=upload
+   storeFile=/Users/<usuario>/nexo-upload.jks
+   ```
+3. Leerlo en `build.gradle.kts` (cambio propuesto, no aplicado en este repo):
+   ```kotlin
+   import java.io.FileInputStream
+   import java.util.Properties
+
+   val keystorePropertiesFile = rootProject.file("key.properties")
+   val keystoreProperties = Properties()
+   if (keystorePropertiesFile.exists()) {
+       keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+   }
+
+   android {
+       signingConfigs {
+           if (keystorePropertiesFile.exists()) {
+               create("release") {
+                   keyAlias = keystoreProperties["keyAlias"] as String
+                   keyPassword = keystoreProperties["keyPassword"] as String
+                   storeFile = file(keystoreProperties["storeFile"] as String)
+                   storePassword = keystoreProperties["storePassword"] as String
+               }
+           }
+       }
+       buildTypes {
+           release {
+               // Without key.properties (another machine, CI without secrets)
+               // it keeps signing with the debug key.
+               signingConfig = signingConfigs.findByName("release")
+                   ?: signingConfigs.getByName("debug")
+           }
+       }
+   }
+   ```
+4. Activar **Play App Signing**: Google guarda la clave que firma la app y el equipo conserva solo la de subida, que
+   se puede reemplazar si se pierde.
+5. Generar el bundle: `flutter build appbundle --flavor prod -t lib/main_prod.dart`.
+
+- **En CI**, el keystore (en base64) y las contraseñas irían como secretos del repositorio: el job los escribe en disco
+  antes del build. Hoy CI no compila builds de release.
+- **SHA-1:** si se restringe la API key por SHA-1 (§2), hay que agregar el de la clave de subida y el de Play App
+  Signing.
+- **iOS** necesita una cuenta de Apple Developer: el equipo de firma y los perfiles de cada bundle ID se configuran en
+  Xcode, y `flutter build ipa --flavor prod -t lib/main_prod.dart` genera el archivo para TestFlight. El proyecto no
+  tiene equipo configurado, por eso iOS se verifica con builds sin firmar (§1).
+
+### Distribución
+
+No está automatizada: en la demo, el APK se instala directamente. La propuesta:
+
+| Etapa | Canal | Flavor |
+|-------|-------|--------|
+| QA interno | Firebase App Distribution, con grupos de testers | dev |
+| Piloto | Google Play (pruebas interna y cerrada) y TestFlight | prod |
+| Producción | Google Play con lanzamiento progresivo (1 % → 10 % → 50 % → 100 %), que se pausa si Crashlytics alerta (§6), y App Store con publicación por fases | prod |
 
 ### Ícono de la app y splash
 
@@ -195,8 +269,18 @@ los proyectos nativos (`apps/banking_app/tool/brand_assets_test.dart`; es un tes
 
 ## 5. Versionado y releases
 
-- SemVer en `apps/banking_app/pubspec.yaml` (`version: X.Y.Z+build`).
-- Cada PR actualiza `CHANGELOG.md` en `[Unreleased]`; al hacer release se mueve a una versión con fecha y se crea el tag `vX.Y.Z`.
+- **SemVer** en `apps/banking_app/pubspec.yaml` (`version: X.Y.Z+build`). `X.Y.Z` es el nombre de la versión
+  (`versionName` en Android, `CFBundleShortVersionString` en iOS) y `build`, el número de compilación (`versionCode`,
+  `CFBundleVersion`). En Android, el flavor dev agrega `-dev` al nombre.
+- Cada subida a una tienda necesita un `build` mayor que el anterior; en CI se puede pasar con `--build-number`.
+- **Lo que se entrega es la versión de la app.** Los paquetes de `packages/` no se publican por separado: se quedan en
+  `0.0.1` y sus `CHANGELOG.md` resumen qué traen (ver ADR-001).
+- Cada PR actualiza `CHANGELOG.md` en `[Unreleased]`. Para publicar una versión:
+  1. Un PR `chore/release-vX.Y.Z` mueve `[Unreleased]` a `[X.Y.Z] - AAAA-MM-DD` y, si hace falta, sube `version`.
+  2. Después del merge, sobre `main`: `git tag -a vX.Y.Z -m "vX.Y.Z"`, `git push origin vX.Y.Z` y
+     `gh release create vX.Y.Z` con las notas de esa versión.
+- **Sin ramas de release** (Trunk Based Development): un parche también sale de `main`, con un PR `fix/...` y su propia
+  versión.
 
 ## 6. Observabilidad
 
@@ -280,8 +364,8 @@ La home y los feature flags vienen de **Remote Config**. La decisión está en
 |-----------|------|----------|
 | `home_layout` | JSON | Layout SDUI de la home. Valor por defecto, más uno por segmento (`segment_saver`, `segment_traveler`). |
 | `feature_transfers_enabled` | Booleano | Apaga las transferencias: oculta el botón, bloquea la ruta y los atajos explican que no está disponible. |
-| `feature_fx_enabled` | Booleano | Divisas (se aplica en `feat/fx-rates`). |
-| `feature_ai_assistant_enabled` | Booleano | Asistente con IA (bonus). |
+| `feature_fx_enabled` | Booleano | Apaga Divisas: la pestaña dice que no está disponible, la home oculta el widget de tasas y los atajos a `/fx` lo explican. |
+| `feature_ai_assistant_enabled` | Booleano | Reservado para el asistente con IA (bonus, no implementado): hoy no cambia nada. |
 
 **Segmentos.** La app envía el segmento del cliente (`users/{uid}.segment`, `new_user` al abrir la cuenta) como
 *custom signal* `segment`. Las condiciones de la plantilla eligen el layout en el servidor; un segmento sin condición
@@ -350,4 +434,87 @@ crear un movimiento necesitaría el plan Blaze.
 
 ## 8. Runbook de incidentes
 
-_Pendiente:_ qué revisar ante caídas de la API de tipo de cambio, errores de Firebase o crashes masivos.
+Ante cualquier incidente, el orden es el mismo:
+
+1. **Medir el alcance** con las herramientas de §6: Crashlytics (issues y usuarios afectados, por versión), Analytics
+   en tiempo real, Performance (llamadas HTTP) y el [estado de Firebase](https://status.firebase.google.com).
+2. **Mitigar sin publicar versión** con lo que permite §7: apagar un feature flag, publicar otro layout o revertir una
+   versión de Remote Config o de las reglas.
+3. **Corregir** con una rama `fix/...`, un test que reproduzca la falla, el PR y una versión de parche (§5).
+4. **Cerrar** anotando la causa, el impacto y las acciones en el PR del arreglo.
+
+### La API de tipo de cambio no responde o está lenta
+
+- **Señales:** en Performance baja la tasa de respuestas 2xx de `open.er-api.com` (SLO: 98 %) o sube su duración. Los
+  clientes ven "No pudimos actualizar · mostrando las últimas tasas guardadas".
+- **Qué hace la app sola:**
+  - reintenta dos veces los errores transitorios, con backoff (`RetryInterceptor`);
+  - si igual falla, muestra las últimas tasas guardadas con su antigüedad ("Actualizado hace 3 horas"), y sin caché, un
+    error con Reintentar;
+  - con tasas guardadas, solo vuelve a pedirlas cuando el proveedor ya publicó otras y pasó al menos una hora, o
+    cuando el cliente actualiza a mano. Así no satura la API cuando vuelve.
+- **Qué hacer:**
+  - confirmar el estado de [ExchangeRate-API](https://www.exchangerate-api.com);
+  - si la caída se alarga, apagar `feature_fx_enabled`: Divisas queda como no disponible y la home oculta el widget;
+  - si el proveedor cambió el formato de la respuesta (`ServerFailure` "Invalid rates"), el arreglo va en el parser de
+    `fx_rates`, con su test.
+- **Reproducirlo:** en dev, el panel de depuración inyecta latencia, fallos 503 o "sin red"
+  ([`resilience.md`](resilience.md) §6).
+
+### Firestore falla o se queda sin cuota
+
+- **Señales:** errores al cargar cuentas o movimientos, el aviso "Sin conexión · mostrando tus últimos datos
+  guardados" en clientes que tienen red, o más `transfer_failed` con `reason` `network` o `server`.
+- **Qué hace la app sola:** muestra saldos y movimientos desde la caché offline de Firestore, con ese aviso. Las
+  transferencias necesitan conexión: fallan con un mensaje claro y, como son idempotentes (`transferId`), reintentarlas
+  nunca cobra dos veces.
+- **Qué hacer:**
+  - revisar el estado de Firebase y el uso del proyecto (Firestore → Uso). El plan Spark tiene una cuota diaria de
+    50 000 lecturas y 20 000 escrituras: al agotarse, Firestore responde `resource-exhausted` hasta que se reinicia, a
+    la medianoche del Pacífico. La solución de fondo es pasar a Blaze;
+  - mientras tanto, apagar `feature_transfers_enabled` evita que los clientes intenten transferencias que van a fallar.
+
+### Errores de permisos después de cambiar las reglas
+
+- **Señales:** justo después de `make deploy-rules`, más errores al cargar cuentas o más `transfer_failed` con
+  `reason` `auth`.
+- **Qué hacer:** revertir desde la consola (Firestore → Reglas → historial) o con `git revert` del cambio y
+  `make deploy-rules`.
+- **Prevención:** las reglas aún no tienen tests automáticos. El siguiente paso es probarlas con el emulador de
+  Firestore ([riesgos](architecture/risks-and-scaling.md)).
+
+### No se puede iniciar sesión
+
+- **Señales:** caen los eventos `login`, o los clientes ven "Demasiados intentos" (Firebase bloquea por un rato los
+  dispositivos con muchos intentos fallidos).
+- **Qué hace la app sola:** quien ya había iniciado sesión entra directo, porque Firebase restaura la sesión guardada.
+- **Qué hacer:** revisar el estado de Firebase Authentication y, en la consola (Authentication → Usuarios), descartar
+  un abuso, como muchos registros desde el mismo origen.
+
+### La home cambió o los clientes nuevos no tienen cuentas
+
+- **`home_layout` con `source=fallback` o con `issues` > 0** justo después de publicar: el layout nuevo tiene un error.
+  Revertir la versión en Remote Config (§7, *Si algo sale mal*).
+- **El error `opening data` en Crashlytics:** falta la plantilla de apertura o es inválida. Publicarla con
+  `make deploy-opening` (§7); el próximo inicio de sesión de esos clientes abre sus cuentas.
+
+### Pico de crashes
+
+- **Señales:** alerta de velocidad de Crashlytics, un issue nuevo o una regresión, o "usuarios sin crashes" por debajo
+  del 99.5 %.
+- **Diagnóstico:** cada issue muestra la versión, el dispositivo y el sistema; con Analytics activo, también los
+  eventos previos (las pantallas visitadas) como *breadcrumbs*.
+- **Mitigar sin publicar versión:**
+  - si el crash ocurre en una función con flag (transferencias o Divisas), apagarla;
+  - si es un componente de la home, publicar un layout sin él. Un componente que lanza una excepción no tumba la app:
+    se omite y llega como error no fatal (`sdui_component_failed`);
+  - si hay un lanzamiento progresivo en curso, pausarlo en Play Console.
+- **Si no hay interruptor:** un parche desde `main` (§5), con un test que reproduzca el crash.
+
+### Las notificaciones no llegan
+
+- Revisar que el cliente tenga su token en `users/{uid}.fcmTokens`: se guarda al iniciar sesión con el permiso
+  concedido y se quita al cerrar sesión.
+- En Android, el emulador necesita Google Play. En iOS no llegan: falta la clave APNs (§7).
+- Si la notificación abre la app pero no la pantalla, su `route` no es una ruta de la app: el shell la ignora y no
+  registra `push_opened`.
