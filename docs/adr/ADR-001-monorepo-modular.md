@@ -65,3 +65,11 @@ comunicación entre features pasa por el shell (rutas y contratos definidos en `
   necesita releases independientes. La alternativa C queda abierta sin reescribir código.
 - **Señales para reconsiderar:** que los dominios necesiten ciclos de release distintos, o que la CI del monorepo
   completo supere los ~15 minutos.
+
+## Actualizaciones
+
+- **2026-10-04:** el chequeo automático de la regla "un feature no depende de otro" ya existe. Un test lee los
+  `pubspec.yaml` del workspace y falla si un paquete declara uno interno que su regla no permite
+  ([reglas](../architecture/dependencies.md#reglas)).
+- **2026-10-05:** cada paquete declara solo lo que importa, y build_runner corre solo en el shell, el único paquete con
+  anotaciones de injectable. El paso de CI que verifica el código generado deja de compilar builders en 6 paquetes.
