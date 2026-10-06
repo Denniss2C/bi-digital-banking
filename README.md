@@ -35,7 +35,10 @@ para Banco Internacional (Ecuador). La identidad visual está en [`docs/design/`
 | Conectividad limitada | Persistencia offline de Firestore, reintentos con backoff, caché y avisos; modo caos para demostrarlo |
 | Pruebas | Tests unitarios y de widgets en cada paquete, test de reglas de arquitectura y un E2E del flujo crítico contra Firebase real |
 
-**Demo:** el [guion de demo](docs/demo/guion-demo.md) recorre los 15 escenarios con pasos y resultado esperado.
+**Demo:** [video en Google Drive][video]. El [guion de demo](docs/demo/guion-demo.md) recorre los 15 escenarios con
+pasos y resultado esperado.
+
+[video]: https://drive.google.com/drive/folders/1lN0w82jLZUpcbGoXbxJogAlf24wa4EuZ?usp=sharing
 
 ## Arquitectura
 
@@ -64,36 +67,70 @@ docs/                           -> arquitectura, ADRs, resiliencia, operación, 
 
 | Herramienta | Versión usada | Para qué |
 |-------------|---------------|----------|
-| Flutter (incluye Dart) | 3.44.7 (Dart 3.12.2) | Todo |
+| Flutter (incluye Dart) | 3.44.7, la de CI. Mínimo 3.44, porque el `pubspec` exige Dart 3.12.2 | Todo |
+| GNU Make | La de macOS o Linux | Los atajos `make` (sin make, ver [más abajo](#sin-make)) |
 | Android Studio y un emulador **con Google Play** | API 34 | Correr la app y recibir push |
-| Xcode | 27 | iOS (deployment target 15.0) |
 | JDK | 17 o superior (probado con 21) | Gradle |
-| Firebase CLI | 15.32 | Solo para publicar reglas y Remote Config |
+| Xcode | 27 | iOS (deployment target 15.0), solo en macOS |
+| Firebase CLI | 15.32 | Solo para publicar reglas y Remote Config en un proyecto |
 | gcloud | Cualquiera reciente | Solo para publicar la plantilla de apertura |
-| FlutterFire CLI | 1.4.1 | Solo para reconfigurar Firebase |
+| FlutterFire CLI | 1.4.1 | Solo para conectar otro proyecto Firebase |
 
-Melos 8 viene como dependencia del workspace (`dart run melos`): no hace falta instalarlo.
+- **Melos 8** viene como dependencia del workspace (`dart run melos`): no hace falta instalarlo.
+- **Emulador:** en Android Studio, Device Manager → Create Virtual Device → un teléfono con una imagen de API 34
+  que tenga el ícono de Google Play. Sin Google Play no llegan las notificaciones push.
+- **iOS** usa Swift Package Manager, sin CocoaPods. Es lo predeterminado en Flutter 3.44; si lo desactivaste,
+  `flutter config --enable-swift-package-manager`.
 
 ## Puesta en marcha
 
 ```bash
 git clone https://github.com/Denniss2C/bi-digital-banking.git
 cd bi-digital-banking
-make setup      # dependencias de todo el workspace y código generado
-make run-dev    # con un emulador abierto
+make setup      # muestra la versión de Flutter, resuelve las dependencias y genera el código
+make test       # opcional: todos los tests, sin Firebase ni red
+make run-dev    # con un emulador abierto o un dispositivo conectado
 ```
 
-La configuración de Firebase de cliente está versionada (no son secretos), así que la app se conecta al proyecto
-`bi-digital-banking` sin pasos extra: registra un usuario y la app le abre sus cuentas.
+**Primer uso.** La configuración de Firebase de cliente está versionada (no son secretos), así que la app usa el
+proyecto `bi-digital-banking` sin pasos extra:
+1. En la app, **Crear cuenta** con cualquier correo (no se verifica) y una contraseña de 8 o más caracteres con letras
+   y números.
+2. Al entrar, la app abre dos cuentas con su historial inicial, desde la plantilla de apertura
+   ([ADR-007](docs/adr/ADR-007-opening-template.md)).
+3. Las herramientas de la demo están en **Perfil → Panel de depuración**, solo en dev: modo caos, Firestore sin red,
+   segmento del cliente, token de push y Crashlytics.
+
+**Qué necesita acceso a la consola de Firebase.** Casi toda la app se prueba sin acceso: registro, cuentas,
+movimientos, transferencias, divisas, modo caos, sin conexión y la home por segmento (el segmento se cambia desde el
+panel de depuración). Tres cosas necesitan la consola del proyecto: cambiar la home en vivo (Remote Config), enviar
+una notificación push (Messaging) y ver Crashlytics, Analytics y Performance. Para esas, pide acceso al autor o usa un
+proyecto propio.
 
 **Con un proyecto Firebase propio:**
-1. `flutterfire configure` por flavor ([`deployment-operations.md`](docs/deployment-operations.md) §1).
-2. Publica la configuración del backend:
+1. En la consola de Firebase, crea el proyecto y activa **Authentication** (método Correo electrónico/contraseña) y
+   **Firestore** (modo producción).
+2. Conecta la app con un `flutterfire configure` por flavor, con el id de tu proyecto en `--project`
+   ([`deployment-operations.md`](docs/deployment-operations.md) §1). Eso reescribe los `firebase_options_*.dart` y la
+   configuración nativa de cada flavor.
+3. Inicia sesión en las CLIs (`firebase login` y `gcloud auth login`) y publica el backend en tu proyecto:
    ```bash
-   make deploy-rules     # reglas de Firestore
-   make deploy-rc        # home por segmento y feature flags
-   make deploy-opening   # plantilla de apertura de cuentas
+   make deploy-rules   FIREBASE_PROJECT=<tu-proyecto>   # reglas de Firestore
+   make deploy-rc      FIREBASE_PROJECT=<tu-proyecto>   # home por segmento y feature flags
+   make deploy-opening FIREBASE_PROJECT=<tu-proyecto>   # plantilla de apertura de cuentas
    ```
+
+### Sin make
+
+Los atajos de `make` llaman a Melos y a Flutter. Sin make (por ejemplo, en Windows), estos son los equivalentes:
+
+```bash
+dart pub get && dart run melos bootstrap && dart run melos run build_runner   # make setup
+dart run melos run test                                                       # make test
+cd apps/banking_app && flutter run --flavor dev -t lib/main_dev.dart          # make run-dev
+```
+
+El resto está en el [`Makefile`](Makefile): cada atajo es una o dos líneas.
 
 ## Flavors y configuración
 
