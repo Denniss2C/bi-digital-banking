@@ -271,14 +271,16 @@ Estado al iniciar este archivo (sáb 3 oct, 13:45):
   - Fuente en `firebase/opening-template.json`; `make deploy-opening` la publica con `gcloud`. Reglas: solo lectura para usuarios autenticados (desplegadas el 2026-10-04). Decisión en ADR-007.
 - [x] `test/e2e`: flujo crítico login → home → cuenta → movimientos (`integration_test`)
   - Contra el Firebase real de dev, con un usuario de prueba creado por el autor (credenciales en `apps/banking_app/e2e.env.json`, ignorado por git). `make e2e` en un emulador o dispositivo; no corre en CI. Siguiente paso posible: Emulator Suite. Pasó el 2026-10-04 en 6 s.
-- [ ] Revisar cobertura de unit/widget tests en blocs y repositorios
+- [x] Revisar cobertura de unit/widget tests en blocs y repositorios
+  - Hecho en `chore/quality-closeout`: 95 % de las líneas (cubits y blocs 98.8 %, repositorios 96 %) y 14 tests nuevos en los huecos con lógica. Detalle por paquete en el README.
 - [x] `docs/architecture`: diagramas Mermaid (componentes, flujos, dependencias)
   - Reflejan lo implementado: 6 flujos de secuencia y qué compone el shell. Las reglas de dependencias ahora las verifica un test (`apps/banking_app/test/architecture/`). Además, `core` dejó de declarar 5 dependencias que nunca usó (`connectivity_plus`, `fpdart`, `get_it`, `injectable`, `logger`).
 - [x] `docs`: ADRs pendientes, `resilience.md`, `deployment-operations.md`, supuestos, riesgos y escalamiento
   - ADR-001 a ADR-007; supuestos, riesgos y escalamiento en `docs/architecture/risks-and-scaling.md`.
 - [x] README final reproducible
   - Requisitos con versiones, puesta en marcha (con un proyecto Firebase propio también), flavors, comandos, pruebas, resiliencia, SDUI, flujo de trabajo, ADRs e IA. También el README de `core`.
-- [ ] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto — _parcial: entradas IA-001 a IA-024_
+- [x] `docs/ai/AI_USAGE.md` consolidado con métricas de impacto
+  - Métricas al inicio de la bitácora (IA-001 a IA-029): volumen, errores de la IA por tipo, productividad, documentación, pruebas y lecciones. Las 28 revisiones del autor vacías apuntan a una revisión global, que **completa el autor**.
 - [ ] Video/guion de demo: login, cuentas, cambio de home en vivo vía Remote Config, modo caos, push, fx — _parcial: guion con 15 escenarios, video sugerido y preguntas en vivo en `docs/demo/guion-demo.md` (#25); falta grabar_
 - [ ] Release `v1.0.0` + tag + CHANGELOG
 
@@ -310,3 +312,4 @@ _(Anota aquí cambios de plan con fecha y motivo.)_
 - **2026-10-04 · Ícono y splash con un generador propio.** `flutter_launcher_icons` 0.14 choca con Melos 8 por `cli_util`, y sus versiones viejas bajaban `xml` en todo el workspace y volvían a CocoaPods. El generador es un script propio que dibuja con `NexoLogo`; los XML de Android y el storyboard de iOS se escribieron a mano.
 - **2026-10-04 · Marca centrada en el ícono (desvío del diseño).** En la imagen de Stitch la marca está corrida a la derecha (cerca del 5 %); en el ícono y en la app va centrada, porque descentrada se nota en las máscaras redondas de Android.
 - **2026-10-04 · Plantilla de apertura en Firestore (decisión del autor).** La plantilla con la que se abren las cuentas estaba en el código y parecía data quemada, que la prueba penaliza. Pasa a `templates/opening`, publicada desde el repo con `gcloud`, porque la CLI de Firebase no escribe documentos. El estimado inicial de 45 min no contemplaba cómo publicar el documento; se avisó y el autor eligió `gcloud`. Ver ADR-007.
+- **2026-10-05 · Cierre de calidad más amplio (pedido del autor).** El autor vio TODO de `flutter create` en los CHANGELOG de los paquetes y pidió que todo quedara bien. El inventario encontró más: LICENSE con TODO, el README del shell, plataformas web y de escritorio que no funcionaban, el TODO de firma de Gradle, secciones *Pendiente* en `deployment-operations.md` (entre ellas el runbook) y dependencias declaradas sin uso, que el grafo de arquitectura mostraba como reales. Se avisó que el paso pasaba de 1 a 2 h, y el autor decidió: licencia MIT, quitar web y escritorio, documentar la firma sin implementarla y limpiar las dependencias.
