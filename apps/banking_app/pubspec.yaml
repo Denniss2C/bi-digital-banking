@@ -18,7 +18,6 @@ dependencies:
   accounts: ^0.0.1
   notifications: ^0.0.1
   fx_rates: ^0.0.1
-  cupertino_icons: ^1.0.8
   firebase_core: ^4.15.0
   equatable: ^2.0.7
   dio: ^5.11.1
