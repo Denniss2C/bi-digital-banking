@@ -347,8 +347,14 @@ Se configuran en la consola; este repo no las automatiza.
 
 ### Verificarlo en la demo
 
-- **Crashlytics:** en **Perfil → Panel de depuración → Observabilidad**, "Enviar error de prueba" aparece en
-  Crashlytics del proyecto dev en minutos. "Forzar cierre" aparece al volver a abrir la app.
+- **Crashlytics,** en **Perfil → Panel de depuración → Observabilidad**:
+  - "Enviar error de prueba" guarda un error no fatal en el teléfono, y Crashlytics lo sube al volver a abrir la app;
+  - "Forzar cierre" cierra la app, y Android sube el crash en segundos, aunque no se vuelva a abrir;
+  - los dos aparecen en la consola (app Android dev) unos minutos después de subirse; los no fatales tienen su filtro
+    en *Tipo de evento*;
+  - para seguir la subida: `adb shell setprop log.tag.FirebaseCrashlytics VERBOSE` y
+    `adb logcat -s FirebaseCrashlytics TRuntime.CctTransportBackend`. Se ven el evento guardado, el reporte encolado y
+    la respuesta 200 de `crashlyticsreports-pa`.
 - **Analytics en tiempo real:** `adb shell setprop debug.firebase.analytics.app com.dennis.banking_app.dev`; los
   eventos se ven en **Analytics → DebugView**.
 - **Performance** procesa los datos con algunas horas de retraso: sirve para tendencias, no para la demo en vivo.
