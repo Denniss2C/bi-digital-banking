@@ -84,7 +84,7 @@ deploy-rules: ## Publish the Firestore security rules (needs `firebase login`)
 	firebase deploy --only firestore:rules --project $(FIREBASE_PROJECT)
 
 deploy-opening: ## Publish firebase/opening-template.json to Firestore (needs `gcloud auth login`)
-	cd $(APP_DIR) && dart run tool/opening_template.dart
+	cd $(APP_DIR) && dart run tool/opening_template.dart --project=$(FIREBASE_PROJECT)
 
 clean: ## Remove build outputs and coverage reports
 	$(MELOS) exec -- flutter clean
